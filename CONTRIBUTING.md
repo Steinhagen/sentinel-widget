@@ -1,6 +1,6 @@
 # Contributing to Sentinel
 
-Sentinel is a Plasma 6 applet and a thin frontend for the `vulnscan` service.
+Sentinel is a Plasma 6 applet and a thin frontend for the **Sentinel** service.
 The architecture and migration plan are in [docs/architecture.md](architecture.md);
 the backend contract is in [docs/status-schema.md](status-schema.md).
 

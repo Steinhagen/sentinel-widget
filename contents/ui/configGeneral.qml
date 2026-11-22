@@ -10,7 +10,7 @@ KCM.SimpleKCM {
     id: page
 
     property alias cfg_badgeMode: badgeModeCombo.currentValue
-    property alias cfg_vulnscanTrackerToken: tokenField.text
+    property alias cfg_sentinelTrackerToken: tokenField.text
 
     Kirigami.FormLayout {
         QQC2.ComboBox {
@@ -60,7 +60,7 @@ KCM.SimpleKCM {
             wrapMode: Text.WordWrap
             opacity: 0.7
             font: Kirigami.Theme.smallFont
-            text: i18n("The token is stored in this applet's configuration (only readable by you) and is used by the root scan service on its next run. It is optional: without it, every CVE still links to the Nixpkgs security tracker. Leave this empty to use a token installed at /var/lib/vulnscan/tracker-token, if any.")
+            text: i18n("The token is stored in this applet's configuration (only readable by you) and is used by the root scan service on its next run. It is optional: without it, every CVE still links to the Nixpkgs security tracker. Leave this empty to use a token installed at /var/lib/sentinel/tracker-token, if any.")
         }
     }
 }

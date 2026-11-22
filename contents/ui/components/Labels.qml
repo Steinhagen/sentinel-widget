@@ -638,7 +638,7 @@ QtObject {
         case "timeout":
             return i18n("The scan timed out; a late result will still be shown.");
         case "service-missing":
-            return i18n("The vulnscan service is not available.");
+            return i18n("The Sentinel scan service is not available.");
         default:
             return "";
         }

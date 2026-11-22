@@ -1,11 +1,11 @@
 import QtQml
 
-// Starts and queries the vulnscan systemd unit.
+// Starts and queries the Sentinel systemd unit.
 QtObject {
     id: service
 
     required property var runner
-    property string unit: "vulnscan.service"
+    property string unit: "sentinel.service"
     property bool active: false
 
     function isActiveState(state) {

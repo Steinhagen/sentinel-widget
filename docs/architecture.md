@@ -2,7 +2,7 @@
 
 **Status:** implemented. This document is kept as the design record and migration log.
 
-**Scope:** keep the current applet behavior and the `vulnscan` backend contract,
+**Scope:** keep the current applet behavior and the **Sentinel** backend contract,
 but replace the single 3,625-line `contents/ui/main.qml` with layers that can be
 tested, reviewed and extended independently.
 
@@ -86,9 +86,9 @@ it, and no way to prove that a change did not break an existing state.
 Treat this as the behavioral contract for the migration:
 
 - `metadata.json` id/name and KPackage layout.
-- `/var/lib/vulnscan/status.json`, `report.csv` and `last.log` paths.
-- `systemctl start --no-block vulnscan.service` and
-  `systemctl is-active vulnscan.service`.
+- `/var/lib/sentinel/status.json`, `report.csv` and `last.log` paths.
+- `systemctl start --no-block sentinel.service` and
+  `systemctl is-active sentinel.service`.
 - Status-file fallbacks: `vulnerabilities`/`top`, optional
   `severity_counts`, `packages_affected`, `scanned_at_epoch`,
   `scanned_at_iso`, legacy `scanned_at`.
@@ -736,7 +736,7 @@ Use two runners, each where it is strongest:
   and with `XMLHttpRequest` in QML (`QML_XHR_ALLOW_FILE_READ=1`), or use `.mjs`
   fixture modules if avoiding the env flag.
 - **Fakes:** `FakeRunner`, `FakeClock`, fake status source, fake settings. No
-  test reads `/var/lib/vulnscan`, runs `systemctl`, opens a URL or sleeps.
+  test reads `/var/lib/sentinel`, runs `systemctl`, opens a URL or sleeps.
 
 This was validated locally: qmltestrunner 6.12 loaded `.mjs` modules, imported
 Kirigami/Plasma components, and loaded a local JSON fixture with
@@ -1504,7 +1504,7 @@ make the old code delegate to it, test, then delete the old code.
 - Do not put `i18n`, `Kirigami`, `Plasmoid` or `Timer` in domain modules.
 - Do not make components read `root` or the applet's configuration.
 - Do not add C++/CMake solely to get tests; `.mjs` + qmltestrunner is enough.
-- Do not test against `/var/lib/vulnscan`, systemd or the network.
+- Do not test against `/var/lib/sentinel`, systemd or the network.
 - Do not copy every finding object for grouping; build rows once and precompute
   counts.
 - Do not reintroduce column resizing without a tested `TableColumns` module.

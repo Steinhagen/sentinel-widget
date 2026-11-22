@@ -5,7 +5,7 @@ into a compact security dashboard.
 
 > **Standalone source snapshot.** This repository contains the Plasma widget.
 > The scanner backend is not included; the widget reads the status file written
-> by the `vulnscan` service. See [Requirements](#requirements).
+> by the **Sentinel** service. See [Requirements](#requirements).
 
 ## Features
 
@@ -42,16 +42,16 @@ into a compact security dashboard.
 Sentinel is a frontend. It expects:
 
 - **KDE Plasma 6** and Qt 6.
-- A `vulnscan` backend that writes `/var/lib/vulnscan/status.json`.
-- A systemd unit named `vulnscan.service`; the widget starts it with
-  `systemctl start --no-block vulnscan.service` when **Scan now** is pressed.
+- A **Sentinel** backend that writes `/var/lib/sentinel/status.json`.
+- A systemd unit named `sentinel.service`; the widget starts it with
+  `systemctl start --no-block sentinel.service` when **Scan now** is pressed.
 
-> The `vulnscan` name in the service and `/var/lib/vulnscan` paths belongs to
-> the scanner backend; the applet itself is **Sentinel**
-> (`io.github.steinhagen.sentinel`).
+> The scanner backend and this applet share the **Sentinel** name. Until the
+> backend is updated to the same service and path names, the applet has no
+> report to display.
 
-The backend is part of the author's NixOS flake (`system/vulnscan.nix`,
-`system/vulnscan-status.py`) and is intentionally **not** copied into this
+The backend is part of the author's NixOS flake (`system/sentinel.nix`,
+`system/sentinel-status.py`) and is intentionally **not** copied into this
 widget repository. Without it the widget displays **Not scanned yet** and the
 **Scan now** button cannot produce data.
 
@@ -154,5 +154,5 @@ MIT — see [LICENSE](LICENSE).
 
 ## Credits
 
-The widget is part of the author's NixOS setup and depends on its `vulnscan`
+The widget is part of the author's NixOS setup and depends on its **Sentinel**
 scanner service. Built with KDE Plasma 6, Kirigami and Qt Quick.

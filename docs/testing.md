@@ -5,7 +5,7 @@ The test suite has two runners:
 - **Node** (`node --test`) for the pure `.mjs` domain modules.
 - **qmltestrunner** for QML services and state, with fake services.
 
-Both run without Plasma, a display server, `/var/lib/vulnscan`, systemd or the
+Both run without Plasma, a display server, `/var/lib/sentinel`, systemd or the
 network.
 
 ## Commands
@@ -88,7 +88,7 @@ TestCase {
 
 Use `FakeRunner.qml` to script command responses, `FakeClock.qml` to control
 time, and an in-memory `FakeStatusSource.qml` to feed status text. Never read
-`/var/lib/vulnscan`, call `systemctl`, open a URL or sleep in a test.
+`/var/lib/sentinel`, call `systemctl`, open a URL or sleep in a test.
 
 QML tests that import Kirigami or Plasma components need the Plasma QML import
 path. Run them against the Qt/Plasma minor version the applet targets.

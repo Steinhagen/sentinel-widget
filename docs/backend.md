@@ -1,15 +1,15 @@
 # Scanner backend contract
 
-Sentinel is only the Plasma frontend. The data comes from the `vulnscan`
+Sentinel is only the Plasma frontend. The data comes from the **Sentinel**
 backend and the applet expects this contract:
 
-- Status file: `/var/lib/vulnscan/status.json`
-- Scan trigger: `systemctl start --no-block vulnscan.service`
+- Status file: `/var/lib/sentinel/status.json`
+- Scan trigger: `systemctl start --no-block sentinel.service`
 - The file is written by the backend after a scan; the applet refreshes it
   periodically and after **Scan now**.
 
-The current backend lives in the author's NixOS flake (`system/vulnscan.nix`,
-`system/vulnscan-status.py`) and is not part of this widget repository.
+The current backend lives in the author's NixOS flake (`system/sentinel.nix`,
+`system/sentinel-status.py`) and is not part of this widget repository.
 
 At the time of writing, the relevant top-level fields are:
 

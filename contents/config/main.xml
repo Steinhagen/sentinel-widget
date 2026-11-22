@@ -9,7 +9,7 @@
     <entry name="badgeMode" type="String">
       <default>count</default>
     </entry>
-    <entry name="vulnscanTrackerToken" type="String">
+    <entry name="sentinelTrackerToken" type="String">
       <default></default>
     </entry>
   </group>

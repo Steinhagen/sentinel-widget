@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/Steinhagen/sentinel-widget/status.schema.json",
   "title": "Sentinel status.json",
-  "description": "Contract for the vulnscan status file consumed by the Sentinel applet.",
+  "description": "Contract for the Sentinel status file consumed by the Sentinel applet.",
   "type": "object",
   "required": ["schema_version", "state", "vulnerabilities"],
   "properties": {

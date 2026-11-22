@@ -17,6 +17,9 @@
   CVE, package + version, fix status, and the full dependency-origin chain.
   Removed the column header row, per-column filter row, severity chips, the
   detector column and column resizing.
+- Rename the backend contract from the old scanner name to Sentinel:
+  `/var/lib/sentinel`, `sentinel.service`, `system/sentinel.nix`,
+  `system/sentinel-status.py`, and the `sentinelTrackerToken` setting.
 - Add a grouped findings view with section headers for Priority, Package or
   Origin; every finding row keeps the flat two-line layout.
 - Add a **Group by** menu and a global plus/minus control to show or hide all

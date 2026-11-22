@@ -1,24 +1,24 @@
 # Scanner status contract
 
-Sentinel is a frontend. The `vulnscan` service writes the files the applet reads;
+Sentinel is a frontend. The **Sentinel** service writes the files the applet reads;
 the applet does not invoke the scanner directly.
 
 | File | Purpose |
 | --- | --- |
-| `/var/lib/vulnscan/status.json` | Latest scan result and tracker progress |
-| `/var/lib/vulnscan/report.csv` | Optional CSV report opened from the context menu |
-| `/var/lib/vulnscan/last.log` | Scan log opened from the context menu |
+| `/var/lib/sentinel/status.json` | Latest scan result and tracker progress |
+| `/var/lib/sentinel/report.csv` | Optional CSV report opened from the context menu |
+| `/var/lib/sentinel/last.log` | Scan log opened from the context menu |
 
 The applet starts the service with:
 
 ```sh
-systemctl start --no-block vulnscan.service
+systemctl start --no-block sentinel.service
 ```
 
 and checks it with:
 
 ```sh
-systemctl is-active vulnscan.service
+systemctl is-active sentinel.service
 ```
 
 ## Top-level `status.json`

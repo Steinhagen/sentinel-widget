@@ -10,16 +10,16 @@ import "state"
 PlasmoidItem {
     id: applet
 
-    // Written by the vulnscan systemd service.
-    readonly property string statusFile: "/var/lib/vulnscan/status.json"
-    readonly property string reportFile: "/var/lib/vulnscan/report.csv"
-    readonly property string logFile: "/var/lib/vulnscan/last.log"
+    // Written by the Sentinel scan service.
+    readonly property string statusFile: "/var/lib/sentinel/status.json"
+    readonly property string reportFile: "/var/lib/sentinel/report.csv"
+    readonly property string logFile: "/var/lib/sentinel/last.log"
 
     // Services are the only place with side effects.
     AppSettings {
         id: appletSettings
         badgeMode: Plasmoid.configuration.badgeMode || "count"
-        trackerToken: Plasmoid.configuration.vulnscanTrackerToken || ""
+        trackerToken: Plasmoid.configuration.sentinelTrackerToken || ""
     }
 
     CommandRunner { id: commandRunner }
@@ -29,7 +29,7 @@ PlasmoidItem {
         path: applet.statusFile
     }
     ScanService {
-        id: vulnscanService
+        id: sentinelService
         runner: commandRunner
     }
     TrackerClient {
@@ -45,7 +45,7 @@ PlasmoidItem {
     ScanStore {
         id: scanStore
         source: statusFileSource
-        scanService: vulnscanService
+        scanService: sentinelService
         trackerClient: trackerClientService
         clock: appletClock
         reportFile: applet.reportFile
