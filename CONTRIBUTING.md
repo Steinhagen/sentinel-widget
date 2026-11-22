@@ -71,8 +71,8 @@ include before/after screenshots or a short manual QA note.
 
 ## Translations
 
-User-facing strings use `i18n`, `i18nc` or `i18np` in QML. Run the KDE
-translation extraction (`Messages.sh`) when adding strings, and test a
+User-facing strings use `i18n`, `i18nc` or `i18np` in QML. Run
+`./Messages.sh` when adding strings (it writes `po/sentinel.pot`), and test a
 pseudo-locale for elision and layout. Do not add translated strings to
 `.mjs` files.
 

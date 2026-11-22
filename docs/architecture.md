@@ -1,6 +1,6 @@
 # Sentinel architecture
 
-**Status:** proposal, not implemented yet.
+**Status:** implemented. This document is kept as the design record and migration log.
 
 **Scope:** keep the current applet behavior and the `vulnscan` backend contract,
 but replace the single 3,625-line `contents/ui/main.qml` with layers that can be
@@ -15,6 +15,9 @@ in one pass.
 ---
 
 ## 1. Why the current shape hurts
+
+> Historical starting point: the sections below record the 3,625-line monolith
+> and the refactor that replaced it. Post-refactor metrics are in Appendix A.
 
 `contents/ui/main.qml` is not just large. It mixes concerns that change for
 different reasons:
@@ -167,7 +170,7 @@ Allowed dependencies:
 ```
 contents/
   config/
-    main.xml                     # badgeMode, token (columnWidths removed later)
+    main.xml                     # badgeMode, tracker token
     config.qml
   ui/
     main.qml                     # composition root, target ~150 lines
@@ -307,7 +310,7 @@ same desktop must not share filters or report state.
 
 | Module | Responsibility | Key exports |
 | --- | --- | --- |
-| `types.mjs` | JSDoc typedefs, frozen enums | `ScanState`, `SeverityBand`, `FixStage`, `FixBucket`, `TrackerState`, `ScanPhase`, `LoadError` |
+| `types.mjs` | JSDoc typedefs, frozen enums | `SeverityBand`, `FixStage`, `FixBucket`, `TrackerState` |
 | `status.mjs` | Parse and normalize `status.json`; tolerate legacy shapes; compute fingerprints | `parseStatusText`, `normalizeReport`, `normalizeFinding`, `normalizeTracker`, `fingerprint` |
 | `severity.mjs` | CVSS score checks and bands; one-decimal formatting | `hasScore`, `bandOf`, `formatScore` |
 | `fix.mjs` | The whole fix precedence table, branch rows, master fallback, fix URL, next-step token | `classify`, `masterStatus`, `branchRows`, `fixUrl`, `isUnstableChannel` |
@@ -705,12 +708,9 @@ Keep the behavior, but make the ownership explicit:
 
 ### 6.8 Delete the column-width subsystem
 
-The changelog says column resizing was removed, but `columnDefaults`,
-`columnMinimums`, `columnWidths`, `columnPixels`, eight width aliases,
-`loadColumnWidths`, `setColumnWidth`, `saveColumnWidths`, `resetColumnWidths`,
-`columnWidth`, the `Component.onCompleted` hook and the `columnWidths` KConfig
-entry remain. None of it reaches the current table, which uses fixed widths in
-`listHeaderColumns`.
+The old column-width subsystem was removed during the refactor: the
+`columnWidths` KConfig entry, defaults, persistence, aliases and drag-handle
+hooks are gone. The current table uses fixed widths in `listHeaderColumns`.
 
 Remove the code, keep the KConfig key present for one release if downgrade
 compatibility matters, then remove it. Do not reimplement resizing until there
@@ -1300,7 +1300,7 @@ make the old code delegate to it, test, then delete the old code.
 | 5. Cleanup/hardening | M | low | error states, accessibility |
 | 6. Future work | ongoing | varies | new features |
 
-### Phase 0 — Safety net (two small fixes)
+### Phase 0 — Safety net (completed)
 
 **Deliverables**
 
@@ -1321,7 +1321,7 @@ make the old code delegate to it, test, then delete the old code.
 - The current warning count is recorded, and new warnings fail CI.
 - Only the two bug fixes above are user-visible; no layout or feature change.
 
-### Phase 1 — Extract the pure domain
+### Phase 1 — Extract the pure domain (completed)
 
 **Steps**
 
@@ -1348,7 +1348,7 @@ make the old code delegate to it, test, then delete the old code.
 - Manual smoke test shows no visual change.
 - No `i18n`, QML or I/O in `domain/`.
 
-### Phase 2 — Extract services and the scan lifecycle
+### Phase 2 — Extract services and the scan lifecycle (completed)
 
 **Steps**
 
@@ -1370,7 +1370,7 @@ make the old code delegate to it, test, then delete the old code.
 - Manual smoke test includes: start scan, shell restart mid-scan, tracker
   progress, timeout, start failure.
 
-### Phase 3 — Extract state and view models
+### Phase 3 — Extract state and view models (completed)
 
 **Steps**
 
@@ -1388,7 +1388,7 @@ make the old code delegate to it, test, then delete the old code.
 - Counts and visible count agree with the domain tests.
 - Manual smoke test on search, filters, package/origin drill-down and grouping.
 
-### Phase 4 — Extract UI components
+### Phase 4 — Extract UI components (completed)
 
 **Steps**
 
@@ -1413,7 +1413,7 @@ make the old code delegate to it, test, then delete the old code.
   fixes are already in).
 - Component tests cover row rendering, card counts, empty states and signals.
 
-### Phase 5 — Cleanup and hardening
+### Phase 5 — Cleanup and hardening (completed)
 
 **Steps**
 
@@ -1440,7 +1440,7 @@ make the old code delegate to it, test, then delete the old code.
 - Error states are visible and actionable.
 - Light/dark, high-DPI, compact, RTL and pseudo-locale checks pass.
 
-### Phase 6 — Future work (after the baseline is healthy)
+### Phase 6 — Future work (partially implemented)
 
 - JSON Schema for `status.json` and contract tests against the backend.
 - Split findings and tracker progress into separate files (different update
@@ -1502,9 +1502,11 @@ make the old code delegate to it, test, then delete the old code.
 
 ---
 
-## Appendix A — Current metrics
+## Appendix A — Metrics
 
-Measured on this checkout:
+### Starting point (pre-refactor)
+
+Measured before the refactor:
 
 - `contents/ui/main.qml`: 3,625 lines, 152 KB.
 - 201 top-level properties/functions; 82 functions.
@@ -1526,7 +1528,27 @@ Measured on this checkout:
   - simulated section count: ~24 ms (O(n²)).
   - These are Node 24 numbers, indicative rather than QML-engine exact.
 
-## Appendix B — Concrete defects to fix under tests
+
+### Post-refactor
+
+- `contents/ui/main.qml`: 130 lines, composition root only.
+- 10 domain modules, 8 services, 2 state objects and 16 components.
+- 55 Node domain tests, 33 qmltestrunner service/state tests.
+- qmllint (Qt 6.12): 175 warnings, down from 752 unqualified accesses,
+  24 missing properties and 6 unresolved types; the remaining warnings are
+  mostly context properties (`Plasmoid`, `i18n`, `Qt`) and `Loader.item`
+  dynamic properties.
+- Idle polling reads `status.json` only when `stat -c '%y:%s'` changes.
+- Grouping is a single O(n) pass; filtering and sorting use precomputed rows.
+- The column-width config key and all unreferenced legacy members are gone.
+- The known tracker summary, compact-layout, stale-fingerprint and polling-gate
+  defects are fixed and covered by the new tests.
+
+
+## Appendix B — Concrete defects found and fixed
+
+These were found during the audit; the fixes and their regression tests are in
+the refactor commits.
 
 1. **Duplicate `var pending`** in `trackerSummaryText` (lines 459 and 462).
    The second declaration (fix progress) overwrites the tracker pending count,
@@ -1552,8 +1574,7 @@ Measured on this checkout:
    `sourceName.indexOf(...)`; concurrent or duplicate commands can lose
    callbacks, and error handling depends on command text. Use `CommandRunner`
    callbacks.
-7. **Dead column resizing.** The changelog says it was removed, but the code
-   and config entry remain. Remove them.
+7. **Dead column resizing.** The dead code and config entry were removed during the refactor.
 8. **Write-only `filterRowVisible`.** It is set by `showPackage`/`showOrigin`
    and never read. Remove it or use it.
 9. **In-place tracker map + revision counter.** `trackerChecked[cve] = true`

@@ -41,14 +41,14 @@ QtObject {
     }
 
     function readDirect() {
-        const command = "cat -- " + source.shellQuote(source.path);
+        const command = "cat -- " + source.shellQuote(source.path) + " 2>&1";
         source.runner.run(command, function (exitCode, stdout, stderr) {
             if (exitCode === 0) {
                 source.loaded(String(stdout || ""), "");
                 return;
             }
             source.lastStat = "";
-            source.loaded("", source.errorFor(stderr));
+            source.loaded("", source.errorFor(String(stderr || stdout || "")));
         });
     }
 

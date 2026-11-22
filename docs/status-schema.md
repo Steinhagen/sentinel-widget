@@ -23,6 +23,8 @@ systemctl is-active vulnscan.service
 
 ## Top-level `status.json`
 
+A machine-readable JSON Schema is in [status.schema.json](status.schema.json).
+
 Current schema version: **7**.
 
 | Field | Type | Notes |
@@ -93,7 +95,6 @@ consecutive nodes and a trailing version suffix are normalized for display.
 | `master_range` | string | Affected range used for a version verdict |
 | `master_url` | string | nixpkgs source link |
 | `github_issue_url` | string/null | Fix/bump issue |
-| `issue_state` | string | Issue state |
 | `fix_state` | string | `fixed`, `in-staging`, `in-master`, `in-release`, `issue-open` |
 | `fix_branch` | string | Branch that carries the fix |
 | `fix_version` | string | Fixed version |

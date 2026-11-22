@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Steinhagen/sentinel-widget/status.schema.json",
+  "title": "Sentinel status.json",
+  "description": "Contract for the vulnscan status file consumed by the Sentinel applet.",
+  "type": "object",
+  "required": ["schema_version", "state", "vulnerabilities"],
+  "properties": {
+    "schema_version": { "type": "number" },
+    "state": { "enum": ["secure", "vulnerable", "warn", "unknown"] },
+    "findings": { "type": "number", "minimum": 0 },
+    "max_severity": { "type": "number", "minimum": 0 },
+    "packages_affected": { "type": "number", "minimum": 0 },
+    "severity_counts": { "$ref": "#/$defs/severityCounts" },
+    "scanned_at": { "type": "string" },
+    "scanned_at_iso": { "type": "string" },
+    "scanned_at_epoch": { "type": "number" },
+    "error": { "type": ["string", "null"] },
+    "tracker": { "$ref": "#/$defs/trackerProgress" },
+    "vulnerabilities": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "severityCounts": {
+      "type": "object",
+      "properties": {
+        "critical": { "type": "number", "minimum": 0 },
+        "high": { "type": "number", "minimum": 0 },
+        "medium": { "type": "number", "minimum": 0 },
+        "low": { "type": "number", "minimum": 0 },
+        "unknown": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "finding": {
+      "type": "object",
+      "required": ["id", "package"],
+      "properties": {
+        "id": { "type": "string" },
+        "package": { "type": "string" },
+        "version": { "type": "string" },
+        "severity": { "type": ["number", "null"] },
+        "url": { "type": "string" },
+        "scanners": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "string" },
+        "patch_state": { "type": "string" },
+        "origins": { "$ref": "#/$defs/origins" },
+        "tracker": { "$ref": "#/$defs/findingTracker" }
+      },
+      "additionalProperties": true
+    },
+    "origins": {
+      "type": "object",
+      "properties": {
+        "introduced_by": { "type": "array", "items": { "type": "string" } },
+        "chain": { "type": "array", "items": { "type": "string" } },
+        "chains": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "string" } }
+        },
+        "store_paths": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "findingTracker": {
+      "type": ["object", "null"],
+      "properties": {
+        "found": { "type": "boolean" },
+        "status": { "type": "string" },
+        "issue": { "type": "string" },
+        "issue_state": { "type": "string" },
+        "url": { "type": "string" },
+        "master_status": { "enum": ["unaffected", "affected", "unknown"] },
+        "master_version": { "type": "string" },
+        "master_status_source": { "type": "string" },
+        "master_range": { "type": "string" },
+        "master_url": { "type": "string" },
+        "github_issue_url": { "type": ["string", "null"] },
+        "fix_state": { "enum": ["fixed", "in-staging", "in-master", "in-release", "issue-open"] },
+        "fix_branch": { "type": "string" },
+        "fix_version": { "type": "string" },
+        "fix_url": { "type": "string" },
+        "fix_branches": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/fixBranch" }
+        },
+        "system_channel": { "type": "string" },
+        "system_known": { "type": "boolean" },
+        "suggestion_packages": { "type": "array", "items": { "type": "string" } },
+        "affected_products": { "type": "array" }
+      },
+      "additionalProperties": true
+    },
+    "fixBranch": {
+      "type": "object",
+      "required": ["name", "state"],
+      "properties": {
+        "name": { "type": "string" },
+        "version": { "type": "string" },
+        "kind": { "enum": ["channel", "branch", "staging", "release"] },
+        "state": { "enum": ["unaffected", "affected", "unknown"] },
+        "url": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "trackerProgress": {
+      "type": ["object", "null"],
+      "properties": {
+        "available": { "type": "boolean" },
+        "complete": { "type": "boolean" },
+        "phase": { "enum": ["pending", "waiting", "packages", "cves", "issues", "probes", "done"] },
+        "updated_at": { "type": "string" },
+        "cves": { "type": "number" },
+        "queried": { "type": "number" },
+        "failed": { "type": "number" },
+        "tracked": { "type": "number" },
+        "pending": { "type": "number" },
+        "rejected": { "type": "number" },
+        "unaffected": { "type": "number" },
+        "missing": { "type": "number" },
+        "system_channel": { "type": "string" },
+        "fix_in_progress": { "type": "number" },
+        "fix_staged": { "type": "number" },
+        "fix_available": { "type": "number" },
+        "total_cves": { "type": "number" },
+        "total_issues": { "type": "number" },
+        "issues_checked": { "type": "number" },
+        "issue_failed": { "type": "number" },
+        "total_packages": { "type": "number" },
+        "packages_checked": { "type": "number" },
+        "package_failed": { "type": "number" },
+        "total_probes": { "type": "number" },
+        "probes_checked": { "type": "number" },
+        "probes_failed": { "type": "number" },
+        "fallback_total": { "type": "number" },
+        "fallback_done": { "type": "number" },
+        "fallback_failed": { "type": "number" },
+        "throttled": { "type": "boolean" },
+        "auth_failed": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  }
+}

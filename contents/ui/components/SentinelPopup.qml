@@ -23,7 +23,7 @@ PlasmaExtras.Representation {
         if (!root.store || !root.vm) {
             return "";
         }
-        if (root.vm.loadError.length > 0) {
+        if (root.vm.loadError.length > 0 && root.store.hasReport) {
             return root.labels.loadErrorText(root.vm.loadError);
         }
         if (root.store.scanError.length > 0) {

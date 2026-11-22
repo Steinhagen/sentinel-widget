@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Refactor the applet into layered `domain` (pure `.mjs`), `services`,
+  `state` and `components` modules; `main.qml` is now a ~130-line composition
+  root instead of a 3,625-line monolith.
+- Add 55 Node domain tests, 33 qmltestrunner service/state tests, sanitized
+  v7/legacy fixtures, a 2,000-row performance budget and CI checks.
+- Skip reading `status.json` when its mtime/size is unchanged.
+- Add explicit load-error, scan-error and newer-schema states.
+- Remove the dead column-width configuration and unused legacy members.
+- Fix the tracker pending count, compact-layout inset, stale tracker
+  fingerprints and tracker polling gate.
+
 - Replace the wide column table with a two-line findings list: CVSS score,
   CVE, package + version, fix status, and the full dependency-origin chain.
   Removed the column header row, per-column filter row, severity chips, the

@@ -124,11 +124,14 @@ line under the title for the About/help text.
 
 ## Development
 
-The target layered architecture, module boundaries, test strategy and phased
-migration plan are documented in [docs/architecture.md](docs/architecture.md).
+The layered architecture and module boundaries are documented in
+[docs/architecture.md](docs/architecture.md); the backend contract is in
+[docs/status-schema.md](docs/status-schema.md) and the test guide is in
+[docs/testing.md](docs/testing.md).
 
 ```bash
-qmllint contents/ui/main.qml
+nix develop
+./scripts/check.sh
 kpackagetool6 --type Plasma/Applet --install .
 ```
 
