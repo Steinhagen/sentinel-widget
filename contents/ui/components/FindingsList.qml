@@ -28,6 +28,7 @@ Rectangle {
     signal copyRequested(string text)
     signal openMasterSourceRequested(string url)
     signal nixpkgsSearchRequested(string packageName)
+    signal ignoreRequested(var finding)
     signal holdUpdatesChanged(bool held)
     signal sortRequested(string key)
     signal groupToggleRequested(string groupKey)
@@ -248,6 +249,7 @@ Rectangle {
             onCopyRequested: (text) => root.copyRequested(text)
             onOpenMasterSourceRequested: (url) => root.openMasterSourceRequested(url)
             onNixpkgsSearchRequested: (name) => root.nixpkgsSearchRequested(name)
+            onIgnoreRequested: (finding) => root.ignoreRequested(finding)
         }
     }
 

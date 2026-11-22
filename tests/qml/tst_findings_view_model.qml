@@ -259,6 +259,24 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_locally_ignored_findings_are_hidden() {
+        const env = testCase.makeVm();
+        env.vm.ignoredPairs = [{ cve: "CVE-2021-35049", package: "network" }];
+        compare(env.vm.totalCount, 12);
+        compare(env.vm.hiddenCount, 1);
+        verify(!env.vm.rows.some(row => row.id === "CVE-2021-35049"));
+
+        // Local ignores survive disabling the triage verdicts.
+        env.vm.triageEnabled = false;
+        compare(env.vm.totalCount, 12);
+        compare(env.vm.hiddenCount, 1);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_triage_hides_suppressed_findings() {
         const env = testCase.makeVm();
         env.store.triage = Triage.parseTriageText(JSON.stringify({

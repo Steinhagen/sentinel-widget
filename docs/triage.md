@@ -154,6 +154,17 @@ Two guards keep the list from hiding something real:
 - a malformed ignore file is reported and ignored as a whole, rather than
   silently dropping entries.
 
+## Ignoring from the applet
+
+The row context menu has **Ignore this finding (false positive)**. It stores the
+CVE + package pair in the applet configuration (`triageIgnore`) and hides the
+row immediately; the settings page shows the count and a **Restore all**
+button. This list is local to the applet, survives disabling **Triage
+verdicts**, and is separate from the root-owned
+`/var/lib/sentinel/triage-ignore.json` list used by the scan service — use the
+file when the dismissal should apply to every consumer of the report, and the
+menu when you are triaging interactively.
+
 ## In the widget
 
 The applet reads the report as a sidecar next to the status file:

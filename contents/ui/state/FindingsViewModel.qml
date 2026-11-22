@@ -15,6 +15,8 @@ QtObject {
 
     // Bound to the widget setting in main.qml.
     property bool triageEnabled: true
+    // { cve, package } pairs the user ignored from the applet.
+    property var ignoredPairs: []
 
     property string searchText: ""
     property string severityBand: ""
@@ -49,7 +51,8 @@ QtObject {
         if (!source) {
             return [];
         }
-        return Triage.visibleFindings(source, vm.triage, vm.triageEnabled);
+        return Triage.visibleFindings(source, vm.triage, vm.triageEnabled,
+            vm.ignoredPairs);
     }
 
     readonly property int hiddenCount: {
@@ -58,7 +61,8 @@ QtObject {
         if (revision < 0 || !source) {
             return 0;
         }
-        return Triage.suppressedCount(source, vm.triage, vm.triageEnabled);
+        return Triage.suppressedCount(source, vm.triage, vm.triageEnabled,
+            vm.ignoredPairs);
     }
 
     readonly property var filters: ({
@@ -189,6 +193,7 @@ QtObject {
     onSystemChannelChanged: vm.rowsReset(true)
     onTriageRevisionChanged: vm.rowsReset(true)
     onTriageEnabledChanged: vm.rowsReset(true)
+    onIgnoredPairsChanged: vm.rowsReset(true)
 
     function buildAllRows() {
         const revision = vm.checkedRevision;

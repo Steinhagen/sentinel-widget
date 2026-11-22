@@ -606,6 +606,10 @@ msgid "%1 of %2"
 msgstr ""
 
 #: contents/ui/components/Labels.qml
+msgid "Ignore this finding (false positive)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
 msgid "%1 false positive hidden"
 msgid_plural "%1 false positives hidden"
 msgstr[0] ""
@@ -659,7 +663,7 @@ msgstr ""
 msgid "Unknown package"
 msgstr ""
 
-#: contents/ui/components/Labels.qml
+#: contents/ui/components/Labels.qml contents/ui/configGeneral.qml
 msgid "%1 finding"
 msgid_plural "%1 findings"
 msgstr[0] ""
@@ -947,6 +951,22 @@ msgstr ""
 
 #: contents/ui/configGeneral.qml
 msgid "Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible."
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Ignored findings:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "None"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Restore all"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Use “Ignore this finding” in a row's context menu to hide a finding the scanners matched to the wrong package. Ignored findings stay hidden until you restore them here."
 msgstr ""
 
 #: contents/ui/configGeneral.qml

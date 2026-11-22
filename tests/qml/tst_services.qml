@@ -135,6 +135,15 @@ TestCase {
         compare(settings.effectiveBadgeMode, "count");
         settings.destroy();
 
+        const ignores = testCase.createService("AppSettings.qml", {
+            triageIgnore: '[{"cve":"CVE-2021-24028","package":"thrift"}]'
+        });
+        compare(ignores.ignoredPairs.length, 1);
+        compare(ignores.ignoredPairs[0].package, "thrift");
+        compare(JSON.parse(ignores.withIgnoredPair("CVE-2021-24028", "thrift")).length, 1);
+        compare(JSON.parse(ignores.withIgnoredPair("CVE-2026-1", "ffmpeg")).length, 2);
+        ignores.destroy();
+
         const clock = testCase.createService("Clock.qml", { running: false });
         clock.now = 42;
         compare(clock.now, 42);

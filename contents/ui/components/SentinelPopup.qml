@@ -13,6 +13,7 @@ PlasmaExtras.Representation {
 
     signal scanRequested()
     signal settingsRequested()
+    signal ignoreFindingRequested(var finding)
 
     readonly property bool compactLayout: height < Kirigami.Units.gridUnit * 22
     readonly property real cardsWidth: Kirigami.Units.gridUnit * (15.5 + 9.0 + 9.0)
@@ -205,6 +206,7 @@ PlasmaExtras.Representation {
                 onCopyRequested: (text) => root.store.copyText(text)
                 onOpenMasterSourceRequested: (url) => root.store.openUrl(url)
                 onNixpkgsSearchRequested: (name) => root.store.openNixpkgsSearch(name)
+                onIgnoreRequested: (finding) => root.ignoreFindingRequested(finding)
                 onHoldUpdatesChanged: (held) => root.store.setHoldUpdates(held)
             }
 

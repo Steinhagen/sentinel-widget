@@ -15,5 +15,8 @@
     <entry name="triageEnabled" type="Bool">
       <default>true</default>
     </entry>
+    <entry name="triageIgnore" type="String">
+      <default>[]</default>
+    </entry>
   </group>
 </kcfg>

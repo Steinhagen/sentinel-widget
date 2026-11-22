@@ -14,6 +14,7 @@ QQC2.Menu {
     signal openMasterSourceRequested(string url)
     signal copyRequested(string text)
     signal nixpkgsSearchRequested(string packageName)
+    signal ignoreRequested(var finding)
 
     QQC2.MenuItem {
         text: root.labels ? root.labels.showAllForPackage(root.rowData ? root.rowData.package : "") : ""
@@ -78,5 +79,14 @@ QQC2.Menu {
         icon.name: "edit-find"
         enabled: !!(root.rowData && root.rowData.package)
         onTriggered: root.nixpkgsSearchRequested(root.rowData.package)
+    }
+
+    QQC2.MenuSeparator {}
+
+    QQC2.MenuItem {
+        text: root.labels ? root.labels.ignoreFindingText() : ""
+        icon.name: "edit-delete"
+        enabled: !!(root.rowData && root.rowData.id && root.rowData.package)
+        onTriggered: root.ignoreRequested(root.rowData)
     }
 }

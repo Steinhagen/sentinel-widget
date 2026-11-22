@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+    isIgnored,
     isVerdict,
     keyOf,
     parseTriageText,
@@ -117,4 +118,34 @@ test("only suppressed findings are removed", () => {
         visible.map((finding) => finding.id),
         ["CVE-2021-35049", "CVE-2026-2"],
     );
+});
+
+test("a pair ignored from the applet is suppressed without a report", () => {
+    const findings = [
+        { id: "CVE-2021-24028", package: "thrift", version: "0.25.0" },
+        { id: "CVE-2026-1", package: "ffmpeg", version: "9.0.2" },
+    ];
+    const pairs = [{ cve: "CVE-2021-24028", package: "thrift" }];
+
+    assert.equal(isIgnored(findings[0], pairs), true);
+    assert.equal(isIgnored({ id: "CVE-2021-24028", package: "apache-thrift" }, pairs), false);
+    assert.equal(isIgnored(findings[1], pairs), false);
+    assert.equal(isIgnored(findings[0], []), false);
+
+    assert.equal(visibleFindings(findings, null, true, pairs).length, 1);
+    assert.equal(suppressedCount(findings, null, true, pairs), 1);
+    // A manual ignore is an explicit user decision: it holds even when the
+    // triage-verdict setting is off.
+    assert.equal(visibleFindings(findings, null, false, pairs).length, 1);
+    assert.equal(suppressedCount(findings, null, false, pairs), 1);
+});
+
+test("ignored pairs and report verdicts hide together", () => {
+    const parsed = parseTriageText(JSON.stringify(report));
+    const pairs = [{ cve: "CVE-2021-24028", package: "thrift" }];
+    const findings = report.findings.concat([
+        { id: "CVE-2021-24028", package: "thrift", version: "0.25.0" },
+    ]);
+    assert.equal(suppressedCount(findings, parsed, true, pairs), 2);
+    assert.equal(visibleFindings(findings, parsed, true, pairs).length, 2);
 });

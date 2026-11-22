@@ -22,6 +22,7 @@ PlasmaComponents3.ItemDelegate {
     signal copyRequested(string text)
     signal openMasterSourceRequested(string url)
     signal nixpkgsSearchRequested(string packageName)
+    signal ignoreRequested(var finding)
 
     readonly property var fix: root.rowData ? root.rowData.fix : null
     readonly property string fixText: root.rowData && root.labels
@@ -309,5 +310,6 @@ PlasmaComponents3.ItemDelegate {
         onOpenMasterSourceRequested: (url) => root.openMasterSourceRequested(url)
         onCopyRequested: (text) => root.copyRequested(text)
         onNixpkgsSearchRequested: (packageName) => root.nixpkgsSearchRequested(packageName)
+        onIgnoreRequested: (finding) => root.ignoreRequested(finding)
     }
 }

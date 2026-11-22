@@ -12,6 +12,22 @@ KCM.SimpleKCM {
     property alias cfg_badgeMode: badgeModeCombo.currentValue
     property alias cfg_sentinelTrackerToken: tokenField.text
     property alias cfg_triageEnabled: triageCheck.checked
+    property alias cfg_triageIgnore: ignoreState.value
+
+    // Non-visual holder so the page can edit the ignore list.
+    QtObject {
+        id: ignoreState
+        property string value: "[]"
+    }
+
+    function ignoredCount() {
+        try {
+            const list = JSON.parse(ignoreState.value || "[]");
+            return Array.isArray(list) ? list.length : 0;
+        } catch (error) {
+            return 0;
+        }
+    }
 
     Kirigami.FormLayout {
         QQC2.ComboBox {
@@ -43,6 +59,32 @@ KCM.SimpleKCM {
             opacity: 0.7
             font: Kirigami.Theme.smallFont
             text: i18n("Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible.")
+        }
+
+        RowLayout {
+            Kirigami.FormData.label: i18n("Ignored findings:")
+
+            PlasmaComponents3.Label {
+                text: page.ignoredCount() === 0
+                    ? i18n("None")
+                    : i18np("%1 finding", "%1 findings", page.ignoredCount())
+            }
+
+            PlasmaComponents3.Button {
+                text: i18n("Restore all")
+                icon.name: "edit-undo"
+                enabled: page.ignoredCount() > 0
+                onClicked: ignoreState.value = "[]"
+            }
+        }
+
+        PlasmaComponents3.Label {
+            Layout.fillWidth: true
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 30
+            wrapMode: Text.WordWrap
+            opacity: 0.7
+            font: Kirigami.Theme.smallFont
+            text: i18n("Use “Ignore this finding” in a row's context menu to hide a finding the scanners matched to the wrong package. Ignored findings stay hidden until you restore them here.")
         }
 
         RowLayout {

@@ -113,34 +113,61 @@ export function reasonsOf(finding, triage) {
     return entry ? entry.reasons.slice() : [];
 }
 
-export function isSuppressed(finding, triage, enabled) {
+/** Whether the user ignored this finding from the applet. */
+export function isIgnored(finding, ignoredPairs) {
+    if (!finding || !Array.isArray(ignoredPairs) || ignoredPairs.length === 0) {
+        return false;
+    }
+    for (let i = 0; i < ignoredPairs.length; ++i) {
+        const pair = ignoredPairs[i];
+        if (pair
+                && stringOf(pair.cve) === stringOf(finding.id)
+                && stringOf(pair.package) === stringOf(finding.package)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function isSuppressed(finding, triage, enabled, ignoredPairs) {
+    if (isIgnored(finding, ignoredPairs)) {
+        return true;
+    }
     return enabled === true
         && verdictOf(finding, triage) === TriagedVerdict.SUPPRESSED;
 }
 
 /** The findings to display, honoring the triage setting. */
-export function visibleFindings(findings, triage, enabled) {
+export function visibleFindings(findings, triage, enabled, ignoredPairs) {
     const source = arrayOf(findings);
-    if (!enabled || !triage) {
+    const hasIgnores = Array.isArray(ignoredPairs) && ignoredPairs.length > 0;
+    if (enabled !== true && !hasIgnores) {
+        return source;
+    }
+    if (!triage && !hasIgnores) {
         return source;
     }
     const visible = [];
     for (let i = 0; i < source.length; ++i) {
-        if (!isSuppressed(source[i], triage, true)) {
+        if (!isSuppressed(source[i], triage, true, ignoredPairs)) {
             visible.push(source[i]);
         }
     }
     return visible;
 }
 
-export function suppressedCount(findings, triage, enabled) {
+export function suppressedCount(findings, triage, enabled, ignoredPairs) {
     const source = arrayOf(findings);
-    if (!enabled || !triage) {
+    const hasIgnores = Array.isArray(ignoredPairs) && ignoredPairs.length > 0;
+    if (enabled !== true && !hasIgnores) {
+        return 0;
+    }
+    if (!triage && !hasIgnores) {
         return 0;
     }
     let count = 0;
     for (let i = 0; i < source.length; ++i) {
-        if (isSuppressed(source[i], triage, true)) {
+        if (isSuppressed(source[i], triage, true, ignoredPairs)) {
             count += 1;
         }
     }

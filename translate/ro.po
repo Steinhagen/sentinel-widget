@@ -624,6 +624,10 @@ msgid "%1 of %2"
 msgstr "%1 din %2"
 
 #: contents/ui/components/Labels.qml
+msgid "Ignore this finding (false positive)"
+msgstr "Ignoră această constatare (pozitiv fals)"
+
+#: contents/ui/components/Labels.qml
 msgid "%1 false positive hidden"
 msgid_plural "%1 false positives hidden"
 msgstr[0] "%1 pozitiv fals ascuns"
@@ -678,7 +682,7 @@ msgstr "Constatări"
 msgid "Unknown package"
 msgstr "Pachet necunoscut"
 
-#: contents/ui/components/Labels.qml
+#: contents/ui/components/Labels.qml contents/ui/configGeneral.qml
 msgid "%1 finding"
 msgid_plural "%1 findings"
 msgstr[0] "%1 constatare"
@@ -970,6 +974,22 @@ msgstr "Ascunde constatările clasificate drept pozitive false"
 #: contents/ui/configGeneral.qml
 msgid "Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible."
 msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse. Verdictele provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Constatările pe care nu le-a putut verifica rămân vizibile."
+
+#: contents/ui/configGeneral.qml
+msgid "Ignored findings:"
+msgstr "Constatări ignorate:"
+
+#: contents/ui/configGeneral.qml
+msgid "None"
+msgstr "Niciuna"
+
+#: contents/ui/configGeneral.qml
+msgid "Restore all"
+msgstr "Restaurează tot"
+
+#: contents/ui/configGeneral.qml
+msgid "Use “Ignore this finding” in a row's context menu to hide a finding the scanners matched to the wrong package. Ignored findings stay hidden until you restore them here."
+msgstr "Folosiți „Ignoră această constatare” din meniul contextual al unui rând pentru a ascunde o constatare pe care scanerele au asociat-o pachetului greșit. Constatările ignorate rămân ascunse până când le restaurați aici."
 
 #: contents/ui/configGeneral.qml
 msgid "Tracker API token:"

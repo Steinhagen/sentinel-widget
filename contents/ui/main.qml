@@ -21,6 +21,7 @@ PlasmoidItem {
         id: appletSettings
         badgeMode: Plasmoid.configuration.badgeMode || "count"
         trackerToken: Plasmoid.configuration.sentinelTrackerToken || ""
+        triageIgnore: Plasmoid.configuration.triageIgnore || "[]"
         triageEnabled: Plasmoid.configuration.triageEnabled !== false
     }
 
@@ -69,6 +70,7 @@ PlasmoidItem {
         store: scanStore
         labels: sentinelLabels
         triageEnabled: appletSettings.triageEnabled
+        ignoredPairs: appletSettings.ignoredPairs
     }
 
     Plasmoid.title: i18n("Sentinel")
@@ -123,6 +125,20 @@ PlasmoidItem {
         }
     }
 
+    // The ignore list lives in the applet configuration, so the row menu can
+    // build it without touching the root-owned triage files.
+    function ignoreFinding(finding) {
+        if (!finding || !finding.id || !finding.package) {
+            return;
+        }
+        const config = Plasmoid.configuration;
+        config.triageIgnore = appletSettings.withIgnoredPair(
+            String(finding.id), String(finding.package));
+        if (typeof config.writeConfig === "function") {
+            config.writeConfig();
+        }
+    }
+
     fullRepresentation: SentinelPopup {
         store: scanStore
         vm: viewModel
@@ -130,6 +146,7 @@ PlasmoidItem {
         labels: sentinelLabels
 
         onScanRequested: scanStore.startScan()
+        onIgnoreFindingRequested: (finding) => applet.ignoreFinding(finding)
         onSettingsRequested: {
             const action = Plasmoid.internalAction("configure");
             if (action) {

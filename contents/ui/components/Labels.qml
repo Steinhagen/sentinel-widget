@@ -679,6 +679,10 @@ QtObject {
         return i18n("%1 of %2", visible, total);
     }
 
+    function ignoreFindingText() {
+        return i18n("Ignore this finding (false positive)");
+    }
+
     function triageHiddenLabel(count) {
         return i18np("%1 false positive hidden", "%1 false positives hidden", count);
     }

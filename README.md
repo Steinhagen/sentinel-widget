@@ -125,6 +125,10 @@ Right-click the widget and choose **Configure…**:
   `/var/lib/sentinel/triage.json`, written by
   [`tools/triage.mjs`](tools/triage.mjs), or from a `verdict` field on the
   finding itself. See [docs/triage.md](docs/triage.md).
+- **Ignored findings:** right-click a row and choose **Ignore this finding
+  (false positive)** to hide a finding the scanners matched to the wrong
+  package. The list is kept in the applet configuration; the same settings
+  page shows how many are ignored and offers **Restore all**.
 - **Tracker API token:** used for authenticated Nixpkgs security tracker lookups.
 
 Use the summary cards for quick severity and fix-state filtering, or the
