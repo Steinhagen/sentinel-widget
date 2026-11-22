@@ -36,6 +36,8 @@
   of expanding to the full popup width and overflowing its margins.
 - Align the header row's icon and Settings button with the centered table in
   both the card and list-only layouts.
+- Match the grouping-mode label to the toolbar's normal font size and restore
+  its list/group icon.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
 - Give every fix pill the same width, sized to the longest fix-state label,

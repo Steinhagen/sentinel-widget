@@ -101,12 +101,18 @@ RowLayout {
         contentItem: RowLayout {
             spacing: Kirigami.Units.smallSpacing
 
+            Kirigami.Icon {
+                Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                Layout.preferredHeight: Kirigami.Units.iconSizes.small
+                source: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
+            }
+
             PlasmaComponents3.Label {
                 text: root.labels
                     ? root.labels.groupByStateLabel(root.groupBy) : "Flat"
                 color: Kirigami.Theme.textColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                font.family: Kirigami.Theme.defaultFont.family
+                font.pointSize: Kirigami.Theme.defaultFont.pointSize
             }
 
             Rectangle {
