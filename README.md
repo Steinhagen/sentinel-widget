@@ -16,9 +16,9 @@ into a compact security dashboard.
   the full dependency-origin chain underneath.
 - Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
   direction arrow.
-- Flat list by default, with a **Group by** menu for Priority, Package or
-  Origin sections, individually clickable group headers and a global
-  expand/collapse control.
+- Flat list by default, with a current-state **Group by** split button
+  (Flat / Priority / Package / Origin), individually clickable group headers
+  and a global expand/collapse control.
 - The grouped view adds a second header bar for expand/collapse, group-name
   sorting and finding-count sorting.
 - Search plus a compact **Filters** menu for severity and fix state.

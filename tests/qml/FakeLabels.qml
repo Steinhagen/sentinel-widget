@@ -118,6 +118,9 @@ QtObject {
     function groupToggleTooltip(expanded) {
         return expanded ? "Hide" : "Show";
     }
+    function groupByStateLabel(groupBy) {
+        return groupBy === "none" ? "Flat" : groupBy;
+    }
     function groupByButton(groupBy) {
         return groupBy === "none" ? "Group by" : "Group by: " + groupBy;
     }

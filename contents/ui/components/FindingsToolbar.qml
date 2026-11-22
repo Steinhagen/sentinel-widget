@@ -151,10 +151,48 @@ RowLayout {
     PlasmaComponents3.ToolButton {
         id: groupByButton
 
-        icon.name: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
-        text: root.labels ? root.labels.groupByButton(root.groupBy) : "Group by"
-        display: QQC2.AbstractButton.TextBesideIcon
+        // A split button: the left side names the current state; the chevron
+        // opens the mode menu. Both halves share one accessible button.
+        flat: false
+        display: QQC2.AbstractButton.IconOnly
+        text: root.labels ? root.labels.groupByStateLabel(root.groupBy) : "Flat"
+        Accessible.name: root.labels ? root.labels.groupByButton(root.groupBy) : ""
+        leftPadding: Kirigami.Units.gridUnit * 0.55
+        rightPadding: Kirigami.Units.gridUnit * 0.45
+        Layout.preferredHeight: Math.round(Kirigami.Units.gridUnit * 1.65)
         onClicked: groupByMenu.popup(groupByButton, 0, groupByButton.height)
+
+        contentItem: RowLayout {
+            spacing: Kirigami.Units.smallSpacing
+
+            Kirigami.Icon {
+                Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                Layout.preferredHeight: Kirigami.Units.iconSizes.small
+                source: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
+            }
+
+            PlasmaComponents3.Label {
+                text: root.labels
+                    ? root.labels.groupByStateLabel(root.groupBy) : "Flat"
+                color: Kirigami.Theme.textColor
+                font.family: Kirigami.Theme.smallFont.family
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+            }
+
+            Rectangle {
+                Layout.preferredWidth: 1
+                Layout.preferredHeight: Kirigami.Units.gridUnit * 0.9
+                color: Kirigami.Theme.disabledTextColor
+                opacity: 0.55
+            }
+
+            PlasmaComponents3.Label {
+                text: "▾"
+                color: Kirigami.Theme.disabledTextColor
+                font.family: Kirigami.Theme.smallFont.family
+                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
+            }
+        }
 
         QQC2.ToolTip.text: root.labels ? root.labels.groupByTooltip(root.groupBy) : ""
         QQC2.ToolTip.visible: hovered

@@ -79,3 +79,5 @@ intentional: [gallery](grouping-empty-states.html) ·
 **Recommendation:** 01 — the split button always shows the active state
 (“Flat”, “Package”, …) and keeps the existing menu. 03 is the compact fallback
 if a single menu button is preferred over a split control.
+
+**Implemented:** 01, as the current-state split button in the applet toolbar.

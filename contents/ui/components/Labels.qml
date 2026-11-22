@@ -802,6 +802,10 @@ QtObject {
         return i18n("Clear the search and filters");
     }
 
+    function groupByStateLabel(groupBy) {
+        return groupBy === "none" ? i18n("Flat") : groupColumnLabel(groupBy);
+    }
+
     function groupByButton(groupBy) {
         switch (groupBy) {
         case "priority":

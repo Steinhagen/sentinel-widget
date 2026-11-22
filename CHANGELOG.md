@@ -24,7 +24,8 @@
   have a larger hover/click target.
 - Add a group column bar with the expand control, sortable group names and
   sortable finding counts, above the normal table header. The Group by button
-  names the active mode, and the expand control sits inside the group bar.
+  is a current-state split button (Flat / Priority / Package / Origin), so the
+  ungrouped state is no longer blank.
 - Move severity and fix-state filtering into one compact **Filters** menu.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
