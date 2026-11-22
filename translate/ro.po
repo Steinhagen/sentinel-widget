@@ -1,0 +1,985 @@
+# Romanian translation of Sentinel.
+# Copyright (C) 2026 The Sentinel authors
+# This file is distributed under the same license as the plasma_applet_io.github.steinhagen.sentinel package.
+# Distributed under the MIT license, like the widget.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: plasma_applet_io.github.steinhagen.sentinel\n"
+"Report-Msgid-Bugs-To: https://github.com/Steinhagen/sentinel-widget\n"
+"POT-Creation-Date: 2026-11-22 23:28+0200\n"
+"PO-Revision-Date: 2026-11-22 23:45+0200\n"
+"Last-Translator: Sentinel translators\n"
+"Language-Team: Romanian <ro@li.org>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
+
+#: contents/config/config.qml
+msgid "General"
+msgstr "General"
+
+#: contents/ui/components/Labels.qml
+msgid ""
+"The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n"
+"\n"
+"• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n"
+"• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n"
+"• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n"
+"• 26.05 — fixed on another line; it is not on the way to this system's channel.\n"
+"• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n"
+"• no fix — still affected in every branch that was checked.\n"
+"• unknown / n/a / — — no verdict, no coverage, or no data.\n"
+"\n"
+"Hover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs."
+msgstr ""
+"Pastila de remediere indică etapa în care se află acum remedierea și afișează „remediat” odată ce aceasta a ajuns în canalul de pe care se actualizează acest sistem (nixos-unstable sau nixos-XX.YY):\n"
+"\n"
+"• remediat — canalul sistemului are o versiune remediată. Actualizarea canalului remediază constatarea.\n"
+"• staging — fuzionată în staging-next/staging; ajunge în master când este fuzionat următorul ciclu de staging.\n"
+"• master — master o conține; canalul o preia la următoarea actualizare a canalului (pe un sistem stabil este încă necesar un backport).\n"
+"• 26.05 — remediată pe altă linie; nu se îndreaptă spre canalul acestui sistem.\n"
+"• problemă — nimic nu este încă fuzionat, dar problema de securitate Nixpkgs este deschisă.\n"
+"• fără remediere — încă afectat în fiecare ramură care a fost verificată.\n"
+"• necunoscut / n/a / — — niciun verdict, nicio acoperire sau nicio dată.\n"
+"\n"
+"Treceți cu mouse-ul peste pastila de remediere pentru tabelul pe ramuri (✓ remediat, ✗ afectat, ? necunoscut), pasul următor și ← care marchează canalul pe care rulează acest sistem."
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown"
+msgstr "Necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "Secure"
+msgstr "Securizat"
+
+#: contents/ui/components/Labels.qml
+msgid "Vulnerable"
+msgstr "Vulnerabil"
+
+#: contents/ui/components/Labels.qml
+msgid "Review"
+msgstr "Verificare"
+
+#: contents/ui/components/Labels.qml
+msgid "The first scan is running…"
+msgstr "Prima scanare rulează…"
+
+#: contents/ui/components/Labels.qml
+msgid "No scan has run yet."
+msgstr "Nicio scanare nu a rulat încă."
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan failed — see the scan log for details."
+msgstr "Ultima scanare a eșuat — consultați jurnalul scanării pentru detalii."
+
+#: contents/ui/components/Labels.qml
+msgid "%1 package affected"
+msgid_plural "%1 packages affected"
+msgstr[0] "%1 pachet afectat"
+msgstr[1] "%1 pachete afectate"
+msgstr[2] "%1 de pachete afectate"
+
+#: contents/ui/components/Labels.qml
+msgid "highest CVSS %1"
+msgstr "CVSS maxim %1"
+
+#: contents/ui/components/Labels.qml
+msgid "scanned %1"
+msgstr "scanat %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Not scanned yet"
+msgstr "Încă nescanat"
+
+#: contents/ui/components/Labels.qml
+msgid "No known vulnerabilities"
+msgstr "Nicio vulnerabilitate cunoscută"
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan failed"
+msgstr "Ultima scanare a eșuat"
+
+#: contents/ui/components/Labels.qml
+msgid "No findings to show"
+msgstr "Nicio constatare de afișat"
+
+#: contents/ui/components/Labels.qml
+msgid "The first scan can take a while: it has to download the vulnerability databases."
+msgstr "Prima scanare poate dura: trebuie descărcate bazele de date de vulnerabilități."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan runs automatically once a day and can also be started manually."
+msgstr "Scanarea rulează automat o dată pe zi și poate fi pornită și manual."
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan found no known vulnerabilities."
+msgstr "Ultima scanare nu a găsit vulnerabilități cunoscute."
+
+#: contents/ui/components/Labels.qml
+msgid "Open the scan log for details."
+msgstr "Deschideți jurnalul scanării pentru detalii."
+
+#: contents/ui/components/Labels.qml
+msgid "Critical"
+msgstr "Critic"
+
+#: contents/ui/components/Labels.qml
+msgid "High"
+msgstr "Ridicat"
+
+#: contents/ui/components/Labels.qml
+msgid "Medium"
+msgstr "Mediu"
+
+#: contents/ui/components/Labels.qml
+msgid "Low"
+msgstr "Scăzut"
+
+#: contents/ui/components/Labels.qml
+msgid "All"
+msgstr "Toate"
+
+#: contents/ui/components/Labels.qml
+msgid "Fixed"
+msgstr "Remediat"
+
+#: contents/ui/components/Labels.qml
+msgid "Pending"
+msgstr "În curs"
+
+#: contents/ui/components/Labels.qml
+msgid "No fix"
+msgstr "Fără remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "n/a"
+msgstr "n/a"
+
+#: contents/ui/components/Labels.qml
+msgid "Fix available"
+msgstr "Remediere disponibilă"
+
+#: contents/ui/components/Labels.qml
+msgid "Fix pending"
+msgstr "Remediere în curs"
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown fix state"
+msgstr "Stare de remediere necunoscută"
+
+#: contents/ui/components/Labels.qml
+msgid "All fix states"
+msgstr "Toate stările de remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "In tracker"
+msgstr "În tracker"
+
+#: contents/ui/components/Labels.qml
+msgid "Missing"
+msgstr "Lipsă"
+
+#: contents/ui/components/Labels.qml
+msgid "Not checked"
+msgstr "Neverificat"
+
+#: contents/ui/components/Labels.qml
+msgid "unknown"
+msgstr "necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "fixed"
+msgstr "remediat"
+
+#: contents/ui/components/Labels.qml
+msgid "staging"
+msgstr "staging"
+
+#: contents/ui/components/Labels.qml
+msgid "master"
+msgstr "master"
+
+#: contents/ui/components/Labels.qml
+msgid "issue"
+msgstr "problemă"
+
+#: contents/ui/components/Labels.qml
+msgid "no fix"
+msgstr "fără remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "exact"
+msgstr "exactă"
+
+#: contents/ui/components/Labels.qml
+msgid "expanded"
+msgstr "extinsă"
+
+#: contents/ui/components/Labels.qml
+msgid "mixed"
+msgstr "mixtă"
+
+#: contents/ui/components/Labels.qml
+msgid "version only"
+msgstr "doar versiune"
+
+#: contents/ui/components/Labels.qml
+msgid "published"
+msgstr "publicată"
+
+#: contents/ui/components/Labels.qml
+msgid "accepted"
+msgstr "acceptată"
+
+#: contents/ui/components/Labels.qml
+msgid "pending review"
+msgstr "în curs de verificare"
+
+#: contents/ui/components/Labels.qml
+msgid "match rejected"
+msgstr "potrivire respinsă"
+
+#: contents/ui/components/Labels.qml
+msgctxt "issue state"
+msgid "open"
+msgstr "deschisă"
+
+#: contents/ui/components/Labels.qml
+msgctxt "issue state"
+msgid "closed"
+msgstr "închisă"
+
+#: contents/ui/components/Labels.qml
+msgid "Introduced by: %1"
+msgstr "Introdus de: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Chain: %1"
+msgstr "Lanț: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Click an Origin value to show all findings from this package."
+msgstr "Faceți clic pe o valoare Origine pentru a afișa toate constatările din acest pachet."
+
+#: contents/ui/components/Labels.qml
+msgid "Fix status by nixpkgs branch:"
+msgstr "Starea remedierii pe ramură nixpkgs:"
+
+#: contents/ui/components/Labels.qml
+msgid "Next: master, at the end of the current staging cycle (staging-next is merged into master by PR)."
+msgstr "Urmează: master, la sfârșitul ciclului de staging curent (staging-next este fuzionat în master printr-un PR)."
+
+#: contents/ui/components/Labels.qml
+msgid "In staging but not in staging-next yet: it misses the current cycle and joins the next one, then master."
+msgstr "Este în staging, dar nu încă în staging-next: ratează ciclul curent și se alătură următorului, apoi master."
+
+#: contents/ui/components/Labels.qml
+msgid "The channel's package file has no plain version to compare, so whether %1 already carries it is unknown."
+msgstr "Fișierul de pachete al canalului nu are o versiune simplă de comparat, așa că nu se știe dacă %1 o conține deja."
+
+#: contents/ui/components/Labels.qml
+msgid "Next: the nixos-unstable channel bump."
+msgstr "Urmează: actualizarea canalului nixos-unstable."
+
+#: contents/ui/components/Labels.qml
+msgid "Next: a backport to %1."
+msgstr "Urmează: un backport pentru %1."
+
+#: contents/ui/components/Labels.qml
+msgid "Not on the way to this system's channel; it is fixed on another line."
+msgstr "Nu se îndreaptă spre canalul acestui sistem; este remediat pe altă linie."
+
+#: contents/ui/components/Labels.qml
+msgid "No fix merged yet."
+msgstr "Nicio remediere fuzionată încă."
+
+#: contents/ui/components/Labels.qml
+msgid "Update to a branch marked ✓ to get the fix."
+msgstr "Actualizați la o ramură marcată cu ✓ pentru a obține remedierea."
+
+#: contents/ui/components/Labels.qml
+msgid "Pending: the fix is merged, but no channel carries it yet."
+msgstr "În curs: remedierea este fuzionată, dar niciun canal nu o conține încă."
+
+#: contents/ui/components/Labels.qml
+msgid "A fixed version is available in nixpkgs."
+msgstr "O versiune remediată este disponibilă în nixpkgs."
+
+#: contents/ui/components/Labels.qml
+msgid "Merged into the nixpkgs staging branches; it lands in master with the next staging cycle."
+msgstr "Fuzionată în ramurile de staging nixpkgs; ajunge în master la următorul ciclu de staging."
+
+#: contents/ui/components/Labels.qml
+msgid "Backported to the release branch while master still carries the affected version."
+msgstr "Retroportată pe ramura de lansare, în timp ce master încă are versiunea afectată."
+
+#: contents/ui/components/Labels.qml
+msgid "No fix merged yet; the Nixpkgs security issue is open."
+msgstr "Nicio remediere fuzionată încă; problema de securitate Nixpkgs este deschisă."
+
+#: contents/ui/components/Labels.qml
+msgid "Fixed in nixpkgs master (version %1)"
+msgstr "Remediat în master nixpkgs (versiunea %1)"
+
+#: contents/ui/components/Labels.qml
+msgid "Still affected in nixpkgs master (version %1)"
+msgstr "Încă afectat în master nixpkgs (versiunea %1)"
+
+#: contents/ui/components/Labels.qml
+msgid "Nixpkgs master status unknown (version %1)"
+msgstr "Starea în master nixpkgs este necunoscută (versiunea %1)"
+
+#: contents/ui/components/Labels.qml
+msgid "No nixpkgs master verdict for %1."
+msgstr "Niciun verdict pentru master nixpkgs pentru %1."
+
+#: contents/ui/components/Labels.qml
+msgid " (+%1 more)"
+msgstr " (+încă %1)"
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker suggestion covers: %1%2"
+msgstr "Sugestia trackerului acoperă: %1%2"
+
+#: contents/ui/components/Labels.qml
+msgid "CVE affected products: %1"
+msgstr "Produse afectate de CVE: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Your version: %1"
+msgstr "Versiunea dvs.: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker status: %1"
+msgstr "Starea în tracker: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Click to open the suggestion"
+msgstr "Faceți clic pentru a deschide sugestia"
+
+#: contents/ui/components/Labels.qml
+msgid "No nixpkgs master data"
+msgstr "Nu există date pentru master nixpkgs"
+
+#: contents/ui/components/Labels.qml
+msgid "Derived from the CVE's affected range (%1); the tracker has no master verdict."
+msgstr "Dedusă din intervalul afectat al CVE (%1); trackerul nu are un verdict pentru master."
+
+#: contents/ui/components/Labels.qml
+msgid "Version %1 is outside the affected range (%2); derived from the CVE data."
+msgstr "Versiunea %1 este în afara intervalului afectat (%2); dedusă din datele CVE."
+
+#: contents/ui/components/Labels.qml
+msgid " (%1)"
+msgstr " (%1)"
+
+#: contents/ui/components/Labels.qml
+msgid "Security issue %1%2"
+msgstr "Problema de securitate %1%2"
+
+#: contents/ui/components/Labels.qml
+msgid "Click to open the fix/bump"
+msgstr "Faceți clic pentru a deschide remedierea/actualizarea"
+
+#: contents/ui/components/Labels.qml
+msgid "Installed version: %1"
+msgstr "Versiunea instalată: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Your channel: %1"
+msgstr "Canalul dvs.: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "just now"
+msgstr "chiar acum"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] "%1 minut în urmă"
+msgstr[1] "%1 minute în urmă"
+msgstr[2] "%1 de minute în urmă"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] "%1 oră în urmă"
+msgstr[1] "%1 ore în urmă"
+msgstr[2] "%1 de ore în urmă"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] "%1 zi în urmă"
+msgstr[1] "%1 zile în urmă"
+msgstr[2] "%1 de zile în urmă"
+
+#: contents/ui/components/Labels.qml
+msgid "Last scan %1"
+msgstr "Ultima scanare %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Last scan: %1"
+msgstr "Ultima scanare: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker rejected the API token; check the token in the applet settings."
+msgstr "Trackerul a respins tokenul API; verificați tokenul în setările widgetului."
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker rate limit reached; %1 CVEs will be retried in the next run."
+msgstr "Limita de cereri a trackerului a fost atinsă; %1 CVE vor fi reîncercate la următoarea rulare."
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker check finished with %1 failures."
+msgstr "Verificarea trackerului s-a încheiat cu %1 eșecuri."
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker check queued…"
+msgstr "Verificarea trackerului este în coadă…"
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker rate limit reached; waiting to retry…"
+msgstr "Limita de cereri a trackerului a fost atinsă; se așteaptă reîncercarea…"
+
+#: contents/ui/components/Labels.qml
+msgid "Checking tracker packages: %1/%2"
+msgstr "Se verifică pachetele din tracker: %1/%2"
+
+#: contents/ui/components/Labels.qml
+msgid " (%1 failed)"
+msgstr " (%1 eșuate)"
+
+#: contents/ui/components/Labels.qml
+msgid " — rate limit reached"
+msgstr " — limita de cereri atinsă"
+
+#: contents/ui/components/Labels.qml
+msgid "Checking remaining CVEs: %1/%2"
+msgstr "Se verifică CVE-urile rămase: %1/%2"
+
+#: contents/ui/components/Labels.qml
+msgid "Checking fix links: %1/%2"
+msgstr "Se verifică linkurile de remediere: %1/%2"
+
+#: contents/ui/components/Labels.qml
+msgid "Checking nixpkgs branches: %1/%2"
+msgstr "Se verifică ramurile nixpkgs: %1/%2"
+
+#: contents/ui/components/Labels.qml
+msgid "Checking security tracker: %1/%2 CVEs"
+msgstr "Se verifică trackerul de securitate: %1/%2 CVE-uri"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding untracked"
+msgid_plural "%1 findings untracked"
+msgstr[0] "%1 constatare neînregistrată în tracker"
+msgstr[1] "%1 constatări neînregistrate în tracker"
+msgstr[2] "%1 de constatări neînregistrate în tracker"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding in tracker"
+msgid_plural "%1 findings in tracker"
+msgstr[0] "%1 constatare în tracker"
+msgstr[1] "%1 constatări în tracker"
+msgstr[2] "%1 de constatări în tracker"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 pending review"
+msgstr "%1 în curs de verificare"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 with a fix available"
+msgstr "%1 cu remediere disponibilă"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 with a fix pending"
+msgstr "%1 cu remediere în curs"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding not checked"
+msgid_plural "%1 findings not checked"
+msgstr[0] "%1 constatare neverificată"
+msgstr[1] "%1 constatări neverificate"
+msgstr[2] "%1 de constatări neverificate"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 CVE failed"
+msgid_plural "%1 CVEs failed"
+msgstr[0] "%1 CVE eșuat"
+msgstr[1] "%1 CVE eșuate"
+msgstr[2] "%1 de CVE eșuate"
+
+#: contents/ui/components/Labels.qml
+msgid "checking…"
+msgstr "se verifică…"
+
+#: contents/ui/components/Labels.qml
+msgid "no matching issues"
+msgstr "nicio problemă corespunzătoare"
+
+#: contents/ui/components/Labels.qml
+msgid "Nixpkgs security tracker: %1."
+msgstr "Tracker de securitate Nixpkgs: %1."
+
+#: contents/ui/components/Labels.qml
+msgid "Scores and versions come from the scanned system; NixOS may already carry a backported fix."
+msgstr "Scorurile și versiunile provin de pe sistemul scanat; NixOS poate avea deja o remediere retroportată."
+
+#: contents/ui/components/Labels.qml
+msgid "The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."
+msgstr "A doua linie arată lanțul de dependențe care a introdus constatarea. Faceți clic pe ea pentru a filtra după acea origine sau folosiți meniul „Grupează după” pentru a grupa lista după prioritate, pachet sau origine. Faceți clic dreapta pe un rând pentru acțiuni legate de tracker, remediere și copiere. Datele despre origini sunt scrise de serviciul de scanare."
+
+#: contents/ui/components/Labels.qml
+msgid "The CSV report and scan log are available from the widget's context menu."
+msgstr "Raportul CSV și jurnalul scanării sunt disponibile în meniul contextual al widgetului."
+
+#: contents/ui/components/Labels.qml
+msgid "Scanning for vulnerabilities…"
+msgstr "Se scanează după vulnerabilități…"
+
+#: contents/ui/components/Labels.qml
+msgctxt "number of vulnerabilities"
+msgid "999+"
+msgstr "999+"
+
+#: contents/ui/components/Labels.qml
+msgctxt "number of vulnerabilities"
+msgid "%1"
+msgstr "%1"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 is not in the Nixpkgs security tracker; this finding may be a false positive."
+msgstr "%1 nu este în trackerul de securitate Nixpkgs; această constatare poate fi un fals pozitiv."
+
+#: contents/ui/components/Labels.qml
+msgid "Checking the Nixpkgs security tracker for %1…"
+msgstr "Se verifică trackerul de securitate Nixpkgs pentru %1…"
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker check is still running; %1 will be checked shortly."
+msgstr "Verificarea trackerului este încă în curs; %1 va fi verificat în curând."
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs security tracker is rate-limiting requests; try again in a minute."
+msgstr "Trackerul de securitate Nixpkgs limitează cererile; încercați din nou într-un minut."
+
+#: contents/ui/components/Labels.qml
+msgid "Could not check the Nixpkgs security tracker for %1."
+msgstr "Nu s-a putut verifica trackerul de securitate Nixpkgs pentru %1."
+
+#: contents/ui/components/Labels.qml
+msgid "Copied %1 to the clipboard."
+msgstr "%1 a fost copiat în clipboard."
+
+#: contents/ui/components/Labels.qml
+msgid "No scan data has been written yet."
+msgstr "Nu au fost scrise încă date de scanare."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data cannot be read: permission denied."
+msgstr "Datele de scanare nu pot fi citite: permisiune refuzată."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data is not valid JSON; the scan service may still be writing it."
+msgstr "Datele de scanare nu sunt JSON valid; este posibil ca serviciul de scanare să le scrie încă."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data comes from a newer backend; some fields may be ignored."
+msgstr "Datele de scanare provin de la un backend mai nou; unele câmpuri pot fi ignorate."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data could not be read."
+msgstr "Datele de scanare nu au putut fi citite."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan could not be started; check the systemd unit and permissions."
+msgstr "Scanarea nu a putut fi pornită; verificați unitatea systemd și permisiunile."
+
+#: contents/ui/components/Labels.qml
+msgid "The scan timed out; a late result will still be shown."
+msgstr "Scanarea a expirat; un rezultat întârziat va fi totuși afișat."
+
+#: contents/ui/components/Labels.qml
+msgid "The Sentinel scan service is not available."
+msgstr "Serviciul de scanare Sentinel nu este disponibil."
+
+#: contents/ui/components/Labels.qml
+msgid "Sorted descending — click for ascending"
+msgstr "Sortat descrescător — faceți clic pentru crescător"
+
+#: contents/ui/components/Labels.qml
+msgid "Sorted ascending — click for descending"
+msgstr "Sortat crescător — faceți clic pentru descrescător"
+
+#: contents/ui/components/Labels.qml
+msgid "Sort by %1"
+msgstr "Sortează după %1"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 of %2"
+msgstr "%1 din %2"
+
+#: contents/ui/components/Labels.qml
+msgid "No vulnerabilities match your search or filters."
+msgstr "Nicio vulnerabilitate nu corespunde căutării sau filtrelor."
+
+#: contents/ui/components/Labels.qml
+msgid "CVSS"
+msgstr "CVSS"
+
+#: contents/ui/components/Labels.qml
+msgid "CVE"
+msgstr "CVE"
+
+#: contents/ui/components/Labels.qml
+msgid "Package"
+msgstr "Pachet"
+
+#: contents/ui/components/Labels.qml
+msgid "Fix"
+msgstr "Remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown origin"
+msgstr "Origine necunoscută"
+
+#: contents/ui/components/Labels.qml
+msgid "Priority"
+msgstr "Prioritate"
+
+#: contents/ui/components/Labels.qml
+msgid "Origin"
+msgstr "Origine"
+
+#: contents/ui/components/Labels.qml
+msgid "Group"
+msgstr "Grup"
+
+#: contents/ui/components/Labels.qml
+msgid "Findings"
+msgstr "Constatări"
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown package"
+msgstr "Pachet necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding"
+msgid_plural "%1 findings"
+msgstr[0] "%1 constatare"
+msgstr[1] "%1 constatări"
+msgstr[2] "%1 de constatări"
+
+#: contents/ui/components/Labels.qml
+msgid "Click to hide these findings"
+msgstr "Faceți clic pentru a ascunde aceste constatări"
+
+#: contents/ui/components/Labels.qml
+msgid "Click to show these findings"
+msgstr "Faceți clic pentru a afișa aceste constatări"
+
+#: contents/ui/components/Labels.qml
+msgid "CRITICAL EXPOSURE"
+msgstr "EXPUNERE CRITICĂ"
+
+#: contents/ui/components/Labels.qml
+msgid "potential vulnerabilities"
+msgstr "vulnerabilități potențiale"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 package"
+msgid_plural "%1 packages"
+msgstr[0] "%1 pachet"
+msgstr[1] "%1 pachete"
+msgstr[2] "%1 de pachete"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 CVE"
+msgid_plural "%1 CVEs"
+msgstr[0] "%1 CVE"
+msgstr[1] "%1 CVE-uri"
+msgstr[2] "%1 de CVE-uri"
+
+#: contents/ui/components/Labels.qml
+msgid "SEVERITY"
+msgstr "SEVERITATE"
+
+#: contents/ui/components/Labels.qml
+msgid "READY TO FIX"
+msgstr "GATA DE REMEDIERE"
+
+#: contents/ui/components/Labels.qml
+msgid "Scanning…"
+msgstr "Se scanează…"
+
+#: contents/ui/components/Labels.qml
+msgid "Scan now"
+msgstr "Scanează acum"
+
+#: contents/ui/components/Labels.qml
+msgid "Open the applet settings"
+msgstr "Deschide setările widgetului"
+
+#: contents/ui/components/Labels.qml
+msgid "Filter"
+msgstr "Filtru"
+
+#: contents/ui/components/Labels.qml
+msgid "Filter by CVE, package, origin, severity or fix state"
+msgstr "Filtrează după CVE, pachet, origine, severitate sau stare de remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "Filter findings"
+msgstr "Filtrează constatările"
+
+#: contents/ui/components/Labels.qml
+msgid "CVE, package or origin"
+msgstr "CVE, pachet sau origine"
+
+#: contents/ui/components/Labels.qml
+msgid "Severity and fix state"
+msgstr "Severitate și stare de remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "CVE ID"
+msgstr "ID CVE"
+
+#: contents/ui/components/Labels.qml
+msgid "Severity"
+msgstr "Severitate"
+
+#: contents/ui/components/Labels.qml
+msgid "Fix state"
+msgstr "Stare de remediere"
+
+#: contents/ui/components/Labels.qml
+msgid "Apply"
+msgstr "Aplică"
+
+#: contents/ui/components/Labels.qml
+msgid "Search: %1"
+msgstr "Căutare: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "CVE: %1"
+msgstr "CVE: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Package: %1"
+msgstr "Pachet: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Origin: %1"
+msgstr "Origine: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Severity: %1"
+msgstr "Severitate: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Fix: %1"
+msgstr "Remediere: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Clear the search"
+msgstr "Șterge căutarea"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the CVE filter"
+msgstr "Elimină filtrul CVE"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the package filter"
+msgstr "Elimină filtrul de pachet"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the origin filter"
+msgstr "Elimină filtrul de origine"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the severity filter"
+msgstr "Elimină filtrul de severitate"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the fix-state filter"
+msgstr "Elimină filtrul de stare a remedierii"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove this filter"
+msgstr "Elimină acest filtru"
+
+#: contents/ui/components/Labels.qml
+msgid "Search…"
+msgstr "Caută…"
+
+#: contents/ui/components/Labels.qml
+msgid "All severities"
+msgstr "Toate severitățile"
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown severity"
+msgstr "Severitate necunoscută"
+
+#: contents/ui/components/Labels.qml
+msgid "Clear filters"
+msgstr "Șterge filtrele"
+
+#: contents/ui/components/Labels.qml
+msgid "Clear the search and filters"
+msgstr "Șterge căutarea și filtrele"
+
+#: contents/ui/components/Labels.qml
+msgid "Flat"
+msgstr "Listă simplă"
+
+#: contents/ui/components/Labels.qml
+msgid "Group by: %1"
+msgstr "Grupează după: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Group by"
+msgstr "Grupează după"
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by priority"
+msgstr "Grupat după prioritate"
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by package"
+msgstr "Grupat după pachet"
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by origin"
+msgstr "Grupat după origine"
+
+#: contents/ui/components/Labels.qml
+msgid "Group findings by priority, package or origin"
+msgstr "Grupează constatările după prioritate, pachet sau origine"
+
+#: contents/ui/components/Labels.qml
+msgid "No grouping"
+msgstr "Fără grupare"
+
+#: contents/ui/components/Labels.qml
+msgid "Show all findings"
+msgstr "Afișează toate constatările"
+
+#: contents/ui/components/Labels.qml
+msgid "Hide all findings"
+msgstr "Ascunde toate constatările"
+
+#: contents/ui/components/Labels.qml
+msgid "Show all findings for %1"
+msgstr "Afișează toate constatările pentru %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Filter by origin"
+msgstr "Filtrează după origine"
+
+#: contents/ui/components/Labels.qml
+msgid "Open in Nixpkgs security tracker"
+msgstr "Deschide în trackerul de securitate Nixpkgs"
+
+#: contents/ui/components/Labels.qml
+msgid "Open master fix/bump"
+msgstr "Deschide remedierea/actualizarea din master"
+
+#: contents/ui/components/Labels.qml
+msgid "Open nixpkgs master source"
+msgstr "Deschide sursa master nixpkgs"
+
+#: contents/ui/components/Labels.qml
+msgid "Copy CVE ID"
+msgstr "Copiază ID-ul CVE"
+
+#: contents/ui/components/Labels.qml
+msgid "Copy package name"
+msgstr "Copiază numele pachetului"
+
+#: contents/ui/components/Labels.qml
+msgid "Copy fix/bump URL"
+msgstr "Copiază URL-ul remedierii/actualizării"
+
+#: contents/ui/components/Labels.qml
+msgid "Search nixpkgs unstable for %1"
+msgstr "Caută %1 în nixpkgs unstable"
+
+#: contents/ui/components/Labels.qml
+msgid "Open %1 in the vulnerability database"
+msgstr "Deschide %1 în baza de date de vulnerabilități"
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan did not finish. Scan again to complete it."
+msgstr "Ultima scanare nu s-a încheiat. Scanați din nou pentru a o finaliza."
+
+#: contents/ui/components/Labels.qml
+msgid "unknown CVE"
+msgstr "CVE necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "unknown package"
+msgstr "pachet necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 in %2, severity %3"
+msgstr "%1 în %2, severitate %3"
+
+#: contents/ui/components/Labels.qml contents/ui/main.qml
+msgid "Sentinel"
+msgstr "Sentinel"
+
+#: contents/ui/configGeneral.qml
+msgid "Panel badge:"
+msgstr "Insignă în panou:"
+
+#: contents/ui/configGeneral.qml
+msgid "Show the number of findings"
+msgstr "Afișează numărul de constatări"
+
+#: contents/ui/configGeneral.qml
+msgid "Show a dot"
+msgstr "Afișează un punct"
+
+#: contents/ui/configGeneral.qml
+msgid "Hide the badge"
+msgstr "Ascunde insigna"
+
+#: contents/ui/configGeneral.qml
+msgid "Tracker API token:"
+msgstr "Token API pentru tracker:"
+
+#: contents/ui/configGeneral.qml
+msgid "Paste a token from the tracker"
+msgstr "Lipiți un token de la tracker"
+
+#: contents/ui/configGeneral.qml
+msgid "Clear the token"
+msgstr "Șterge tokenul"
+
+#: contents/ui/configGeneral.qml
+msgid "Open the token settings page"
+msgstr "Deschide pagina de setări pentru token"
+
+#: contents/ui/configGeneral.qml
+msgid "The token is stored in this applet's configuration (only readable by you) and is used by the root scan service on its next run. It is optional: without it, every CVE still links to the Nixpkgs security tracker. Leave this empty to use a token installed at /var/lib/sentinel/tracker-token, if any."
+msgstr "Tokenul este stocat în configurația acestui widget (citebil doar de dvs.) și este folosit de serviciul de scanare root la următoarea rulare. Este opțional: fără el, fiecare CVE trimite în continuare către trackerul de securitate Nixpkgs. Lăsați acest câmp gol pentru a folosi un token instalat la /var/lib/sentinel/tracker-token, dacă există."
+
+#: contents/ui/main.qml
+msgid "Scan for Vulnerabilities Now"
+msgstr "Scanează acum după vulnerabilități"
+
+#: contents/ui/main.qml
+msgid "Open Vulnerability Report"
+msgstr "Deschide raportul de vulnerabilități"
+
+#: contents/ui/main.qml
+msgid "Open Scan Log"
+msgstr "Deschide jurnalul scanării"
+
+#: contents/ui/main.qml
+msgid "Open Nixpkgs Security Tracker"
+msgstr "Deschide trackerul de securitate Nixpkgs"

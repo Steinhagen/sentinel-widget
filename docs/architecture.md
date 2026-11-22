@@ -31,7 +31,7 @@ different reasons:
 | Schema adaptation | `vulnerabilities` vs `top`, three timestamp formats, missing counts |
 | Domain rules | severity bands, fix-state precedence, tracker state, origin chains |
 | Aggregation | severity counts, fix buckets, tracker buckets, affected packages |
-| Formatting and i18n | 245 `i18n`/`i18nc`/`i18np` calls, long help text, tooltips |
+| Formatting and i18n | 248 `i18n`/`i18nc`/`i18np` calls, long help text, tooltips |
 | Table state | search, nine filter fields, severity band, sort, grouping, scroll restoration |
 | Layout and theme | 1,428 lines of UI, 18 derived colors |
 | Workarounds | hover freeze, deferred status, list-level tooltip, zero-interval timers |
@@ -1437,7 +1437,7 @@ make the old code delegate to it, test, then delete the old code.
 4. Add error states to the UI: missing, permission, corrupt, unsupported
    schema, start failure, timeout.
 5. Add keyboard navigation and accessibility roles/names; test focus order.
-6. Add `Messages.sh`, `po/`, pseudo-locale and RTL checks.
+6. Add gettext catalogs (`translate/`), pseudo-locale and RTL checks.
 7. Add mtime-based read skipping and, if the backend can change, a separate
    tracker status file. Add the 2,000-row benchmark.
 8. Update README/CHANGELOG; document the new architecture and test commands.
@@ -1521,7 +1521,7 @@ Measured before the refactor:
 - `contents/ui/main.qml`: 3,625 lines, 152 KB.
 - 201 top-level properties/functions; 82 functions.
 - 2,196 lines before `fullRepresentation`; 1,428 lines of UI.
-- 245 i18n calls (233 `i18n`, 2 `i18nc`, 10 `i18np`).
+- 248 i18n calls (233 `i18n`, 4 `i18nc`, 11 `i18np`).
 - 9 string filter fields plus search, severity band, sort and group.
 - 8 `Timer` elements (6 runtime timers and 2 zero-interval scroll timers),
   plus animations and tooltips.

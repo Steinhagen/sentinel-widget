@@ -234,6 +234,17 @@ QtObject {
         }
     }
 
+    function issueStateLabel(state) {
+        switch (state) {
+        case "open":
+            return i18nc("issue state", "open");
+        case "closed":
+            return i18nc("issue state", "closed");
+        default:
+            return state || "";
+        }
+    }
+
     function originTooltip(origin) {
         if (!origin || !origin.names || origin.names.length === 0) {
             return "";
@@ -374,8 +385,9 @@ QtObject {
             }
         }
         if (tracker.issue) {
+            const issueState = issueStateLabel(tracker.issue_state);
             lines.push(i18n("Security issue %1%2", tracker.issue,
-                tracker.issue_state ? i18n(" (%1)", tracker.issue_state) : ""));
+                issueState ? i18n(" (%1)", issueState) : ""));
         }
         if (fix.url) {
             lines.push(i18n("Click to open the fix/bump"));
@@ -743,11 +755,11 @@ QtObject {
     }
 
     function packagesText(count) {
-        return i18n("%1 packages", count);
+        return i18np("%1 package", "%1 packages", count);
     }
 
     function cvesText(count) {
-        return i18n("%1 CVEs", count);
+        return i18np("%1 CVE", "%1 CVEs", count);
     }
 
     function severityTitle() {

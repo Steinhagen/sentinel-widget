@@ -33,6 +33,7 @@ into a compact security dashboard.
 - Resumes the Scanning state after a plasmashell restart by checking the scan
   service; stale tracker progress is flagged instead of shown as active.
 - Light and dark themes follow the system color scheme automatically.
+- Romanian translation, with the gettext catalog shipped inside the package.
 - Panel badge can show the finding count, a dot, or nothing.
 - Links to the Nixpkgs security tracker and optional tracker API token.
 - Fix-in-progress tracking (`fixed`, `pending`, staging, etc.) from the backend.
@@ -147,6 +148,21 @@ kpackagetool6 --type Plasma/Applet --install .
 
 The QML uses `Kirigami.Theme`; test both light and dark system color schemes.
 The table and summary cards are designed for a minimum width of 36 grid units.
+
+## Translations
+
+The applet is localized through [Ki18n](https://api.kde.org/ki18n-index.html) and
+GNU gettext. The Romanian catalog (`translate/ro.po`) is complete, and the widget
+description is translated inline in `metadata.json`.
+
+- `translate/merge.sh` extracts `i18n()` calls into `translate/template.pot` and
+  merges it into every `.po`.
+- `translate/build.sh` compiles the catalogs to
+  `contents/locale/<lang>/LC_MESSAGES/plasma_applet_io.github.steinhagen.sentinel.mo`,
+  which is the path Plasma reads at runtime. The `.mo` files are committed.
+- `./scripts/check.sh` verifies that every catalog is complete and up to date.
+
+See [translate/README.md](translate/README.md) for adding a language.
 
 ## License
 

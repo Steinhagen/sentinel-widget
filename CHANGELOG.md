@@ -1,9 +1,28 @@
 # Changelog
 
-All notable changes to Market Monitor are documented in this file.
+All notable changes to Sentinel are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Added
+
+- Added a complete Romanian translation (`translate/ro.po`), compiled to
+  `contents/locale/ro/LC_MESSAGES/plasma_applet_io.github.steinhagen.sentinel.mo`
+  and loaded through Ki18n like any other Plasma applet.
+- Added `translate/merge.sh` and `translate/build.sh` for refreshing the gettext
+  template and rebuilding the catalogs, plus `scripts/test-i18n.sh` to fail CI on
+  untranslated, fuzzy or stale catalogs.
+- Added a Romanian widget description in `metadata.json`.
+
+### Changed
+
+- Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
+  gettext setup.
+- Pluralized the package and CVE counters on the summary cards with `i18np`.
+- Localized the tracker issue state shown next to a security issue.
 
 ## [0.2.0] - 2026-11-22
 

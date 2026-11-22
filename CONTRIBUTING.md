@@ -36,6 +36,7 @@ This runs:
 - `qmllint` on `contents/ui`;
 - `node --test` on `tests/domain`;
 - `qmltestrunner` on `tests/qml` (offscreen);
+- `msgfmt` completeness and staleness checks on `translate/`;
 - `./package.sh` and an archive check.
 
 If a tool is not installed, use `nix develop` or set `QMLTESTRUNNER`,
@@ -71,10 +72,19 @@ include before/after screenshots or a short manual QA note.
 
 ## Translations
 
-User-facing strings use `i18n`, `i18nc` or `i18np` in QML. Run
-`./Messages.sh` when adding strings (it writes `po/sentinel.pot`), and test a
-pseudo-locale for elision and layout. Do not add translated strings to
-`.mjs` files.
+User-facing strings use `i18n`, `i18nc` or `i18np` in QML. When adding or
+changing a string, run:
+
+```sh
+./translate/merge.sh   # refresh template.pot and merge it into the .po files
+./translate/build.sh   # compile contents/locale/<lang>/LC_MESSAGES/*.mo
+```
+
+Keep the Romanian catalog (`translate/ro.po`) complete: `./scripts/check.sh`
+fails on untranslated or fuzzy entries and on stale `.mo` files. Update
+`Description[ro]` in `metadata.json` if the widget description changes, and test
+a pseudo-locale for elision and layout. Do not add translated strings to
+`.mjs` files. See [translate/README.md](translate/README.md).
 
 ## Reporting issues
 

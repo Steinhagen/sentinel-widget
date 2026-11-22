@@ -1,0 +1,964 @@
+# Translation template for Sentinel.
+# Copyright (C) 2026 The Sentinel authors
+# This file is distributed under the same license as the plasma_applet_io.github.steinhagen.sentinel package.
+# Distributed under the MIT license, like the widget.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: plasma_applet_io.github.steinhagen.sentinel\n"
+"Report-Msgid-Bugs-To: https://github.com/Steinhagen/sentinel-widget\n"
+"POT-Creation-Date: 2026-11-22 23:28+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: contents/config/config.qml
+msgid "General"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid ""
+"The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n"
+"\n"
+"• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n"
+"• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n"
+"• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n"
+"• 26.05 — fixed on another line; it is not on the way to this system's channel.\n"
+"• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n"
+"• no fix — still affected in every branch that was checked.\n"
+"• unknown / n/a / — — no verdict, no coverage, or no data.\n"
+"\n"
+"Hover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Secure"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Vulnerable"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Review"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The first scan is running…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No scan has run yet."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan failed — see the scan log for details."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 package affected"
+msgid_plural "%1 packages affected"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "highest CVSS %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "scanned %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Not scanned yet"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No known vulnerabilities"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan failed"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No findings to show"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The first scan can take a while: it has to download the vulnerability databases."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan runs automatically once a day and can also be started manually."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan found no known vulnerabilities."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open the scan log for details."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Critical"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "High"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Medium"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Low"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "All"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fixed"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Pending"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No fix"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "n/a"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix available"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix pending"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown fix state"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "All fix states"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "In tracker"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Missing"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Not checked"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "unknown"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "fixed"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "staging"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "master"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "issue"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "no fix"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "exact"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "expanded"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "mixed"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "version only"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "published"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "accepted"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "pending review"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "match rejected"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgctxt "issue state"
+msgid "open"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgctxt "issue state"
+msgid "closed"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Introduced by: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Chain: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Click an Origin value to show all findings from this package."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix status by nixpkgs branch:"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Next: master, at the end of the current staging cycle (staging-next is merged into master by PR)."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "In staging but not in staging-next yet: it misses the current cycle and joins the next one, then master."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The channel's package file has no plain version to compare, so whether %1 already carries it is unknown."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Next: the nixos-unstable channel bump."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Next: a backport to %1."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Not on the way to this system's channel; it is fixed on another line."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No fix merged yet."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Update to a branch marked ✓ to get the fix."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Pending: the fix is merged, but no channel carries it yet."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "A fixed version is available in nixpkgs."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Merged into the nixpkgs staging branches; it lands in master with the next staging cycle."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Backported to the release branch while master still carries the affected version."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No fix merged yet; the Nixpkgs security issue is open."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fixed in nixpkgs master (version %1)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Still affected in nixpkgs master (version %1)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Nixpkgs master status unknown (version %1)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No nixpkgs master verdict for %1."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid " (+%1 more)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker suggestion covers: %1%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVE affected products: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Your version: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker status: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Click to open the suggestion"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No nixpkgs master data"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Derived from the CVE's affected range (%1); the tracker has no master verdict."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Version %1 is outside the affected range (%2); derived from the CVE data."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid " (%1)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Security issue %1%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Click to open the fix/bump"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Installed version: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Your channel: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "just now"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 minute ago"
+msgid_plural "%1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 hour ago"
+msgid_plural "%1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 day ago"
+msgid_plural "%1 days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "Last scan %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Last scan: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker rejected the API token; check the token in the applet settings."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker rate limit reached; %1 CVEs will be retried in the next run."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker check finished with %1 failures."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker check queued…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Tracker rate limit reached; waiting to retry…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking tracker packages: %1/%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid " (%1 failed)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid " — rate limit reached"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking remaining CVEs: %1/%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking fix links: %1/%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking nixpkgs branches: %1/%2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking security tracker: %1/%2 CVEs"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding untracked"
+msgid_plural "%1 findings untracked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding in tracker"
+msgid_plural "%1 findings in tracker"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 pending review"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 with a fix available"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 with a fix pending"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding not checked"
+msgid_plural "%1 findings not checked"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 CVE failed"
+msgid_plural "%1 CVEs failed"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "checking…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "no matching issues"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Nixpkgs security tracker: %1."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Scores and versions come from the scanned system; NixOS may already carry a backported fix."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The CSV report and scan log are available from the widget's context menu."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Scanning for vulnerabilities…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgctxt "number of vulnerabilities"
+msgid "999+"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgctxt "number of vulnerabilities"
+msgid "%1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 is not in the Nixpkgs security tracker; this finding may be a false positive."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Checking the Nixpkgs security tracker for %1…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker check is still running; %1 will be checked shortly."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs security tracker is rate-limiting requests; try again in a minute."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Could not check the Nixpkgs security tracker for %1."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Copied %1 to the clipboard."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No scan data has been written yet."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data cannot be read: permission denied."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data is not valid JSON; the scan service may still be writing it."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data comes from a newer backend; some fields may be ignored."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan data could not be read."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan could not be started; check the systemd unit and permissions."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The scan timed out; a late result will still be shown."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The Sentinel scan service is not available."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Sorted descending — click for ascending"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Sorted ascending — click for descending"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Sort by %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 of %2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No vulnerabilities match your search or filters."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVSS"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVE"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Package"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Priority"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Group"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown package"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 finding"
+msgid_plural "%1 findings"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "Click to hide these findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Click to show these findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CRITICAL EXPOSURE"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "potential vulnerabilities"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 package"
+msgid_plural "%1 packages"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 CVE"
+msgid_plural "%1 CVEs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "SEVERITY"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "READY TO FIX"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Scanning…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Scan now"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open the applet settings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Filter by CVE, package, origin, severity or fix state"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Filter findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVE, package or origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Severity and fix state"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVE ID"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Severity"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix state"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Apply"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Search: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "CVE: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Package: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Origin: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Severity: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Fix: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Clear the search"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the CVE filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the package filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the origin filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the severity filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the fix-state filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Remove this filter"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Search…"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "All severities"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Unknown severity"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Clear filters"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Clear the search and filters"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Flat"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Group by: %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Group by"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by priority"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by package"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Group findings by priority, package or origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "No grouping"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Show all findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Hide all findings"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Show all findings for %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Filter by origin"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open in Nixpkgs security tracker"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open master fix/bump"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open nixpkgs master source"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Copy CVE ID"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Copy package name"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Copy fix/bump URL"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Search nixpkgs unstable for %1"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Open %1 in the vulnerability database"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The last scan did not finish. Scan again to complete it."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "unknown CVE"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "unknown package"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 in %2, severity %3"
+msgstr ""
+
+#: contents/ui/components/Labels.qml contents/ui/main.qml
+msgid "Sentinel"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Panel badge:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Show the number of findings"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Show a dot"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Hide the badge"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Tracker API token:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Paste a token from the tracker"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Clear the token"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Open the token settings page"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "The token is stored in this applet's configuration (only readable by you) and is used by the root scan service on its next run. It is optional: without it, every CVE still links to the Nixpkgs security tracker. Leave this empty to use a token installed at /var/lib/sentinel/tracker-token, if any."
+msgstr ""
+
+#: contents/ui/main.qml
+msgid "Scan for Vulnerabilities Now"
+msgstr ""
+
+#: contents/ui/main.qml
+msgid "Open Vulnerability Report"
+msgstr ""
+
+#: contents/ui/main.qml
+msgid "Open Scan Log"
+msgstr ""
+
+#: contents/ui/main.qml
+msgid "Open Nixpkgs Security Tracker"
+msgstr ""

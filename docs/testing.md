@@ -24,16 +24,20 @@ Current suite: 60 Node domain tests and 26 qmltestrunner test functions.
 
 # lint only
 ./scripts/lint.sh
+
+# translation catalogs only
+./scripts/test-i18n.sh
 ```
 
-`check.sh` runs lint, domain tests, QML tests and the package build. It skips a
-stage only when that stage has no files yet; CI treats a missing tool as an
-error.
+`check.sh` runs lint, domain tests, QML tests, the translation catalog checks and
+the package build. It skips a stage only when that stage has no files yet; CI
+treats a missing tool as an error.
 
 ## Tooling
 
 The expected tools are `node` (18+), `qmllint`, `qmltestrunner`, `qmlformat`,
-`kpackagetool6`, `jq` and `python3`. On NixOS use the dev shell:
+`kpackagetool6`, `jq`, `msgfmt` (gettext) and `python3`. On NixOS use the dev
+shell:
 
 ```sh
 nix develop

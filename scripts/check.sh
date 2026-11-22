@@ -6,6 +6,7 @@ ROOT="$(sentinel_root)"
 "$ROOT/scripts/lint.sh"
 "$ROOT/scripts/test-domain.sh"
 "$ROOT/scripts/test-qml.sh"
+"$ROOT/scripts/test-i18n.sh"
 
 echo "== package =="
 PYTHON="${PYTHON:-python3}" "$ROOT/package.sh"

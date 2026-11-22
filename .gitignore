@@ -6,3 +6,6 @@ dist/
 build/
 *.log
 __pycache__/
+
+# Backups written by msgmerge and editors
+*~
