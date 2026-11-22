@@ -23,7 +23,8 @@
   findings in the grouped view. Group headers are individually clickable and
   have a larger hover/click target.
 - Add a group column bar with the expand control, sortable group names and
-  sortable finding counts, above the normal table header.
+  sortable finding counts, above the normal table header. The Group by button
+  names the active mode, and the expand control sits inside the group bar.
 - Move severity and fix-state filtering into one compact **Filters** menu.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.

@@ -802,8 +802,15 @@ QtObject {
         return i18n("Clear the search and filters");
     }
 
-    function groupByButton() {
-        return i18n("Group by");
+    function groupByButton(groupBy) {
+        switch (groupBy) {
+        case "priority":
+        case "package":
+        case "origin":
+            return i18n("Group by: %1", groupColumnLabel(groupBy));
+        default:
+            return i18n("Group by");
+        }
     }
 
     function groupByTooltip(groupBy) {

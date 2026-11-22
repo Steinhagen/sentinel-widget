@@ -47,9 +47,13 @@ Item {
 
             text: root.groupsExpanded ? "−" : "+"
             display: QQC2.AbstractButton.TextOnly
-            flat: false
-            font.bold: true
-            font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.2)
+            flat: true
+            leftPadding: 0
+            rightPadding: 0
+            topPadding: 0
+            bottomPadding: 0
+            font.bold: false
+            font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.1)
             Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
             Accessible.name: root.labels
                 ? (root.groupsExpanded

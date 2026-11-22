@@ -118,7 +118,9 @@ QtObject {
     function groupToggleTooltip(expanded) {
         return expanded ? "Hide" : "Show";
     }
-    function groupByButton() { return "Group by"; }
+    function groupByButton(groupBy) {
+        return groupBy === "none" ? "Group by" : "Group by: " + groupBy;
+    }
     function groupByTooltip(groupBy) { return "group"; }
     function groupNone() { return "No grouping"; }
     function groupPriority() { return "Priority"; }

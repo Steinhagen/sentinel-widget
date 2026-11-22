@@ -152,7 +152,7 @@ RowLayout {
         id: groupByButton
 
         icon.name: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
-        text: root.labels ? root.labels.groupByButton() : "Group by"
+        text: root.labels ? root.labels.groupByButton(root.groupBy) : "Group by"
         display: QQC2.AbstractButton.TextBesideIcon
         onClicked: groupByMenu.popup(groupByButton, 0, groupByButton.height)
 
