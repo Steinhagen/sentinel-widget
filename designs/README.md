@@ -97,3 +97,5 @@ instead of mapping the score: [gallery](cvss-ring-directions.html) ·
 
 **Recommendation:** 02 for readability at this card size; 01 if the circle is
 part of the visual identity and near-maximum scores can look almost full.
+
+**Implemented:** 01, with the arc driven by `maxSeverity / 10`.

@@ -42,6 +42,8 @@
 - Match the grouping-mode label to the toolbar's normal font size, restore
   its list/group icon, and style the menu as a flat toolbar button with a
   chevron.
+- Make the critical-exposure ring's arc proportional to the highest CVSS score
+  instead of drawing a fixed 78% arc.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
 - Give every fix pill the same width, sized to the longest fix-state label,

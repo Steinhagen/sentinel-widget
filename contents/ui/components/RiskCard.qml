@@ -14,6 +14,8 @@ Rectangle {
     property var theme: null
     property var labels: null
 
+    readonly property real severityRatio: Math.max(0, Math.min(1, root.maxSeverity / 10))
+
     radius: 16
     color: root.theme ? root.theme.cardColor : "transparent"
     border.width: 1
@@ -46,7 +48,8 @@ Rectangle {
                 }
 
                 ShapePath {
-                    strokeColor: root.theme ? root.theme.criticalColor : "transparent"
+                    strokeColor: root.maxSeverity > 0 && root.theme
+                        ? root.theme.criticalColor : "transparent"
                     strokeWidth: 8
                     fillColor: "transparent"
                     capStyle: ShapePath.RoundCap
@@ -56,7 +59,7 @@ Rectangle {
                         radiusX: Kirigami.Units.gridUnit * 2.05
                         radiusY: radiusX
                         startAngle: -90
-                        sweepAngle: 360 * 0.78
+                        sweepAngle: 360 * root.severityRatio
                     }
                 }
             }
