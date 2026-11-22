@@ -97,8 +97,10 @@ Rectangle {
         metricNa.width,
         metricUnstable.width) + Kirigami.Units.smallSpacing * 2.2
 
+    // The chip only occupies text + 3 * spacing, so the rest of the column
+    // is the gap before the fix pill.
     readonly property real reviewColumnWidth: root.triageAvailable
-        ? metricReview.width + Kirigami.Units.smallSpacing * 3.5
+        ? metricReview.width + Kirigami.Units.smallSpacing * 6
         : 0
 
     readonly property var headerColumns: [
