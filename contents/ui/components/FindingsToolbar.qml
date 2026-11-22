@@ -28,24 +28,22 @@ RowLayout {
 
     Kirigami.SearchField {
         id: searchField
+        objectName: "searchField"
 
         Layout.fillWidth: true
         Layout.minimumWidth: Kirigami.Units.gridUnit * 7
         placeholderText: root.labels ? root.labels.searchPlaceholder() : "Search…"
+        // Filtering is live via onTextChanged; do not let SearchField's
+        // autoAccept timer emit accepted() and blur the field after a pause.
+        autoAccept: false
 
-        Binding on text {
-            value: root.searchText
-            when: !searchField.activeFocus
-            restoreMode: Binding.RestoreNone
-        }
+        Component.onCompleted: searchField.text = root.searchText
 
         onTextChanged: {
             if (text !== root.searchText) {
                 root.searchChanged(text);
             }
         }
-
-        onAccepted: searchField.focus = false
     }
 
     PlasmaComponents3.ToolButton {
@@ -146,7 +144,10 @@ RowLayout {
             text: root.labels ? root.labels.clearFiltersText() : ""
             icon.name: "edit-clear-all"
             enabled: root.anyFilterActive
-            onTriggered: root.clearFiltersRequested()
+            onTriggered: {
+                searchField.text = "";
+                root.clearFiltersRequested();
+            }
         }
     }
 
@@ -231,7 +232,10 @@ RowLayout {
         text: root.labels ? root.labels.clearFiltersText() : ""
         display: QQC2.AbstractButton.IconOnly
         visible: root.anyFilterActive
-        onClicked: root.clearFiltersRequested()
+        onClicked: {
+            searchField.text = "";
+            root.clearFiltersRequested();
+        }
 
         QQC2.ToolTip.text: root.labels ? root.labels.clearFiltersTooltip() : ""
         QQC2.ToolTip.visible: hovered

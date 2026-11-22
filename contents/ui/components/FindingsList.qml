@@ -116,7 +116,7 @@ Rectangle {
             });
         } else {
             Qt.callLater(function () {
-                findingsList.positionViewAtBeginning();
+                findingsList.contentY = 0;
             });
         }
     }
@@ -264,6 +264,8 @@ Rectangle {
         clip: true
         spacing: 0
         boundsBehavior: Flickable.StopAtBounds
+        focus: false
+        activeFocusOnTab: false
         model: root.rows
         rightMargin: scrollBar.visible
             ? scrollBar.width + Kirigami.Units.smallSpacing * 2 : 0
