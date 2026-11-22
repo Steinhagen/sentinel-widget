@@ -68,6 +68,7 @@ nix develop --command node tools/triage.mjs \
   tool only uses what is already cached.
 - `--only CVE-…,CVE-…` and `--limit N` keep a run short.
 - `--quiet` suppresses the summary; the JSON report is written with `--out`.
+- `--ignore FILE` applies a dismissal list; see below.
 
 The report contains the totals, the reason histogram and one record per
 finding:
@@ -115,6 +116,43 @@ version exclusions and application/appliance name collisions (F-Secure
 - **OSV is trusted.** OSV entries are treated as confirmed without a second
   lookup; that is deliberate, because they are ecosystem-scoped, but it means
   OSV's own mapping errors pass through.
+
+
+## Ignoring a finding
+
+Some collisions cannot be resolved from the CVE data alone: two different
+products share a name and use different version schemes. For those, keep a
+dismissal list:
+
+```json
+[
+  {
+    "cve": "CVE-2021-24028",
+    "package": "thrift",
+    "reason": "Facebook's internal Thrift, not Apache Thrift 0.25.0"
+  }
+]
+```
+
+Pass it with `--ignore FILE`. The scan service reads
+`/var/lib/sentinel/triage-ignore.json` when it exists, so an entry only needs
+to be written once:
+
+```console
+sudo install -m 644 triage-ignore.json /var/lib/sentinel/triage-ignore.json
+```
+
+Entries match a CVE **and a package**, not a version: the pair is the unit that
+was judged to be a collision. `reason` is documentation only and is not shown
+in the applet. A dismissal suppresses the pair with the reason
+`manual-ignore`.
+
+Two guards keep the list from hiding something real:
+
+- a tracker `published`/`accepted` verdict wins over a dismissal, so a
+  vulnerability a human confirmed is never hidden by a stale list entry;
+- a malformed ignore file is reported and ignored as a whole, rather than
+  silently dropping entries.
 
 ## In the widget
 

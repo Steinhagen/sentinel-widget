@@ -223,6 +223,11 @@ export function isScopedVendor(vendor) {
 }
 
 /** @param {unknown} value */
+function stringOf(value) {
+    return value === null || value === undefined ? "" : String(value);
+}
+
+/** @param {unknown} value */
 function cleanIdentity(value) {
     const text = String(value ?? "").trim();
     if (text === "" || /^(n\/?a|unknown|\*|-)$/i.test(text)) {
@@ -545,12 +550,69 @@ export function bestProduct(products, packageTokens) {
     return best;
 }
 
+// ---------------------------------------------------------------------------
+// Manual dismissals
+// ---------------------------------------------------------------------------
+
+/**
+ * Parse the ignore list. Entries match a CVE and a package, not a version: the
+ * point is to retire a product-name collision that no rule can resolve.
+ *
+ * Accepts a bare array or `{ "entries": [...] }`; each entry is
+ * `{ "cve": "...", "package": "...", "reason": "..." }`.
+ */
+export function parseIgnoreText(text) {
+    if (typeof text !== "string" || text.trim().length === 0) {
+        return { ok: false };
+    }
+    let raw = null;
+    try {
+        raw = JSON.parse(text);
+    } catch (error) {
+        return { ok: false };
+    }
+    const entries = Array.isArray(raw)
+        ? raw
+        : (raw && Array.isArray(raw.entries)
+            ? raw.entries
+            : (raw && Array.isArray(raw.ignored) ? raw.ignored : null));
+    if (!entries) {
+        return { ok: false };
+    }
+    const byPair = {};
+    let count = 0;
+    for (let i = 0; i < entries.length; ++i) {
+        const entry = entries[i];
+        if (!entry || typeof entry !== "object") {
+            continue;
+        }
+        const cve = stringOf(entry.cve || entry.id);
+        const packageName = stringOf(entry.package);
+        if (cve.length === 0 || packageName.length === 0) {
+            continue;
+        }
+        byPair[`${cve}|${packageName}`] = {
+            reason: stringOf(entry.reason),
+        };
+        count += 1;
+    }
+    return { ok: true, byPair: byPair, count: count };
+}
+
+/** The ignore entry for a finding, if that CVE and package were dismissed. */
+export function ignoreEntryOf(finding, ignore) {
+    if (!finding || !ignore || !ignore.byPair) {
+        return null;
+    }
+    return ignore.byPair[`${stringOf(finding.id)}|${stringOf(finding.package)}`] ?? null;
+}
+
 /**
  * Classify a single finding.
  *
  * @param {any} finding
  * @param {CveMetadata|null} cve
- * @param {{osv?: boolean}} [options]
+ * @param {{osv?: boolean, ignore?: object|null}} [options]
  * @returns {VerdictResult}
  */
 export function verdictFor(finding, cve, options = {}) {
@@ -567,6 +629,12 @@ export function verdictFor(finding, cve, options = {}) {
     if (tracker.status === "published" || tracker.status === "accepted") {
         return result("confirmed", [`tracker-${tracker.status}`]);
     }
+
+    // 2. A manual dismissal retires anything else. A tracker issue still wins
+    // above: never hide a vulnerability a human confirmed.
+    if (ignoreEntryOf(finding, options.ignore)) {
+        return result("suppressed", ["manual-ignore"]);
+    }
     if (tracker.status === "rejected") {
         return result("suppressed", ["tracker-rejected"]);
     }
@@ -574,7 +642,7 @@ export function verdictFor(finding, cve, options = {}) {
         return result("suppressed", ["tracker-unaffected"]);
     }
 
-    // 2. Advisories from the package's own ecosystem (OSV) are identity-exact.
+    // 3. Advisories from the package's own ecosystem (OSV) are identity-exact.
     if (options.osv) {
         return result("confirmed", ["osv-advisory"]);
     }
@@ -690,6 +758,26 @@ export async function readEvidence(file) {
 }
 
 /**
+ * Read the ignore list. A missing file is normal (nothing dismissed). A present
+ * but invalid file is reported and treated as empty, so a typo cannot silently
+ * hide findings.
+ *
+ * @param {string|null} file
+ * @returns {Promise<{ok: boolean, byPair: object, count: number}|null>}
+ */
+export async function readIgnore(file) {
+    if (!file || !existsSync(file)) {
+        return null;
+    }
+    const parsed = parseIgnoreText(await readFile(file, "utf8"));
+    if (!parsed.ok) {
+        process.stderr.write(`warning: ${file}: not a valid ignore list\n`);
+        return null;
+    }
+    return parsed;
+}
+
+/**
  * Load a CVE record from cache, fetching it on demand.
  *
  * @param {string} cveId
@@ -761,7 +849,10 @@ export function triage(input) {
             String(finding.id ?? "").startsWith("OSV-") ||
             (finding.scanners ?? []).includes("osv");
         const cve = input.cves.get(finding.id) ?? null;
-        const verdict = verdictFor(finding, cve, { osv });
+        const verdict = verdictFor(finding, cve, {
+            osv,
+            ignore: input.ignore ?? null,
+        });
         results.push({
             id: String(finding.id ?? ""),
             package: String(finding.package ?? ""),
@@ -787,6 +878,7 @@ function parseArgs(argv) {
             "sentinel-triage",
         ),
         out: null,
+        ignore: null,
         fetch: false,
         concurrency: 6,
         only: null,
@@ -815,6 +907,9 @@ function parseArgs(argv) {
                 break;
             case "--out":
                 options.out = next();
+                break;
+            case "--ignore":
+                options.ignore = next();
                 break;
             case "--fetch":
                 options.fetch = true;
@@ -871,6 +966,7 @@ async function main() {
                 "  --cache DIR         CVE cache directory",
                 "  --fetch             download missing CVE records",
                 "  --concurrency N     parallel downloads (default 6)",
+                "  --ignore FILE       manual dismissal list",
                 "  --only IDS          comma separated CVE ids",
                 "  --limit N           at most N findings",
                 "  --out FILE          write the JSON report",
@@ -883,6 +979,7 @@ async function main() {
 
     const status = await readStatus(options.status);
     const evidence = await readEvidence(options.evidence);
+    const ignore = await readIgnore(options.ignore);
 
     /** @type {any[]} */
     let findings = status.findings;
@@ -920,6 +1017,7 @@ async function main() {
         status: { ...status, findings },
         evidence,
         cves,
+        ignore,
     });
     const { totals, reasons } = summarize(results);
 
@@ -930,7 +1028,9 @@ async function main() {
             status: options.status,
             evidence: options.evidence,
             cache: options.cache,
+            ignore: options.ignore,
         },
+        ignore_count: ignore ? ignore.count : 0,
         scanned_at: status.scannedAt,
         cves: {
             referenced: cveIds.length,

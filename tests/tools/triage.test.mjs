@@ -3,11 +3,13 @@ import assert from "node:assert/strict";
 import {
     compareVersions,
     cveListPath,
+    ignoreEntryOf,
     evaluateRange,
     evaluateRanges,
     isScopedVendor,
     packageTokensOf,
     parseCve,
+    parseIgnoreText,
     parseRanges,
     parseVersion,
     plausibleScheme,
@@ -286,4 +288,71 @@ test("summarize counts verdicts and reasons", () => {
     });
     assert.equal(counts.reasons["version-in-range"], 2);
     assert.equal(counts.reasons["identity-mismatch"], 1);
+});
+
+test("parseIgnoreText reads a dismissal list", () => {
+    const parsed = parseIgnoreText(JSON.stringify([
+        { cve: "CVE-2021-24028", package: "thrift", reason: "Facebook Thrift" },
+        { cve: "CVE-2021-2", package: "network" },
+        { cve: "", package: "ignored" },
+        { package: "ignored" },
+    ]));
+    assert.equal(parsed.ok, true);
+    assert.equal(parsed.count, 2);
+    assert.equal(parsed.byPair["CVE-2021-24028|thrift"].reason, "Facebook Thrift");
+    assert.deepEqual(ignoreEntryOf(
+        { id: "CVE-2021-24028", package: "thrift" }, parsed), {
+        reason: "Facebook Thrift",
+    });
+    assert.equal(ignoreEntryOf(
+        { id: "CVE-2021-24028", package: "apache-thrift" }, parsed), null);
+});
+
+test("parseIgnoreText accepts wrapped and bare forms, rejects junk", () => {
+    const entry = [{ cve: "CVE-2021-24028", package: "thrift" }];
+    assert.equal(parseIgnoreText(JSON.stringify(entry)).ok, true);
+    assert.equal(parseIgnoreText(JSON.stringify({ entries: entry })).ok, true);
+    assert.equal(parseIgnoreText(JSON.stringify({ ignored: entry })).ok, true);
+    assert.equal(parseIgnoreText("").ok, false);
+    assert.equal(parseIgnoreText("{ nope").ok, false);
+    assert.equal(parseIgnoreText('{"entries": 3}').ok, false);
+    assert.equal(parseIgnoreText('{"entries": []}').ok, true);
+});
+
+test("a manual dismissal suppresses the pair", () => {
+    const ignore = parseIgnoreText(JSON.stringify([
+        { cve: "CVE-2021-35049", package: "network", reason: "Fidelis" },
+    ]));
+    const result = verdictFor(
+        { id: "CVE-2021-35049", package: "network", version: "3.2.8.0" },
+        fidelis, { ignore });
+    assert.equal(result.verdict, "suppressed");
+    assert.deepEqual(result.reasons, ["manual-ignore"]);
+});
+
+test("a tracker confirmation wins over a manual dismissal", () => {
+    const ignore = parseIgnoreText(JSON.stringify([
+        { cve: "CVE-2021-35049", package: "network" },
+    ]));
+    const result = verdictFor(
+        {
+            id: "CVE-2021-35049",
+            package: "network",
+            version: "3.2.8.0",
+            tracker: { status: "published" },
+        },
+        fidelis,
+        { ignore });
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["tracker-published"]);
+});
+
+test("dismissals are scoped to one package", () => {
+    const ignore = parseIgnoreText(JSON.stringify([
+        { cve: "CVE-2021-35049", package: "other-package" },
+    ]));
+    const result = verdictFor(
+        { id: "CVE-2021-35049", package: "network", version: "3.2.8.0" },
+        fidelis, { ignore });
+    assert.equal(result.verdict, "unverified");
 });

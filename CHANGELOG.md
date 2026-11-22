@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   identity from the CVE record and classifies it as `confirmed`, `unverified` or
   `suppressed`; documented in `docs/triage.md`.
 - Added `tests/tools/triage.test.mjs` to the `node --test` suite.
+- Added `--ignore` to `tools/triage.mjs` and a
+  `/var/lib/sentinel/triage-ignore.json` dismissal list for product-name
+  collisions no rule can resolve; a tracker-confirmed verdict still wins.
 - Added a **Triage verdicts** setting (enabled by default) that hides findings
   classified as false positives, plus the hidden count in the toolbar. Verdicts
   come from `/var/lib/sentinel/triage.json` or from a `verdict` field on the
