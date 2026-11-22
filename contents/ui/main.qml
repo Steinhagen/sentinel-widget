@@ -29,6 +29,9 @@ PlasmoidItem {
     })
     property bool haveStatus: false
     property bool scanning: false
+    // Authoritative systemd state, so a plasmashell restart does not lose a
+    // scan that is still running.
+    property bool scanServiceActive: false
     property string preScanStamp: ""
     // Raw status.json of the last read: polling an unchanged file must not
     // rebuild the list.
@@ -103,6 +106,13 @@ PlasmoidItem {
         }
     }
     readonly property int fixedCount: root.filterBandCount(root.masterFilterBands, "fixed")
+    // Denominator for the fix-state bar; it covers exactly the states listed
+    // in the Ready to fix card (including n/a).
+    readonly property int fixStateTotal: root.fixedCount
+        + root.filterBandCount(root.masterFilterBands, "progress")
+        + root.filterBandCount(root.masterFilterBands, "none")
+        + root.filterBandCount(root.masterFilterBands, "unknown")
+        + root.filterBandCount(root.masterFilterBands, "n/a")
     readonly property int trackedCves: root.trackerSummary && root.trackerSummary.cves ? Number(root.trackerSummary.cves) : 0
 
     readonly property int affectedPackages: {
@@ -688,14 +698,11 @@ PlasmoidItem {
 
     Component.onCompleted: root.columnWidths = root.loadColumnWidths()
 
-    readonly property var columns: [
-        { key: "severity", label: i18n("CVSS") },
-        { key: "cve", label: i18n("CVE") },
-        { key: "package", label: i18n("Package") },
-        { key: "version", label: i18n("Version") },
-        { key: "master", label: i18n("Fix") },
-        { key: "via", label: i18n("Detected by") },
-        { key: "origin", label: i18n("Origin") }
+    readonly property var listHeaderColumns: [
+        { key: "severity", label: i18n("CVSS"), width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
+        { key: "cve", label: i18n("CVE"), width: Kirigami.Units.gridUnit * 8.5, fill: false, align: "left" },
+        { key: "package", label: i18n("Package"), width: 0, fill: true, align: "left" },
+        { key: "master", label: i18n("Fix"), width: root.fixPillWidth, fill: false, align: "center" }
     ]
 
     readonly property var filteredVulnerabilities: {
@@ -2011,6 +2018,28 @@ PlasmoidItem {
 
         onNewData: (sourceName, data) => {
             const exitCode = Number(data["exit code"] ?? 0);
+            if (sourceName.indexOf("systemctl is-active") === 0) {
+                const serviceState = String(data["stdout"] || "").trim();
+                const active = serviceState === "active"
+                    || serviceState === "activating"
+                    || serviceState === "reloading"
+                    || serviceState === "deactivating";
+                root.scanServiceActive = active;
+                if (active) {
+                    if (!root.scanning) {
+                        // Adopt a scan that was already running before the
+                        // applet/plasmashell was restarted.
+                        root.preScanStamp = root.haveStatus ? root.stampOf(root.status) : "";
+                        root.scanning = true;
+                        scanTimeout.restart();
+                        root.scrollToTopRequest += 1;
+                    }
+                } else if (root.scanning) {
+                    root.finishScan();
+                }
+                executable.disconnectSource(sourceName);
+                return;
+            }
             const trackerMatch = /\/api\/v1\/suggestions\/by-cve\/(CVE-\d{4}-\d+)/.exec(sourceName);
             if (sourceName.indexOf("curl ") === 0 && trackerMatch) {
                 const cve = trackerMatch[1];
@@ -2044,7 +2073,8 @@ PlasmoidItem {
                             const parsed = JSON.parse(raw);
                             root.mergeStatus(parsed);
                             const stamp = root.stampOf(parsed);
-                            if (root.scanning && stamp !== "" && stamp !== root.preScanStamp) {
+                            if (root.scanning && !root.scanServiceActive
+                                    && stamp !== "" && stamp !== root.preScanStamp) {
                                 root.finishScan();
                             }
                         } catch (e) {
@@ -2070,12 +2100,17 @@ PlasmoidItem {
         executable.exec("cat " + root.statusFile + " 2>/dev/null");
     }
 
+    function checkScanService() {
+        executable.exec("systemctl is-active vulnscan.service 2>/dev/null");
+    }
+
     function startScan() {
         if (root.scanning) {
             return;
         }
         root.preScanStamp = root.haveStatus ? root.stampOf(root.status) : "";
         root.scanning = true;
+        root.scanServiceActive = true;
         scanTimeout.restart();
         root.refresh();
         executable.exec("systemctl start --no-block vulnscan.service");
@@ -2083,6 +2118,7 @@ PlasmoidItem {
 
     function finishScan() {
         root.scanning = false;
+        root.scanServiceActive = false;
         scanTimeout.stop();
         root.scrollToTopRequest += 1;
     }
@@ -2104,11 +2140,14 @@ PlasmoidItem {
     Timer {
         // While the post-scan tracker check runs, follow its 3 s status writes
         // so the progress bar and Master column update live.
-        interval: root.trackerBusy ? 3000 : 60000
+        interval: (root.trackerBusy && root.scanServiceActive) ? 3000 : 60000
         running: true
         repeat: true
         triggeredOnStart: true
-        onTriggered: root.refresh()
+        onTriggered: {
+            root.refresh();
+            root.checkScanService();
+        }
     }
 
     // Poll faster while a scan is running so the result appears promptly.
@@ -2117,6 +2156,15 @@ PlasmoidItem {
         running: root.scanning
         repeat: true
         onTriggered: root.refresh()
+    }
+
+    // Keep the button/bar in sync with the real service, not just in-memory
+    // state; this is what recovers the Scanning state after a shell restart.
+    Timer {
+        interval: 3000
+        running: root.scanning
+        repeat: true
+        onTriggered: root.checkScanService()
     }
 
     // Matches the service's TimeoutStartSec: give up waiting, but keep polling
@@ -2228,12 +2276,6 @@ PlasmoidItem {
             root.scrollToTopRequest += 1;
         }
 
-        function showFixes() {
-            clearFilters();
-            root.filterMasterState = "fixed";
-            root.scrollToTopRequest += 1;
-        }
-
         function setSeverity(band) {
             root.severityBand = band;
             root.scrollToTopRequest += 1;
@@ -2255,8 +2297,33 @@ PlasmoidItem {
         readonly property bool compactLayout: height < Kirigami.Units.gridUnit * 22
 
         header: PlasmaExtras.PlasmoidHeading {
-            contentItem: RowLayout {
-                spacing: Kirigami.Units.smallSpacing
+            id: headerHeading
+            // Keep the logo and the Settings button on the same outer edges
+            // as the three summary cards.
+            readonly property real cardsInset: (root.hasFindings && !root.compactLayout)
+                ? Math.max(0, (width - content.cardsWidth) / 2)
+                : Kirigami.Units.smallSpacing
+
+            leftPadding: 0
+            rightPadding: 0
+
+            contentItem: Item {
+                id: headerContent
+
+                implicitHeight: headerRow.implicitHeight
+
+                RowLayout {
+                    id: headerRow
+
+                    anchors.fill: parent
+                    // Cancel the heading's own content margin so the row can
+                    // start/end exactly at the cards' outer edges.
+                    anchors.leftMargin: Math.max(0,
+                        headerHeading.cardsInset - Kirigami.Units.smallSpacing
+                        + Math.round(Kirigami.Units.gridUnit * 0.22))
+                    anchors.rightMargin: Math.max(0,
+                        headerHeading.cardsInset - Kirigami.Units.smallSpacing)
+                    spacing: Kirigami.Units.smallSpacing
 
                 Rectangle {
                     Layout.preferredWidth: Kirigami.Units.gridUnit * 2
@@ -2349,31 +2416,31 @@ PlasmoidItem {
                         && root.lastScanTooltip.length > 0
                 }
 
-                // Post-scan tracker work is reported here instead of taking a
-                // full row at the bottom of the popup. Use a spinner while the
-                // phase has no total, then a compact determinate bar.
-                PlasmaComponents3.BusyIndicator {
-                    visible: root.trackerBusy && root.trackerProgressTotal <= 0
-                    running: visible
-                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
-
-                    HoverHandler {
-                        id: trackerSpinnerHover
-                    }
-
-                    QQC2.ToolTip.text: root.trackerProgressText
-                    QQC2.ToolTip.visible: trackerSpinnerHover.hovered
-                        && root.trackerProgressText.length > 0
-                }
-
+                // One progress slot for both phases: the scanner has no
+                // countable progress, so its bar animates; the tracker check
+                // is determinate. If an old tracker state is still present
+                // when a new scan starts, the scanner wins instead of showing
+                // two indicators at once.
                 Item {
-                    visible: root.trackerBusy && root.trackerProgressTotal > 0
+                    id: headerProgress
+
+                    // The indeterminate fill deliberately travels past both
+                    // edges; clip it to the 4-unit track.
+                    clip: true
+
+                    readonly property bool indeterminate: (root.scanning && !root.trackerBusy)
+                        || (root.trackerBusy && root.trackerProgressTotal <= 0)
+                    readonly property real ratio: root.trackerProgressDone
+                        / Math.max(1, root.trackerProgressTotal)
+
+                    visible: root.scanning || (root.trackerBusy && root.scanServiceActive)
                     Layout.preferredWidth: Kirigami.Units.gridUnit * 4
                     Layout.minimumWidth: Kirigami.Units.gridUnit * 4
                     Layout.maximumWidth: Kirigami.Units.gridUnit * 4
                     Layout.preferredHeight: Math.max(5,
                         Math.round(Kirigami.Units.gridUnit * 0.4))
+
+                    property real sweepX: -width * 0.3
 
                     Rectangle {
                         anchors.fill: parent
@@ -2382,24 +2449,40 @@ PlasmoidItem {
                     }
 
                     Rectangle {
-                        width: parent.width * Math.min(1,
-                            root.trackerProgressDone / Math.max(1, root.trackerProgressTotal))
+                        x: headerProgress.indeterminate ? headerProgress.sweepX : 0
+                        width: headerProgress.indeterminate
+                            ? Math.max(12, headerProgress.width * 0.3)
+                            : Math.max(2, headerProgress.width * Math.min(1,
+                                Math.max(0, headerProgress.ratio)))
                         height: parent.height
                         radius: height / 2
                         color: root.primaryColor
                     }
 
-                    HoverHandler {
-                        id: trackerProgressHover
+                    NumberAnimation on sweepX {
+                        running: headerProgress.indeterminate
+                        loops: Animation.Infinite
+                        from: -headerProgress.width * 0.3
+                        to: headerProgress.width
+                        duration: 1400
+                        easing.type: Easing.InOutSine
                     }
 
-                    QQC2.ToolTip.text: root.trackerProgressText
-                    QQC2.ToolTip.visible: trackerProgressHover.hovered
-                        && root.trackerProgressText.length > 0
+                    HoverHandler {
+                        id: headerProgressHover
+                    }
+
+                    QQC2.ToolTip.text: root.scanning
+                        ? i18n("Scanning for vulnerabilities…")
+                        : root.trackerProgressText
+                    QQC2.ToolTip.visible: headerProgressHover.hovered
+                        && (root.scanning || root.trackerProgressText.length > 0)
                 }
 
                 Kirigami.Icon {
-                    visible: !root.trackerBusy && root.trackerProgressText.length > 0
+                    visible: !root.scanning
+                        && !(root.trackerBusy && root.scanServiceActive)
+                        && root.trackerProgressText.length > 0
                     source: "dialog-warning"
                     Layout.preferredWidth: Kirigami.Units.iconSizes.small
                     Layout.preferredHeight: Kirigami.Units.iconSizes.small
@@ -2409,16 +2492,20 @@ PlasmoidItem {
                         id: trackerWarningHover
                     }
 
-                    QQC2.ToolTip.text: root.trackerProgressText
+                    QQC2.ToolTip.text: (root.trackerBusy && !root.scanServiceActive)
+                        ? i18n("The last scan did not finish. Scan again to complete it.")
+                        : root.trackerProgressText
                     QQC2.ToolTip.visible: trackerWarningHover.hovered
-                        && root.trackerProgressText.length > 0
+                        && (root.trackerBusy || root.trackerProgressText.length > 0)
                 }
 
                 QQC2.Button {
                     id: scanButton
 
-                    text: root.scanning ? i18n("Scanning…") : i18n("Scan now")
+                    text: (root.scanning || (root.trackerBusy && root.scanServiceActive))
+                        ? i18n("Scanning…") : i18n("Scan now")
                     enabled: !root.scanning
+                        && !(root.trackerBusy && root.scanServiceActive)
                     Layout.preferredHeight: Math.round(Kirigami.Units.gridUnit * 1.65)
                     leftPadding: Kirigami.Units.gridUnit * 0.7
                     rightPadding: Kirigami.Units.gridUnit * 0.7
@@ -2443,13 +2530,6 @@ PlasmoidItem {
                     }
                 }
 
-                PlasmaComponents3.BusyIndicator {
-                    running: root.scanning
-                    visible: root.scanning
-                    Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
-                    Layout.preferredHeight: Kirigami.Units.iconSizes.smallMedium
-                }
-
                 PlasmaComponents3.ToolButton {
                     icon.name: "configure"
                     text: i18n("Settings")
@@ -2465,26 +2545,33 @@ PlasmoidItem {
                     QQC2.ToolTip.visible: hovered
                 }
             }
+            }
         }
 
         contentItem: Item {
             ColumnLayout {
                 id: content
 
+                // Keep the search/table aligned with the three cards instead
+                // of stretching them to the full popup width. In compact mode
+                // the cards are hidden, so the table can use the full width.
+                readonly property real cardsWidth: Kirigami.Units.gridUnit * (15.5 + 9.0 + 9.0)
+                    + Kirigami.Units.gridUnit * 0.55 * 2
+                readonly property real lowerWidth: root.hasFindings && !fullRoot.compactLayout
+                    ? cardsWidth : width
+
                 anchors.fill: parent
                 anchors.margins: Kirigami.Units.largeSpacing
                 spacing: Kirigami.Units.smallSpacing
 
                 RowLayout {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: Kirigami.Units.gridUnit * 6.2
-                    Layout.maximumHeight: Kirigami.Units.gridUnit * 6.2
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: content.cardsWidth
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.preferredHeight: Kirigami.Units.gridUnit * 8.2
+                    Layout.maximumHeight: Kirigami.Units.gridUnit * 8.2
                     spacing: Kirigami.Units.gridUnit * 0.55
                     visible: root.hasFindings && !fullRoot.compactLayout
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
 
                     // Risk
                     Rectangle {
@@ -2569,7 +2656,7 @@ PlasmoidItem {
                                     color: root.criticalColor
                                     font.bold: true
                                     font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
                                     font.letterSpacing: 0.6
                                 }
 
@@ -2621,20 +2708,20 @@ PlasmoidItem {
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: Kirigami.Units.gridUnit * 0.4
-                            spacing: 3
+                            spacing: 4
 
                             PlasmaComponents3.Label {
                                 text: i18n("SEVERITY")
                                 color: root.mutedText
                                 font.bold: true
                                 font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
                                 font.letterSpacing: 0.6
                             }
 
                             Row {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 8
+                                Layout.preferredHeight: 9
                                 spacing: 2
 
                                 Repeater {
@@ -2642,7 +2729,7 @@ PlasmoidItem {
 
                                     Rectangle {
                                         width: Math.max(2, (parent.width - 8) * modelData.count / Math.max(1, root.findings))
-                                        height: 8
+                                        height: 9
                                         radius: 2
                                         color: root.severityBandColor(modelData.key)
                                     }
@@ -2653,14 +2740,14 @@ PlasmoidItem {
                                 Layout.fillWidth: true
                                 columns: 1
                                 columnSpacing: Kirigami.Units.smallSpacing
-                                rowSpacing: 1
+                                rowSpacing: 2
 
                                 Repeater {
                                     model: root.severityBands.slice(1)
 
                                     Rectangle {
                                         Layout.fillWidth: true
-                                        Layout.preferredHeight: 14
+                                        Layout.preferredHeight: 16
                                         radius: 4
                                         color: root.severityBand === modelData.key ? root.rowHover : "transparent"
 
@@ -2671,8 +2758,8 @@ PlasmoidItem {
                                             spacing: 4
 
                                             Rectangle {
-                                                Layout.preferredWidth: 6
-                                                Layout.preferredHeight: 6
+                                                Layout.preferredWidth: 7
+                                                Layout.preferredHeight: 7
                                                 radius: 2
                                                 color: root.severityBandColor(modelData.key)
                                             }
@@ -2720,61 +2807,104 @@ PlasmoidItem {
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: Kirigami.Units.gridUnit * 0.4
-                            spacing: 2
+                            spacing: 4
 
                             PlasmaComponents3.Label {
                                 text: i18n("READY TO FIX")
                                 color: root.mutedText
                                 font.bold: true
                                 font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
                                 font.letterSpacing: 0.6
-                            }
-
-                            PlasmaComponents3.Label {
-                                text: root.fixedCount
-                                color: Kirigami.Theme.positiveTextColor
-                                font.bold: true
-                                font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.7)
-                            }
-
-                            PlasmaComponents3.Label {
-                                text: i18n("fixes available")
-                                color: root.mutedText
-                                font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Kirigami.Theme.smallFont.pointSize
-                            }
-
-                            Item {
-                                Layout.fillHeight: true
                             }
 
                             Item {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: Math.max(14, Kirigami.Theme.smallFont.pointSize + 6)
+                                Layout.preferredHeight: 9
 
-                                PlasmaComponents3.Label {
-                                    anchors.left: parent.left
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: i18n("Review fixes →")
-                                    color: Kirigami.Theme.positiveTextColor
-                                    font.bold: true
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                    elide: Text.ElideRight
-                                }
+                                Row {
+                                    id: fixStateBar
 
-                                MouseArea {
                                     anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: showFixes()
+                                    spacing: 2
+
+                                    Repeater {
+                                        model: root.masterFilterBands.slice(1)
+
+                                        Rectangle {
+                                            width: Math.max(2, (fixStateBar.width - 8)
+                                                * modelData.count
+                                                / Math.max(1, root.fixStateTotal))
+                                            height: 9
+                                            radius: 2
+                                            color: root.masterFilterColor(modelData.key)
+                                        }
+                                    }
+                                }
+                            }
+
+                            GridLayout {
+                                Layout.fillWidth: true
+                                columns: 1
+                                columnSpacing: Kirigami.Units.smallSpacing
+                                rowSpacing: 2
+
+                                Repeater {
+                                    model: root.masterFilterBands.slice(1)
+
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 16
+                                        radius: 4
+                                        color: root.filterMasterState === modelData.key
+                                            ? root.rowHover : "transparent"
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 3
+                                            anchors.rightMargin: 3
+                                            spacing: 4
+
+                                            Rectangle {
+                                                Layout.preferredWidth: 7
+                                                Layout.preferredHeight: 7
+                                                radius: 2
+                                                color: root.masterFilterColor(modelData.key)
+                                            }
+
+                                            PlasmaComponents3.Label {
+                                                Layout.fillWidth: true
+                                                text: modelData.key === "fixed"
+                                                    ? i18n("Fixed")
+                                                    : (modelData.key === "progress"
+                                                        ? i18n("Pending")
+                                                        : modelData.label)
+                                                color: root.mutedText
+                                                font.family: Kirigami.Theme.smallFont.family
+                                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                                elide: Text.ElideRight
+                                            }
+
+                                            PlasmaComponents3.Label {
+                                                text: modelData.count
+                                                color: modelData.key === "fixed"
+                                                    ? Kirigami.Theme.positiveTextColor
+                                                    : Kirigami.Theme.textColor
+                                                font.bold: true
+                                                font.family: Kirigami.Theme.smallFont.family
+                                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: root.setMasterStateFilter(modelData.key)
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
                     }
                 }
 
@@ -2782,7 +2912,10 @@ PlasmoidItem {
                 // The old column header/filter rows duplicated information and
                 // are gone; severity is conveyed by the row colour.
                 RowLayout {
-                    Layout.fillWidth: true
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: content.lowerWidth
+                    Layout.maximumWidth: content.lowerWidth
+                    Layout.alignment: Qt.AlignHCenter
                     spacing: Kirigami.Units.smallSpacing
                     visible: root.hasFindings
 
@@ -2957,7 +3090,10 @@ PlasmoidItem {
                 Rectangle {
                     id: listContainer
 
-                    Layout.fillWidth: true
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: content.lowerWidth
+                    Layout.maximumWidth: content.lowerWidth
+                    Layout.alignment: Qt.AlignHCenter
                     Layout.fillHeight: true
                     // Let the list shrink instead of forcing the whole column
                     // past the popup height when the window is very short.
@@ -2993,6 +3129,82 @@ PlasmoidItem {
                                 root.applyDeferredStatus();
                             }
                         }
+                    }
+
+                    // Compact, fixed column titles. Click a title to sort; the
+                    // arrow marks the active sort key and direction.
+                    RowLayout {
+                        id: listHeader
+
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: Math.max(Kirigami.Units.gridUnit * 1.3,
+                            Kirigami.Theme.smallFont.pointSize
+                                + Kirigami.Units.smallSpacing * 2)
+                        spacing: Kirigami.Units.smallSpacing
+
+                        Item {
+                            Layout.preferredWidth: Kirigami.Units.smallSpacing + 3
+                        }
+
+                        Repeater {
+                            model: root.listHeaderColumns
+
+                            delegate: Item {
+                                Layout.preferredWidth: modelData.fill ? 0 : modelData.width
+                                Layout.minimumWidth: modelData.fill ? 0 : modelData.width
+                                Layout.fillWidth: modelData.fill
+                                implicitHeight: headerTitle.implicitHeight
+
+                                PlasmaComponents3.Label {
+                                    id: headerTitle
+
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    horizontalAlignment: modelData.align === "center"
+                                        ? Text.AlignHCenter : Text.AlignLeft
+                                    text: modelData.label + " " + root.sortArrow(modelData.key)
+                                    color: root.sortKey === modelData.key
+                                        ? Kirigami.Theme.textColor
+                                        : root.faintText
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Math.max(6,
+                                        Kirigami.Theme.smallFont.pointSize - 1)
+                                    font.bold: root.sortKey === modelData.key
+                                    elide: Text.ElideRight
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.toggleSort(modelData.key)
+
+                                    QQC2.ToolTip.text: root.sortKey === modelData.key
+                                        ? (root.sortDescending
+                                            ? i18n("Sorted descending — click for ascending")
+                                            : i18n("Sorted ascending — click for descending"))
+                                        : i18n("Sort by %1", modelData.label)
+                                    QQC2.ToolTip.visible: containsMouse
+                                }
+                            }
+                        }
+
+                        Item {
+                            Layout.preferredWidth: findingsList.rightMargin
+                        }
+                    }
+
+                    Rectangle {
+                        id: listHeaderRule
+
+                        anchors.top: listHeader.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        height: 1
+                        color: root.hairline
                     }
 
                     Component {
@@ -3047,7 +3259,10 @@ PlasmoidItem {
                     ListView {
                         id: findingsList
 
-                        anchors.fill: parent
+                        anchors.top: listHeaderRule.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         clip: true
                         spacing: 0
                         boundsBehavior: Flickable.StopAtBounds

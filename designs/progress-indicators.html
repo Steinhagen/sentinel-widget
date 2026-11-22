@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — 5 progress indicator directions</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --panel: #22262d;
+    --panel2: #2a2e36;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #343841;
+    --blue: #3daee9;
+    --blue-dark: #1f6f93;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #fb7185;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0f1115;
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .page-head { max-width: 892px; margin: 0 auto 20px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 23px; letter-spacing: -.2px; }
+  .page-head p { margin: 0; color: #aab0b9; line-height: 1.55; }
+  .recommend {
+    max-width: 892px;
+    margin: 0 auto 26px;
+    padding: 11px 14px;
+    border: 1px solid #2f4a5c;
+    border-left: 3px solid var(--blue);
+    background: #18232b;
+    border-radius: 8px;
+    color: #b9c1c9;
+  }
+  .recommend b { color: #8fd3f5; }
+  .design { max-width: 892px; margin: 0 auto 26px; }
+  .design-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 7px; }
+  .num { color: #59616c; font: 12px "DejaVu Sans Mono", monospace; }
+  .design h2 { margin: 0; font-size: 15px; letter-spacing: -.1px; }
+  .tagline { margin-left: auto; color: #8f96a0; font-size: 11.5px; }
+  .applet {
+    width: 892px;
+    max-width: 100%;
+    background: var(--bg);
+    border: 1px solid #2b3038;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .header {
+    height: 66px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand { display: flex; align-items: center; gap: 9px; min-width: 0; flex: 1; }
+  .logo {
+    width: 32px; height: 32px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--blue); border-radius: 9px;
+  }
+  .logo svg { width: 18px; height: 18px; }
+  .brand-text { min-width: 0; }
+  .brand-line { display: flex; align-items: center; gap: 6px; }
+  .brand-line b { font-size: 14px; letter-spacing: -.1px; }
+  .badge {
+    padding: 1px 5px; border-radius: 4px;
+    color: #ffd3da; background: rgba(251,113,133,.18);
+    font-size: 8px; font-weight: 700; letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+  .sub { color: var(--muted); font-size: 10.5px; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .right { display: flex; align-items: center; gap: 9px; flex: none; }
+  .last { color: var(--muted); font-size: 10.5px; white-space: nowrap; }
+  .action {
+    height: 27px; padding: 0 12px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--blue); color: #fff; font-size: 10.5px; font-weight: 700;
+    white-space: nowrap;
+  }
+  .action.ghost { background: rgba(61,174,233,.16); color: #8fd3f5; }
+  .gear { color: #9aa0a6; font-size: 17px; line-height: 1; }
+  .rule { border-top: 1px solid #2b3038; }
+  .footer-hint { height: 18px; display: flex; align-items: center; padding: 0 12px; color: #59616c; font-size: 9px; }
+
+  /* 01 — slim inline bar */
+  .slim-wrap { display: flex; align-items: center; gap: 5px; }
+  .slim { width: 94px; height: 6px; border-radius: 99px; background: #343841; overflow: hidden; }
+  .slim .fill { width: 50%; height: 100%; background: var(--blue); border-radius: 99px; }
+  .pct { color: var(--muted); font: 9.5px "DejaVu Sans Mono", monospace; white-space: nowrap; }
+
+  /* 02 — determinate ring */
+  .ringwrap { display: flex; align-items: center; gap: 5px; }
+  .ring { width: 24px; height: 24px; }
+  .ring .track { stroke: #343841; }
+  .ring .arc { stroke: var(--blue); stroke-linecap: round; }
+  .ringtext { color: #8fd3f5; font: 9px "DejaVu Sans Mono", monospace; }
+
+  /* 03 — segmented ticks */
+  .segwrap { display: flex; align-items: center; gap: 5px; }
+  .segs { display: flex; gap: 2px; }
+  .seg { width: 7px; height: 8px; border-radius: 2px; background: #343841; }
+  .seg.on { background: var(--blue); }
+
+  /* 04 — progress inside action button */
+  .progress-action {
+    height: 27px; width: 112px; border-radius: 7px;
+    position: relative; overflow: hidden; background: var(--blue-dark);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 10.5px; font-weight: 700; white-space: nowrap;
+  }
+  .progress-action .fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 50%;
+    background: var(--blue);
+  }
+  .progress-action span { position: relative; z-index: 1; }
+
+  /* 05 — top-edge loading line */
+  .topline { position: absolute; left: 0; right: 0; top: 0; height: 2px; background: #2b3038; }
+  .topline .fill { width: 50%; height: 100%; background: var(--blue); }
+  .topline.indeterminate .fill {
+    width: 30%;
+    animation: slide 1.4s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0% { margin-left: -30%; }
+    100% { margin-left: 100%; }
+  }
+
+  /* current spinner, for reference only */
+  .spinner {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid #343841; border-top-color: var(--blue);
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .notes { margin-top: 5px; color: #8f96a0; font-size: 11.5px; }
+  .notes b { color: #c9ced5; font-weight: 600; }
+  .notes .sep { color: #4b525c; margin: 0 5px; }
+
+  body.single { padding: 20px; }
+  body.single .page-head, body.single .recommend, body.single .design { display: none; }
+  body.single .design:target { display: block; margin: 0; }
+  body.single .design:target .notes { display: none; }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>Progress indicators — 5 directions</h1>
+    <p>Same header, same dark Plasma context, five different ways to show post-scan/tracker progress. The current circular spinner is replaced in each mockup by the indicator highlighted on the right.</p>
+  </div>
+
+  <div class="recommend"><b>Recommendation:</b> use <b>01 (slim inline bar + count)</b> for the tracker, where the total is known, and fall back to its indeterminate shimmer while the scan itself runs. If you want the most minimal look, <b>05 (top-edge line)</b> is the least intrusive. <b>04</b> saves the most space but makes the action button do double duty.</div>
+
+  <section class="design" id="p1">
+    <div class="design-head"><span class="num">01</span><h2>Slim inline bar</h2><span class="tagline">remain where the old timestamp lives</span></div>
+    <div class="applet">
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 4.6-3 8.5-7 9-4-.5-7-4.4-7-9V5l7-3z" fill="#fff"/></svg></div>
+          <div class="brand-text"><div class="brand-line"><b>Sentinel</b><span class="badge">Vulnerable</span></div><div class="sub">123 packages affected · highest CVSS 9.9</div></div>
+        </div>
+        <div class="right">
+          <span class="last">Last scan 2 hours ago</span>
+          <div class="slim-wrap"><div class="slim"><div class="fill"></div></div><span class="pct">40/80</span></div>
+          <div class="action">Scanning…</div>
+          <span class="gear">⚙</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="footer-hint">Determinate → fill + count; indeterminate → a slow shimmer.</div>
+    </div>
+    <div class="notes"><b>Shows</b> exact progress and total in very little space. <b>Tradeoff</b> the bar is small and easy to miss. <span class="sep">|</span> <b>Best</b> for the tracker check.</div>
+  </section>
+
+  <section class="design" id="p2">
+    <div class="design-head"><span class="num">02</span><h2>Determinate ring</h2><span class="tagline">replaces the spinner, adds a value</span></div>
+    <div class="applet">
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 4.6-3 8.5-7 9-4-.5-7-4.4-7-9V5l7-3z" fill="#fff"/></svg></div>
+          <div class="brand-text"><div class="brand-line"><b>Sentinel</b><span class="badge">Vulnerable</span></div><div class="sub">123 packages affected · highest CVSS 9.9</div></div>
+        </div>
+        <div class="right">
+          <span class="last">Last scan 2 hours ago</span>
+          <div class="ringwrap">
+            <svg class="ring" viewBox="0 0 24 24">
+              <circle class="track" cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/>
+              <circle class="arc" cx="12" cy="12" r="9" fill="none" stroke-width="2.5" stroke-dasharray="28.3 56.5" transform="rotate(-90 12 12)"/>
+            </svg>
+            <span class="ringtext">50%</span>
+          </div>
+          <div class="action">Scanning…</div>
+          <span class="gear">⚙</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="footer-hint">Indeterminate → rotate the ring; determinate → arc + percentage.</div>
+    </div>
+    <div class="notes"><b>Shows</b> progress in a compact, recognisable circle. <b>Tradeoff</b> still circular; less room for a count. <span class="sep">|</span> <b>Best</b> when the percentage matters more than “40 of 80”.</div>
+  </section>
+
+  <section class="design" id="p3">
+    <div class="design-head"><span class="num">03</span><h2>Segmented ticks</h2><span class="tagline">phase-friendly, no continuous bar</span></div>
+    <div class="applet">
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 4.6-3 8.5-7 9-4-.5-7-4.4-7-9V5l7-3z" fill="#fff"/></svg></div>
+          <div class="brand-text"><div class="brand-line"><b>Sentinel</b><span class="badge">Vulnerable</span></div><div class="sub">123 packages affected · highest CVSS 9.9</div></div>
+        </div>
+        <div class="right">
+          <span class="last">Last scan 2 hours ago</span>
+          <div class="segwrap">
+            <div class="segs"><i class="seg on"></i><i class="seg on"></i><i class="seg on"></i><i class="seg on"></i><i class="seg on"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i></div>
+            <span class="pct">5/10</span>
+          </div>
+          <div class="action">Scanning…</div>
+          <span class="gear">⚙</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="footer-hint">Indeterminate → a travelling highlight over the ticks.</div>
+    </div>
+    <div class="notes"><b>Shows</b> progress in discrete steps; reads well at small sizes. <b>Tradeoff</b> less precise than a continuous bar. <span class="sep">|</span> <b>Best</b> for scanner phases (packages, CVEs, issues).</div>
+  </section>
+
+  <section class="design" id="p4">
+    <div class="design-head"><span class="num">04</span><h2>Progress-filled action</h2><span class="tagline">the button is the indicator</span></div>
+    <div class="applet">
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 4.6-3 8.5-7 9-4-.5-7-4.4-7-9V5l7-3z" fill="#fff"/></svg></div>
+          <div class="brand-text"><div class="brand-line"><b>Sentinel</b><span class="badge">Vulnerable</span></div><div class="sub">123 packages affected · highest CVSS 9.9</div></div>
+        </div>
+        <div class="right">
+          <span class="last">Last scan 2 hours ago</span>
+          <div class="progress-action"><div class="fill"></div><span>Scanning 50%</span></div>
+          <span class="gear">⚙</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="footer-hint">Indeterminate → the fill sweeps across the button.</div>
+    </div>
+    <div class="notes"><b>Shows</b> progress where the user is already looking, with no extra widget. <b>Tradeoff</b> the button is harder to read/click while busy. <span class="sep">|</span> <b>Best</b> when header space is tight.</div>
+  </section>
+
+  <section class="design" id="p5">
+    <div class="design-head"><span class="num">05</span><h2>Top-edge loading line</h2><span class="tagline">almost invisible until it moves</span></div>
+    <div class="applet">
+      <div class="topline"><div class="fill"></div></div>
+      <div class="header">
+        <div class="brand">
+          <div class="logo"><svg viewBox="0 0 24 24"><path d="M12 2l7 3v6c0 4.6-3 8.5-7 9-4-.5-7-4.4-7-9V5l7-3z" fill="#fff"/></svg></div>
+          <div class="brand-text"><div class="brand-line"><b>Sentinel</b><span class="badge">Vulnerable</span></div><div class="sub">123 packages affected · highest CVSS 9.9</div></div>
+        </div>
+        <div class="right">
+          <span class="last">Last scan 2 hours ago</span>
+          <div class="action">Scanning…</div>
+          <span class="gear">⚙</span>
+        </div>
+      </div>
+      <div class="rule"></div>
+      <div class="footer-hint">Determinate → full-width progress; indeterminate → a sliding segment.</div>
+    </div>
+    <div class="notes"><b>Shows</b> progress without adding a control to the header. <b>Tradeoff</b> no count/percentage; can be missed. <span class="sep">|</span> <b>Best</b> for the scan phase, not the longer tracker check.</div>
+  </section>
+
+<script>
+  function applySingle() {
+    document.body.classList.toggle('single', Boolean(location.hash));
+  }
+  applySingle();
+  window.addEventListener('hashchange', applySingle);
+</script>
+</body>
+</html>

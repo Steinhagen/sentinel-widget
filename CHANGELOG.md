@@ -21,6 +21,27 @@
 - Move post-scan tracker progress to a compact indicator next to the
   last-scan timestamp and remove the bottom progress row. Tracker warnings
   appear as a small icon with the detail in its tooltip.
+- Merge scan and tracker progress into one header slot: the scanner animates
+  the bar, tracker checks fill it, and the separate scanner spinner is gone.
+- Recover the Scanning state from `systemctl is-active` after a shell restart;
+  hide stale tracker progress and flag an interrupted scan when the service is
+  no longer running.
+- Clip the indeterminate scan sweep to its header track so it cannot draw
+  over the timestamp or the Scan button.
+- Add a compact click-to-sort column header for CVSS, CVE, Package and Fix,
+  with an arrow showing the active sort direction.
+- Align the toolbar and findings table to the combined width of the three
+  cards instead of the full popup width.
+- Inset the header content to the cards' width so the logo and Settings button
+  line up with the outer card edges.
+- Center the card row as a fixed-width group, matching the toolbar and table,
+  so the application's left and right padding are symmetric.
+- Redesign the READY TO FIX card to mirror the Severity card: title, stacked
+  fix-state bar, and five clickable rows (Fixed/Pending/No fix/Unknown/n/a)
+  with the same padding and row rhythm. The Fixed row filters to fixes.
+- Increase the dashboard card height and spacing, enlarge the small card
+  titles, and include n/a in the fix breakdown so the cards read more
+  comfortably.
 - Remove the **Top origin** card to make the dashboard narrower; origins remain
   visible in the findings list and group-by-origin mode. Reduce the
   default/minimum width from 50 to 36 grid units.

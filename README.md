@@ -9,16 +9,25 @@ into a compact security dashboard.
 
 ## Features
 
-- Three dashboard cards: highest CVSS score, severity mix and available fixes.
+- Three dashboard cards: highest CVSS score, severity mix, and available fixes
+  with a fix-state breakdown.
   Dependency origins are shown in the findings list and group-by-origin mode.
 - Two-line findings list: CVSS score, CVE, package + version, fix status, and
   the full dependency-origin chain underneath.
+- Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
+  direction arrow.
 - Flat list by default, with an optional **Group by origin** mode that turns
   each origin into a section header.
 - Search plus a compact **Filters** menu for severity and fix state.
+- The cards, toolbar and findings table share one centered width.
+- The header logo and Settings button align with the outer card edges.
 - Table scrolls independently.
 - A single scan timestamp in the header: relative time, with the exact time on
   hover.
+- One header progress bar for both phases: animated while scanning, then
+  determinate during the tracker check.
+- Resumes the Scanning state after a plasmashell restart by checking the scan
+  service; stale tracker progress is flagged instead of shown as active.
 - Light and dark themes follow the system color scheme automatically.
 - Panel badge can show the finding count, a dot, or nothing.
 - Links to the Nixpkgs security tracker and optional tracker API token.

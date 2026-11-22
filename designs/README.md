@@ -44,3 +44,19 @@ Use **02 (two-line rows)** as the default, add **04 (group by origin)** as an
 optional grouping switch, and borrow **10**'s expansion for detector/tracker
 detail. Replace the header/filter row with one search field plus a single
 **Filters** popover.
+
+## Progress indicator directions
+
+Five header mockups for the scanning/tracker progress, in the same dark
+context: [gallery](progress-indicators.html) · [overview](progress-indicators.png).
+
+| # | Design | What it is best at |
+|---|--------|--------------------|
+| 01 | [Slim inline bar](progress-01.png) | Exact progress + count in minimal space |
+| 02 | [Determinate ring](progress-02.png) | Replacing the spinner while keeping a percentage |
+| 03 | [Segmented ticks](progress-03.png) | Discrete scanner phases at small sizes |
+| 04 | [Progress-filled action](progress-04.png) | Tight header space; the button is the indicator |
+| 05 | [Top-edge loading line](progress-05.png) | Almost invisible; best for the scan phase |
+
+**Recommendation:** 01 for the tracker (determinate) with an indeterminate
+shimmer during the scan itself; 05 if the header should stay completely clean.
