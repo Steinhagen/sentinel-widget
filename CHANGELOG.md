@@ -32,6 +32,8 @@
   the toolbar, including filters set by clicking a package or origin.
 - Disable SearchField auto-accept so live filtering no longer blurs the search
   field after the first keystroke.
+- Keep the table at the card width when the summary cards are hidden, instead
+  of expanding to the full popup width and overflowing its margins.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
 - Give every fix pill the same width, sized to the longest fix-state label,

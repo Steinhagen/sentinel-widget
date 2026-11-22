@@ -17,8 +17,12 @@ PlasmaExtras.Representation {
     readonly property bool compactLayout: height < Kirigami.Units.gridUnit * 22
     readonly property real cardsWidth: Kirigami.Units.gridUnit * (15.5 + 9.0 + 9.0)
         + Kirigami.Units.gridUnit * 0.55 * 2
+    readonly property real usableWidth: Math.max(0, width - Kirigami.Units.largeSpacing * 2)
+    // Keep the table at the card width in every layout. Previously it expanded
+    // to the full popup width when the cards were hidden, which overflowed the
+    // content margins and made the table jump between layouts.
     readonly property real lowerWidth: root.vm && root.vm.hasFindings
-        && !root.compactLayout ? root.cardsWidth : width
+        ? Math.min(root.cardsWidth, root.usableWidth) : root.usableWidth
     readonly property string hintText: {
         if (!root.store || !root.vm) {
             return "";
