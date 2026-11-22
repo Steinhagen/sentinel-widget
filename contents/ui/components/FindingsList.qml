@@ -15,6 +15,10 @@ Rectangle {
     property string systemChannel: ""
     property string sortKey: "severity"
     property bool sortDescending: true
+    property string groupBy: "none"
+    property bool groupsExpanded: true
+    property string groupSortKey: ""
+    property bool groupSortDescending: false
 
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
@@ -27,6 +31,8 @@ Rectangle {
     signal holdUpdatesChanged(bool held)
     signal sortRequested(string key)
     signal groupToggleRequested(string groupKey)
+    signal toggleGroupsExpandedRequested()
+    signal groupSortRequested(string key)
 
     color: root.theme ? root.theme.cardColor : "transparent"
     radius: 12
@@ -120,10 +126,28 @@ Rectangle {
         onHoveredChanged: root.holdUpdatesChanged(hovered)
     }
 
+    GroupHeaderBar {
+        id: groupBar
+
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: visible ? Kirigami.Units.gridUnit * 2.1 : 0
+        visible: root.groupBy !== "none"
+        groupBy: root.groupBy
+        groupsExpanded: root.groupsExpanded
+        groupSortKey: root.groupSortKey
+        groupSortDescending: root.groupSortDescending
+        theme: root.theme
+        labels: root.labels
+        onToggleGroupsExpandedRequested: root.toggleGroupsExpandedRequested()
+        onGroupSortRequested: (key) => root.groupSortRequested(key)
+    }
+
     RowLayout {
         id: listHeader
 
-        anchors.top: parent.top
+        anchors.top: groupBar.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         height: Math.max(Kirigami.Units.gridUnit * 1.3,

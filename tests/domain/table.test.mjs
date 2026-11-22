@@ -130,3 +130,21 @@ test("individual groups can be collapsed", () => {
         entry.rowType === "group" || entry.severityBand !== "critical"));
     assert.equal(findingCount(partial), rows.length - criticalHeader.count);
 });
+
+test("groups can be sorted by name or finding count", () => {
+    const byName = flattenGroups(rows, "package", true, {}, "name", false)
+        .filter((entry) => entry.rowType === "group")
+        .map((entry) => entry.key);
+    assert.deepEqual(byName, [...byName].sort((a, b) => a.localeCompare(b)));
+
+    const byNameDesc = flattenGroups(rows, "package", true, {}, "name", true)
+        .filter((entry) => entry.rowType === "group")
+        .map((entry) => entry.key);
+    assert.deepEqual(byNameDesc, [...byNameDesc].sort((a, b) => b.localeCompare(a)));
+
+    const byCount = flattenGroups(rows, "package", true, {}, "count", true)
+        .filter((entry) => entry.rowType === "group");
+    for (let i = 1; i < byCount.length; ++i) {
+        assert.ok(byCount[i - 1].count >= byCount[i].count);
+    }
+});

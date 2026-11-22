@@ -189,6 +189,40 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_group_sorting() {
+        const env = testCase.makeVm();
+        env.vm.setGroupBy("package");
+        env.vm.toggleGroupSort("name");
+        compare(env.vm.groupSortKey, "name");
+        compare(env.vm.groupSortDescending, false);
+        const names = env.vm.rows.filter(row => row.rowType === "group")
+            .map(row => row.key);
+        const sorted = names.slice().sort((a, b) => a.localeCompare(b));
+        compare(names.join("|"), sorted.join("|"));
+
+        env.vm.toggleGroupSort("name");
+        compare(env.vm.groupSortDescending, true);
+        const namesDesc = env.vm.rows.filter(row => row.rowType === "group")
+            .map(row => row.key);
+        const sortedDesc = namesDesc.slice().sort((a, b) => b.localeCompare(a));
+        compare(namesDesc.join("|"), sortedDesc.join("|"));
+
+        env.vm.toggleGroupSort("count");
+        compare(env.vm.groupSortKey, "count");
+        compare(env.vm.groupSortDescending, true);
+        const counts = env.vm.rows.filter(row => row.rowType === "group")
+            .map(row => row.count);
+        for (let i = 1; i < counts.length; ++i) {
+            verify(counts[i - 1] >= counts[i]);
+        }
+        compare(env.vm.visibleCount, 13);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_report_change_preserves_scroll_signal() {
         const env = testCase.makeVm();
         const reset = testCase.spy(env.vm, "rowsReset");

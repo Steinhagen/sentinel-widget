@@ -112,6 +112,9 @@ QtObject {
     function groupTitle(groupBy, key) {
         return key;
     }
+    function groupColumnLabel(groupBy) { return groupBy; }
+    function groupCountColumnLabel() { return "Findings"; }
+    function groupSortTooltip(groupBy, key, active, descending) { return key; }
     function groupToggleTooltip(expanded) {
         return expanded ? "Hide" : "Show";
     }

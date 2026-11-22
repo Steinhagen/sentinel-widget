@@ -175,7 +175,7 @@ export function groupKeysOf(rows, groupBy) {
     return keys;
 }
 
-export function flattenGroups(rows, groupBy, expanded, collapsedGroups) {
+export function flattenGroups(rows, groupBy, expanded, collapsedGroups, groupSortKey, groupSortDescending) {
     const mode = groupBy || "origin";
     if (mode === "none") {
         return rows;
@@ -199,6 +199,18 @@ export function flattenGroups(rows, groupBy, expanded, collapsedGroups) {
     }
 
     order.sort(function (a, b) {
+        if (groupSortKey === "name") {
+            const cmp = a.localeCompare(b);
+            return groupSortDescending ? -cmp : cmp;
+        }
+        if (groupSortKey === "count") {
+            if (groups[a].count !== groups[b].count) {
+                return groupSortDescending
+                    ? groups[b].count - groups[a].count
+                    : groups[a].count - groups[b].count;
+            }
+            return a.localeCompare(b);
+        }
         if (mode === "priority") {
             const ai = PRIORITY_ORDER.indexOf(a);
             const bi = PRIORITY_ORDER.indexOf(b);

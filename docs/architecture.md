@@ -210,6 +210,7 @@ contents/
       FindingsList.qml
       FindingRow.qml
       GroupHeader.qml
+      GroupHeaderBar.qml
       RowContextMenu.qml
       EmptyState.qml
       TrackerHint.qml
@@ -461,7 +462,8 @@ Responsibilities:
 | `FindingsToolbar` | search text, filters, counts, group mode, expanded state | `searchChanged`, `clearFilters`, `groupBySelected`, `toggleGroupsExpandedRequested` |
 | `FindingsList` | rows, grouped mode, theme, labels | `openFinding`, `filterPackage`, `filterOrigin`, `openFix`, `openTracker`, `copy`, `menuRequested` |
 | `FindingRow` | `required property var rowData`, theme, labels | row intents |
-| `GroupHeader` | group title/kind, count | none |
+| `GroupHeader` | group title/kind, count, expanded | `toggleRequested` |
+| `GroupHeaderBar` | group kind, expanded state, group sort | `toggleGroupsExpandedRequested`, `groupSortRequested` |
 | `RowContextMenu` | row, labels | row intents |
 | `EmptyState` | icon, title, explanation | none |
 | `TrackerHint` | text, visible | none |
@@ -1536,7 +1538,7 @@ Measured before the refactor:
 
 - `contents/ui/main.qml`: 130 lines, composition root only.
 - 10 domain modules, 8 services, 2 state objects and 16 components.
-- 58 Node domain tests, 33 qmltestrunner service/state tests.
+- 59 Node domain tests, 34 qmltestrunner service/state tests.
 - qmllint (Qt 6.12): 175 warnings, down from 752 unqualified accesses,
   24 missing properties and 6 unresolved types; the remaining warnings are
   mostly context properties (`Plasmoid`, `i18n`, `Qt`) and `Loader.item`

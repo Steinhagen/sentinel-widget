@@ -684,6 +684,33 @@ QtObject {
         return name && name.length > 0 ? name : i18n("Unknown origin");
     }
 
+    function groupColumnLabel(groupBy) {
+        switch (groupBy) {
+        case "priority":
+            return i18n("Priority");
+        case "package":
+            return i18n("Package");
+        case "origin":
+            return i18n("Origin");
+        default:
+            return i18n("Group");
+        }
+    }
+
+    function groupCountColumnLabel() {
+        return i18n("Findings");
+    }
+
+    function groupSortTooltip(groupBy, key, active, descending) {
+        const label = key === "count" ? groupCountColumnLabel() : groupColumnLabel(groupBy);
+        if (active) {
+            return descending
+                ? i18n("Sorted descending — click for ascending")
+                : i18n("Sorted ascending — click for descending");
+        }
+        return i18n("Sort by %1", label);
+    }
+
     function groupTitle(groupBy, key) {
         switch (groupBy) {
         case "priority":

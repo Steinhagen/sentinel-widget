@@ -144,14 +144,12 @@ PlasmaExtras.Representation {
                 visibleCount: root.vm.visibleCount
                 totalCount: root.vm.totalCount
                 groupBy: root.vm.groupBy
-                groupsExpanded: root.vm.groupsExpanded
                 labels: root.labels
                 onSearchChanged: (text) => root.vm.setSearchText(text)
                 onSeveritySelected: (band) => root.vm.setSeverityBand(band)
                 onFixStateSelected: (band) => root.vm.setFixState(band)
                 onClearFiltersRequested: root.vm.clearFilters()
                 onGroupBySelected: (mode) => root.vm.setGroupBy(mode)
-                onToggleGroupsExpandedRequested: root.vm.toggleGroupsExpanded()
             }
 
             FindingsList {
@@ -169,7 +167,13 @@ PlasmaExtras.Representation {
                 systemChannel: root.store.systemChannel
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
+                groupBy: root.vm.groupBy
+                groupsExpanded: root.vm.groupsExpanded
+                groupSortKey: root.vm.groupSortKey
+                groupSortDescending: root.vm.groupSortDescending
                 onSortRequested: (key) => root.vm.toggleSort(key)
+                onToggleGroupsExpandedRequested: root.vm.toggleGroupsExpanded()
+                onGroupSortRequested: (key) => root.vm.toggleGroupSort(key)
                 onGroupToggleRequested: (key) => root.vm.toggleGroup(key)
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)

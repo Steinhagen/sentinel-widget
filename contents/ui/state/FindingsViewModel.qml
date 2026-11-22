@@ -22,6 +22,8 @@ QtObject {
     property string groupBy: "none"
     property var collapsedGroups: ({})
     property int groupsRevision: 0
+    property string groupSortKey: ""
+    property bool groupSortDescending: false
 
     readonly property var reportModel: store ? store.report : null
     readonly property int checkedRevision: store ? store.checkedRevision : 0
@@ -46,7 +48,8 @@ QtObject {
         }
         return vm.groupBy === "none"
             ? vm.filteredRows
-            : Table.flattenGroups(vm.filteredRows, vm.groupBy, true, vm.collapsedGroups);
+            : Table.flattenGroups(vm.filteredRows, vm.groupBy, true,
+                vm.collapsedGroups, vm.groupSortKey, vm.groupSortDescending);
     }
     readonly property var counts: Filters.countsOf(vm.allRows)
     readonly property var visibleGroupKeys: {
@@ -265,7 +268,22 @@ QtObject {
         }
         vm.groupBy = value;
         vm.collapsedGroups = ({});
+        vm.groupSortKey = "";
+        vm.groupSortDescending = false;
         vm.groupsRevision += 1;
+        vm.resetScroll();
+    }
+
+    function toggleGroupSort(key) {
+        if (key !== "name" && key !== "count") {
+            return;
+        }
+        if (vm.groupSortKey === key) {
+            vm.groupSortDescending = !vm.groupSortDescending;
+        } else {
+            vm.groupSortKey = key;
+            vm.groupSortDescending = (key === "count");
+        }
         vm.resetScroll();
     }
 

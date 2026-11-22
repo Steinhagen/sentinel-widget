@@ -19,6 +19,8 @@ into a compact security dashboard.
 - Flat list by default, with a **Group by** menu for Priority, Package or
   Origin sections, individually clickable group headers and a global
   expand/collapse control.
+- The grouped view adds a second header bar for expand/collapse, group-name
+  sorting and finding-count sorting.
 - Search plus a compact **Filters** menu for severity and fix state.
 - The cards, toolbar and findings table share one centered width.
 - The header logo and Settings button align with the outer card edges.
@@ -120,8 +122,9 @@ Right-click the widget and choose **Configure…**:
 
 Use the list's **Filters** menu for severity and fix state, and the
 **Group by** menu to choose Priority, Package or Origin sections. Click a
-section header to show or hide that group, or use the plus/minus button to
-show or hide every group at once.
+section header to show or hide that group, or use the plus/minus control in the
+group bar to show or hide every group at once. The group bar also sorts groups
+by name or finding count.
 The CSV report and scan log are in the widget's context menu; hover the summary
 line under the title for the About/help text.
 
