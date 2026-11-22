@@ -124,6 +124,9 @@ line under the title for the About/help text.
 
 ## Development
 
+The target layered architecture, module boundaries, test strategy and phased
+migration plan are documented in [docs/architecture.md](docs/architecture.md).
+
 ```bash
 qmllint contents/ui/main.qml
 kpackagetool6 --type Plasma/Applet --install .

@@ -1,0 +1,1272 @@
+{
+  "schema_version": 7,
+  "state": "vulnerable",
+  "findings": 13,
+  "max_severity": 9.9,
+  "packages_affected": 13,
+  "severity_counts": {
+    "critical": 5,
+    "high": 4,
+    "medium": 2,
+    "low": 0,
+    "unknown": 2
+  },
+  "scanned_at": "2026-11-22 17:05 EET",
+  "scanned_at_iso": "2026-11-22T17:05:35+02:00",
+  "scanned_at_epoch": 1795359935,
+  "error": null,
+  "tracker": {
+    "available": true,
+    "complete": true,
+    "updated_at": "2026-11-22T17:25:57+02:00",
+    "cves": 14,
+    "queried": 14,
+    "failed": 0,
+    "tracked": 8,
+    "pending": 3,
+    "rejected": 1,
+    "unaffected": 1,
+    "missing": 4,
+    "system_channel": "nixos-unstable",
+    "fix_in_progress": 3,
+    "fix_staged": 1,
+    "fix_available": 1,
+    "phase": "done",
+    "total_cves": 14,
+    "total_issues": 0,
+    "issues_checked": 0,
+    "issue_failed": 0,
+    "total_packages": 8,
+    "packages_checked": 8,
+    "package_failed": 0,
+    "total_probes": 6,
+    "probes_checked": 6,
+    "probes_failed": 0,
+    "fallback_total": 0,
+    "fallback_done": 0,
+    "fallback_failed": 0,
+    "throttled": false,
+    "auth_failed": false
+  },
+  "vulnerabilities": [
+    {
+      "id": "CVE-2026-111497",
+      "package": "brotli",
+      "version": "1.2.1",
+      "severity": 9.8,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-111497",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "imagemagick-7.1.2-35",
+          "crossover-26.3.0",
+          "protonup-qt-2.16.0"
+        ],
+        "chain": [
+          "imagemagick-7.1.2-35",
+          "brotli-1.2.1-lib"
+        ],
+        "chains": [
+          [
+            "imagemagick-7.1.2-35",
+            "brotli-1.2.1-lib"
+          ],
+          [
+            "crossover-26.3.0",
+            "freetype-2.14.3",
+            "brotli-1.2.1-lib"
+          ],
+          [
+            "protonup-qt-2.16.0",
+            "protonup-qt-2.16.0-bwrap",
+            "protonup-qt-2.16.0-fhsenv-rootfs",
+            "brotli-1.2.1"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "published",
+        "issue": "NIXPKGS-2026-3162",
+        "issue_state": "",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2026-3162",
+        "matched_package": "brotli",
+        "master_status": "affected",
+        "master_version": "1.2.0",
+        "master_status_source": "version",
+        "master_range": "<1.1.1, <1.0.10, <1.2.1",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "brotli"
+        ],
+        "affected_products": [
+          {
+            "name": "github.com/google/brotli",
+            "version_constraints": [
+              [
+                "affected",
+                "<1.1.1"
+              ],
+              [
+                "affected",
+                "<1.0.10"
+              ],
+              [
+                "affected",
+                "<1.2.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "fixed",
+        "fix_branch": "nixos-unstable",
+        "fix_version": "1.2.1",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "1.2.0",
+            "kind": "branch",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "1.2.0",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/by-name/br/brotli/package.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2026-125267",
+      "package": "ffmpeg",
+      "version": "6.1.6",
+      "severity": 8.5,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-125267",
+      "scanners": [
+        "grype"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "lutris-0.5.22"
+        ],
+        "chain": [
+          "lutris-0.5.22",
+          "lutris-0.5.22-bwrap",
+          "lutris-0.5.22-fhsenv-rootfs",
+          "ffmpeg-6.1.6-lib"
+        ],
+        "chains": [
+          [
+            "lutris-0.5.22",
+            "lutris-0.5.22-bwrap",
+            "lutris-0.5.22-fhsenv-rootfs",
+            "ffmpeg-6.1.6-lib"
+          ],
+          [
+            "lutris-0.5.22",
+            "lutris-0.5.22-bwrap",
+            "lutris-0.5.22-fhsenv-rootfs",
+            "ffmpeg-6.1.6-bin",
+            "ffmpeg-6.1.6-data"
+          ],
+          [
+            "lutris-0.5.22",
+            "lutris-0.5.22-bwrap",
+            "lutris-0.5.22-fhsenv-rootfs",
+            "ffmpeg-6.1.6-bin"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "pending",
+        "issue": null,
+        "issue_state": null,
+        "url": "https://tracker.security.nixos.org/suggestions/by-id/68489",
+        "matched_package": "ffmpeg",
+        "master_status": "unaffected",
+        "master_version": "9.0.2",
+        "master_status_source": "version",
+        "master_range": "<8.1.3, <9.0.2",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/f9e03ef8562c6b2aa7dd4961fcd71997874cfbe1/pkgs/development/libraries/ffmpeg/generic.nix#L1107",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "ffmpeg",
+          "ffmpeg-full",
+          "ffmpeg-headless",
+          "ffmpeg-livepeer",
+          "ffmpeg-normalize",
+          "ffmpeg_4",
+          "ffmpeg_4-full",
+          "ffmpeg_4-headless",
+          "ffmpeg_6",
+          "ffmpeg_6-full",
+          "ffmpeg_6-headless",
+          "ffmpeg_7",
+          "ffmpeg_7-full",
+          "ffmpeg_7-headless",
+          "ffmpeg_8",
+          "ffmpeg_8-full",
+          "ffmpeg_8-headless",
+          "ffmpeg_9",
+          "ffmpeg_9-full",
+          "ffmpeg_9-headless",
+          "ffmpegthumbnailer",
+          "jellyfin-ffmpeg",
+          "kdePackages.ffmpegthumbs",
+          "kodiPackages.inputstream-ffmpegdirect",
+          "nwjs-ffmpeg-prebuilt",
+          "ocamlPackages.ffmpeg",
+          "ocamlPackages.ffmpeg-av",
+          "ocamlPackages.ffmpeg-avcodec",
+          "ocamlPackages.ffmpeg-avdevice",
+          "ocamlPackages.ffmpeg-avfilter",
+          "ocamlPackages.ffmpeg-avutil",
+          "ocamlPackages.ffmpeg-swresample",
+          "ocamlPackages.ffmpeg-swscale",
+          "ocamlPackages_latest.ffmpeg",
+          "ocamlPackages_latest.ffmpeg-av",
+          "ocamlPackages_latest.ffmpeg-avcodec",
+          "ocamlPackages_latest.ffmpeg-avdevice",
+          "ocamlPackages_latest.ffmpeg-avfilter",
+          "ocamlPackages_latest.ffmpeg-avutil",
+          "ocamlPackages_latest.ffmpeg-swresample",
+          "ocamlPackages_latest.ffmpeg-swscale",
+          "pkgsRocm.ffmpeg-full",
+          "pkgsRocm.ffmpeg_8-full",
+          "python313Packages.ffmpeg-normalize",
+          "python313Packages.ffmpeg-progress-yield",
+          "python313Packages.ffmpeg-python",
+          "python313Packages.ha-ffmpeg",
+          "python313Packages.imageio-ffmpeg",
+          "python313Packages.python-ffmpeg",
+          "python314Packages.ffmpeg-normalize",
+          "python314Packages.ffmpeg-progress-yield",
+          "python314Packages.ffmpeg-python",
+          "python314Packages.ha-ffmpeg",
+          "python314Packages.imageio-ffmpeg",
+          "python314Packages.python-ffmpeg",
+          "servarr-ffmpeg",
+          "vivaldi-ffmpeg-codecs"
+        ],
+        "affected_products": [
+          {
+            "name": "FFmpeg",
+            "version_constraints": [
+              [
+                "affected",
+                "<8.1.3"
+              ],
+              [
+                "affected",
+                "<9.0.2"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": false,
+        "fix_state": "in-master",
+        "fix_branch": "master",
+        "fix_version": "9.0.2",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/ffmpeg/generic.nix",
+        "fix_branches": [
+          {
+            "name": "master",
+            "version": "9.0.2",
+            "kind": "branch",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/libraries/ffmpeg/generic.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "8.1.3",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/development/libraries/ffmpeg/generic.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2026-119741",
+      "package": "rsync",
+      "version": "3.5.0",
+      "severity": 7.5,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-119741",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "rsync-3.5.0"
+        ],
+        "chain": [
+          "rsync-3.5.0"
+        ],
+        "chains": [
+          [
+            "rsync-3.5.0"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "published",
+        "issue": "NIXPKGS-2026-3318",
+        "issue_state": "",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2026-3318",
+        "matched_package": "rsync",
+        "master_status": "affected",
+        "master_version": "3.5.0",
+        "master_status_source": "tracker",
+        "master_range": null,
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/3ba4012768f000f51a67ab490e8d4127968bb31e/pkgs/by-name/rs/rsync/package.nix#L152",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "rsync"
+        ],
+        "affected_products": [
+          {
+            "name": "rsync",
+            "version_constraints": [
+              [
+                "affected",
+                "=<3.5.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "in-staging",
+        "fix_branch": "staging-next",
+        "fix_version": "3.5.2",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/rs/rsync/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "3.5.0",
+            "kind": "channel",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/rs/rsync/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "3.5.2",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/rs/rsync/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "3.5.0",
+            "kind": "branch",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/rs/rsync/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "3.5.2",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/rs/rsync/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "3.5.2",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/rs/rsync/package.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "3.5.0",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/by-name/rs/rsync/package.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2021-35049",
+      "package": "network",
+      "version": "3.2.8.0",
+      "severity": 9.9,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2021-35049",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "haskell-language-server-2.13.0.0"
+        ],
+        "chain": [
+          "haskell-language-server-2.13.0.0",
+          "haskell-language-server-2.13.0.0",
+          "network-3.2.8.0"
+        ],
+        "chains": [
+          [
+            "haskell-language-server-2.13.0.0",
+            "haskell-language-server-2.13.0.0",
+            "network-3.2.8.0"
+          ],
+          [
+            "haskell-language-server-2.13.0.0",
+            "haskell-language-server-2.13.0.0",
+            "network-3.2.8.0",
+            "network-3.2.8.0-doc"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": false
+      }
+    },
+    {
+      "id": "CVE-2026-89147",
+      "package": "net-snmp",
+      "version": "5.9.5.2",
+      "severity": 8.7,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-89147",
+      "scanners": [
+        "grype"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "crossover-26.3.0"
+        ],
+        "chain": [
+          "crossover-26.3.0",
+          "sane-backends-1.4.0",
+          "net-snmp-5.9.5.2-lib"
+        ],
+        "chains": [
+          [
+            "crossover-26.3.0",
+            "sane-backends-1.4.0",
+            "net-snmp-5.9.5.2-lib"
+          ],
+          [
+            "crossover-26.3.0",
+            "sane-backends-1.4.0",
+            "net-snmp-5.9.5.2-lib",
+            "net-snmp-5.9.5.2"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "pending",
+        "issue": null,
+        "issue_state": null,
+        "url": "https://tracker.security.nixos.org/suggestions/by-id/37506",
+        "matched_package": "net-snmp",
+        "master_status": "affected",
+        "master_version": "5.9.5.2",
+        "master_status_source": "tracker",
+        "master_range": null,
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/1e126b0607fe4c867766bdcad5351b5556bb71e0/pkgs/by-name/ne/net-snmp/package.nix#L96",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "net-snmp",
+          "perl5Packages.NetSNMP",
+          "perlPackages.NetSNMP"
+        ],
+        "affected_products": [
+          {
+            "name": "Net-SNMP",
+            "version_constraints": [
+              [
+                "affected",
+                "=<5.9.5.2"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": null,
+        "fix_branch": null,
+        "fix_version": null,
+        "fix_url": null,
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "5.9.5.2",
+            "kind": "channel",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/ne/net-snmp/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "5.9.5.2",
+            "kind": "channel",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/ne/net-snmp/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "5.9.5.2",
+            "kind": "branch",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/ne/net-snmp/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "5.9.5.2",
+            "kind": "staging",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/ne/net-snmp/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "5.9.5.2",
+            "kind": "staging",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/ne/net-snmp/package.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "5.9.5.2",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/by-name/ne/net-snmp/package.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2026-13221",
+      "package": "perl",
+      "version": "5.42.3",
+      "severity": 9.1,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-13221",
+      "scanners": [
+        "grype",
+        "vulnix"
+      ],
+      "confidence": "component_mixed",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "perl-5.42.3",
+          "perl-5.42.3-man"
+        ],
+        "chain": [
+          "perl-5.42.3"
+        ],
+        "chains": [
+          [
+            "perl-5.42.3"
+          ],
+          [
+            "perl-5.42.3-man"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "rejected",
+        "issue": null,
+        "issue_state": null,
+        "url": "https://tracker.security.nixos.org/suggestions/by-id/12363",
+        "matched_package": null,
+        "master_status": null,
+        "master_version": null,
+        "master_status_source": null,
+        "master_range": null,
+        "master_url": null,
+        "github_issue_url": null,
+        "suggestion_packages": [],
+        "affected_products": [
+          {
+            "name": "perl",
+            "version_constraints": [
+              [
+                "affected",
+                "=<5.43.9"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": null,
+        "system_known": null,
+        "fix_state": null,
+        "fix_branch": null,
+        "fix_version": null,
+        "fix_url": null,
+        "fix_branches": []
+      }
+    },
+    {
+      "id": "CVE-2026-33845",
+      "package": "gnutls",
+      "version": "3.8.13",
+      "severity": 9.1,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2026-33845",
+      "scanners": [
+        "grype"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "crossover-26.3.0",
+          "networkmanager-1.58.1",
+          "proton-vpn-4.19.0",
+          "lutris-0.5.22"
+        ],
+        "chain": [
+          "crossover-26.3.0",
+          "gnutls-3.8.13"
+        ],
+        "chains": [
+          [
+            "crossover-26.3.0",
+            "gnutls-3.8.13"
+          ],
+          [
+            "networkmanager-1.58.1",
+            "gnutls-3.8.13"
+          ],
+          [
+            "proton-vpn-4.19.0",
+            "gnutls-3.8.13-bin"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "published",
+        "issue": "NIXPKGS-2026-1341",
+        "issue_state": "",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2026-1341",
+        "matched_package": "gnutls",
+        "master_status": "unknown",
+        "master_version": "3.8.12",
+        "master_status_source": null,
+        "master_range": null,
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/4fee57762d0f9ee448c94eee7cfd55ae5c1ef670/pkgs/by-name/gn/gnutls/package.nix#L233",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "gnutls"
+        ],
+        "affected_products": [
+          {
+            "name": "rhcos",
+            "version_constraints": [],
+            "cpes": [
+              "cpe:/a:redhat:openshift:4"
+            ]
+          },
+          {
+            "name": "gnutls",
+            "version_constraints": [],
+            "cpes": [
+              "cpe:/a:redhat:hummingbird:1",
+              "cpe:/o:redhat:enterprise_linux:8",
+              "cpe:/o:redhat:enterprise_linux:7",
+              "cpe:/o:redhat:enterprise_linux:9",
+              "cpe:/o:redhat:enterprise_linux:10",
+              "cpe:/o:redhat:enterprise_linux:6"
+            ]
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": null,
+        "fix_branch": null,
+        "fix_version": null,
+        "fix_url": null,
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "3.8.13",
+            "kind": "channel",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/gn/gnutls/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "3.8.13",
+            "kind": "channel",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/gn/gnutls/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "3.8.12",
+            "kind": "branch",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/gn/gnutls/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "3.8.13",
+            "kind": "staging",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/gn/gnutls/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "3.8.13",
+            "kind": "staging",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/gn/gnutls/package.nix"
+          },
+          {
+            "name": "release-25.11",
+            "version": "3.8.12",
+            "kind": "release",
+            "state": "unknown",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-25.11/pkgs/by-name/gn/gnutls/package.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "OSV-2026-1517",
+      "package": "openexr",
+      "version": "3.5.2",
+      "severity": null,
+      "url": "https://osv.dev/OSV-2026-1517",
+      "scanners": [
+        "osv"
+      ],
+      "confidence": "component_exact",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "imagemagick-7.1.2-35",
+          "crossover-26.3.0"
+        ],
+        "chain": [
+          "imagemagick-7.1.2-35",
+          "openexr-3.5.2"
+        ],
+        "chains": [
+          [
+            "imagemagick-7.1.2-35",
+            "openexr-3.5.2"
+          ],
+          [
+            "crossover-26.3.0",
+            "gst-plugins-bad-1.28.8",
+            "openexr-3.5.2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "CVE-2099-0001",
+      "package": "openssl",
+      "version": "3.0.0",
+      "severity": 9.1,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2099-0001",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "curl-8.0.0"
+        ],
+        "chain": [
+          "curl-8.0.0",
+          "openssl-3.0.0"
+        ],
+        "chains": [
+          [
+            "curl-8.0.0",
+            "openssl-3.0.0"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "published",
+        "issue": "NIXPKGS-2099-0001",
+        "issue_state": "open",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2099-0001",
+        "matched_package": "brotli",
+        "master_status": "affected",
+        "master_version": "3.0.0",
+        "master_status_source": "version",
+        "master_range": "<3.0.1",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "brotli"
+        ],
+        "affected_products": [
+          {
+            "name": "github.com/google/brotli",
+            "version_constraints": [
+              [
+                "affected",
+                "<1.1.1"
+              ],
+              [
+                "affected",
+                "<1.0.10"
+              ],
+              [
+                "affected",
+                "<1.2.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "in-release",
+        "fix_branch": "release-26.05",
+        "fix_version": "3.0.1",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "3.0.0",
+            "kind": "channel",
+            "state": "affected"
+          },
+          {
+            "name": "master",
+            "version": "3.0.0",
+            "kind": "branch",
+            "state": "affected"
+          },
+          {
+            "name": "release-26.05",
+            "version": "3.0.1",
+            "kind": "release",
+            "state": "unaffected"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2099-0002",
+      "package": "zlib",
+      "version": "1.3.0",
+      "severity": 7.2,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2099-0002",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "libpng-1.6.40"
+        ],
+        "chain": [
+          "libpng-1.6.40",
+          "zlib-1.3.0"
+        ],
+        "chains": [
+          [
+            "libpng-1.6.40",
+            "zlib-1.3.0"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "pending",
+        "issue": "NIXPKGS-2099-0002",
+        "issue_state": "open",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2099-0002",
+        "matched_package": "brotli",
+        "master_status": "affected",
+        "master_version": "1.3.0",
+        "master_status_source": "version",
+        "master_range": "<1.3.1",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "brotli"
+        ],
+        "affected_products": [
+          {
+            "name": "github.com/google/brotli",
+            "version_constraints": [
+              [
+                "affected",
+                "<1.1.1"
+              ],
+              [
+                "affected",
+                "<1.0.10"
+              ],
+              [
+                "affected",
+                "<1.2.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "issue-open",
+        "fix_branch": "",
+        "fix_version": "",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "1.3.0",
+            "kind": "channel",
+            "state": "affected"
+          },
+          {
+            "name": "master",
+            "version": "1.3.0",
+            "kind": "branch",
+            "state": "affected"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2099-0003",
+      "package": "glibc",
+      "version": "2.39",
+      "severity": 5,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2099-0003",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [],
+        "chain": [],
+        "chains": []
+      },
+      "tracker": {
+        "found": true,
+        "status": "published",
+        "issue": "NIXPKGS-2026-3162",
+        "issue_state": "",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2026-3162",
+        "matched_package": "brotli",
+        "master_status": "unaffected",
+        "master_version": "2.40",
+        "master_status_source": "version",
+        "master_range": "<1.1.1, <1.0.10, <1.2.1",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "brotli"
+        ],
+        "affected_products": [
+          {
+            "name": "github.com/google/brotli",
+            "version_constraints": [
+              [
+                "affected",
+                "<1.1.1"
+              ],
+              [
+                "affected",
+                "<1.0.10"
+              ],
+              [
+                "affected",
+                "<1.2.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "fixed",
+        "fix_branch": "nixos-unstable",
+        "fix_version": "1.2.1",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "1.2.0",
+            "kind": "branch",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "1.2.0",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/by-name/br/brotli/package.nix"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CVE-2099-0004",
+      "package": "python3",
+      "version": "3.12.0",
+      "severity": 6.5,
+      "url": "https://nvd.nist.gov/vuln/detail/CVE-2099-0004",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "ansible-9.0.0"
+        ],
+        "chain": [
+          "ansible-9.0.0",
+          "python3-3.12.0"
+        ],
+        "chains": [
+          [
+            "ansible-9.0.0",
+            "python3-3.12.0"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": true,
+        "status": "pending",
+        "issue": "NIXPKGS-2099-0004",
+        "issue_state": "open",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2099-0004",
+        "matched_package": "brotli",
+        "master_status": "unknown",
+        "master_version": "unknown",
+        "master_status_source": "unknown",
+        "master_range": "",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "python3"
+        ],
+        "affected_products": [
+          {
+            "name": "python",
+            "version_constraints": [
+              [
+                "affected",
+                "<3.13"
+              ]
+            ]
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "fixed",
+        "fix_branch": "nixos-unstable",
+        "fix_version": "1.2.1",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": []
+      }
+    },
+    {
+      "id": "CVE-2099-0005",
+      "package": "libxml2",
+      "version": "2.12.0",
+      "severity": 0,
+      "url": "",
+      "scanners": [
+        "vulnix"
+      ],
+      "confidence": "component_expanded",
+      "patch_state": "no_component_match",
+      "origins": {
+        "introduced_by": [
+          "unknown-root-1.0"
+        ],
+        "chain": [
+          "unknown-root-1.0",
+          "unknown-root-1.0",
+          "libxml2-2.12.0"
+        ],
+        "chains": [
+          [
+            "unknown-root-1.0",
+            "unknown-root-1.0",
+            "libxml2-2.12.0"
+          ]
+        ]
+      },
+      "tracker": {
+        "found": false,
+        "status": "published",
+        "issue": "NIXPKGS-2026-3162",
+        "issue_state": "",
+        "url": "https://tracker.security.nixos.org/issues/NIXPKGS-2026-3162",
+        "matched_package": "brotli",
+        "master_status": "affected",
+        "master_version": "1.2.0",
+        "master_status_source": "version",
+        "master_range": "<1.1.1, <1.0.10, <1.2.1",
+        "master_url": "https://github.com/NixOS/nixpkgs/blob/d782438fa9d27ba0dfb54bdcd4e6eb342fef2132/pkgs/by-name/br/brotli/package.nix#L70",
+        "github_issue_url": null,
+        "suggestion_packages": [
+          "brotli"
+        ],
+        "affected_products": [
+          {
+            "name": "github.com/google/brotli",
+            "version_constraints": [
+              [
+                "affected",
+                "<1.1.1"
+              ],
+              [
+                "affected",
+                "<1.0.10"
+              ],
+              [
+                "affected",
+                "<1.2.1"
+              ]
+            ],
+            "cpes": []
+          }
+        ],
+        "system_channel": "nixos-unstable",
+        "system_known": true,
+        "fix_state": "fixed",
+        "fix_branch": "nixos-unstable",
+        "fix_version": "1.2.1",
+        "fix_url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix",
+        "fix_branches": [
+          {
+            "name": "nixos-unstable",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/2786a2a72088ecf32aea5b3ec52099e6a7cff78f/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "nixos-26.05",
+            "version": "1.2.1",
+            "kind": "channel",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/94c3211b0ee8ba969a3f12eb4aff8ba0f72971dd/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "master",
+            "version": "1.2.0",
+            "kind": "branch",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/master/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging-next",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging-next/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "staging",
+            "version": "1.2.1",
+            "kind": "staging",
+            "state": "unaffected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/staging/pkgs/by-name/br/brotli/package.nix"
+          },
+          {
+            "name": "release-26.05",
+            "version": "1.2.0",
+            "kind": "release",
+            "state": "affected",
+            "url": "https://github.com/NixOS/nixpkgs/blob/release-26.05/pkgs/by-name/br/brotli/package.nix"
+          }
+        ]
+      }
+    }
+  ]
+}

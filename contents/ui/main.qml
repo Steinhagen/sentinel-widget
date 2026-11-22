@@ -459,7 +459,7 @@ PlasmoidItem {
         var pending = root.filterBandCount(root.trackerFilterBands, "pending");
         var unchecked = root.filterBandCount(root.trackerFilterBands, "unchecked");
         var fixed = root.filterBandCount(root.masterFilterBands, "fixed");
-        var pending = root.filterBandCount(root.masterFilterBands, "progress");
+        var fixPending = root.filterBandCount(root.masterFilterBands, "progress");
         var parts = [];
         if (missing > 0) {
             parts.push(i18np("%1 finding untracked", "%1 findings untracked", missing));
@@ -473,8 +473,8 @@ PlasmoidItem {
         if (fixed > 0) {
             parts.push(i18n("%1 with a fix available", fixed));
         }
-        if (pending > 0) {
-            parts.push(i18n("%1 with a fix pending", pending));
+        if (fixPending > 0) {
+            parts.push(i18n("%1 with a fix pending", fixPending));
         }
         if (unchecked > 0) {
             parts.push(i18np("%1 finding not checked", "%1 findings not checked", unchecked));
@@ -2300,7 +2300,7 @@ PlasmoidItem {
             id: headerHeading
             // Keep the logo and the Settings button on the same outer edges
             // as the three summary cards.
-            readonly property real cardsInset: (root.hasFindings && !root.compactLayout)
+            readonly property real cardsInset: (root.hasFindings && !fullRoot.compactLayout)
                 ? Math.max(0, (width - content.cardsWidth) / 2)
                 : Kirigami.Units.smallSpacing
 
