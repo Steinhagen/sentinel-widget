@@ -89,7 +89,9 @@ QtObject {
         + vm.counts.fix["n/a"]
 
     readonly property string state: vm.reportModel ? vm.reportModel.state : "unknown"
-    readonly property string scanError: vm.reportModel ? vm.reportModel.error : ""
+    readonly property string scanError: vm.store && vm.store.scanError
+        ? vm.store.scanError
+        : (vm.reportModel ? vm.reportModel.error : "")
     readonly property string loadError: vm.store ? vm.store.loadError : ""
     readonly property bool schemaNewer: vm.store ? vm.store.schemaNewer : false
     readonly property real lastScanAge: vm.reportModel && vm.store && vm.store.clock

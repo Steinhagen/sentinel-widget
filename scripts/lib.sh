@@ -33,6 +33,9 @@ setup_qml_environment() {
     if [ -d /run/current-system/sw/lib/qt-6/qml ]; then
         paths+=("/run/current-system/sw/lib/qt-6/qml")
     fi
+    if [ -n "${NIXPKGS_QT6_QML_IMPORT_PATH:-}" ]; then
+        paths+=("$NIXPKGS_QT6_QML_IMPORT_PATH")
+    fi
     if [ -n "${QML2_IMPORT_PATH:-}" ]; then
         paths+=("$QML2_IMPORT_PATH")
     fi
