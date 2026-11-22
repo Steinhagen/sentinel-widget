@@ -107,5 +107,5 @@ positives in the list: an amber marker, a **Needs review** filter, and a review
 queue grouped by the CVE's vendor → product so a cluster can be dismissed at
 once. [review-markers.html](review-markers.html) compares five placements for
 the marker without dropping the dependency-origin line; the widget uses the
-**REVIEW** chip from variant 4 (after the CVE id), with the CVE's
-vendor → product in its tooltip.
+**REVIEW** chip from variant 4, moved into its own column between the
+package and the fix state, with the CVE's vendor → product in its tooltip.

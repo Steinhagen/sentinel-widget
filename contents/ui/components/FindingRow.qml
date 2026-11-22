@@ -14,6 +14,7 @@ PlasmaComponents3.ItemDelegate {
     property var labels: null
     property string systemChannel: ""
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
+    property real reviewWidth: 0
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
@@ -138,42 +139,6 @@ PlasmaComponents3.ItemDelegate {
                     && QQC2.ToolTip.text.length > 0
             }
 
-            Rectangle {
-                id: reviewChip
-
-                visible: root.rowData ? root.rowData.needsReview === true : false
-                Layout.preferredHeight: reviewChipLabel.implicitHeight
-                    + Kirigami.Units.smallSpacing
-                implicitWidth: reviewChipLabel.implicitWidth
-                    + Kirigami.Units.smallSpacing * 3
-                radius: 99
-                color: root.theme ? root.theme.reviewSurface : "#3a2f16"
-                border.width: 1
-                border.color: root.theme ? root.theme.reviewBorder : "#6b5624"
-
-                PlasmaComponents3.Label {
-                    id: reviewChipLabel
-
-                    anchors.centerIn: parent
-                    text: root.labels ? root.labels.reviewChipText() : "Review"
-                    color: root.theme ? root.theme.reviewColor : "#f3d79a"
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                    font.capitalization: Font.AllUppercase
-                }
-
-                HoverHandler {
-                    id: reviewHover
-                    cursorShape: Qt.WhatsThisCursor
-                }
-
-                QQC2.ToolTip.text: root.labels && root.rowData
-                    ? root.labels.reviewTooltip(root.rowData)
-                    : ""
-                QQC2.ToolTip.visible: reviewHover.hovered
-                    && QQC2.ToolTip.text.length > 0
-            }
-
             Item {
                 Layout.fillWidth: true
                 implicitHeight: packageRow.implicitHeight
@@ -220,6 +185,53 @@ PlasmaComponents3.ItemDelegate {
                         ? root.labels.filterPackageTooltip(root.rowData.package)
                         : ""
                     QQC2.ToolTip.visible: containsMouse
+                        && QQC2.ToolTip.text.length > 0
+                }
+            }
+
+            Item {
+                id: reviewColumn
+
+                Layout.preferredWidth: root.reviewWidth
+                Layout.minimumWidth: root.reviewWidth
+                Layout.maximumWidth: root.reviewWidth
+                Layout.fillHeight: true
+
+                Rectangle {
+                    id: reviewChip
+
+                    visible: root.rowData ? root.rowData.needsReview === true : false
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    width: reviewChipLabel.implicitWidth
+                        + Kirigami.Units.smallSpacing * 3
+                    height: reviewChipLabel.implicitHeight
+                        + Kirigami.Units.smallSpacing
+                    radius: 99
+                    color: root.theme ? root.theme.reviewSurface : "#3a2f16"
+                    border.width: 1
+                    border.color: root.theme ? root.theme.reviewBorder : "#6b5624"
+
+                    PlasmaComponents3.Label {
+                        id: reviewChipLabel
+
+                        anchors.centerIn: parent
+                        text: root.labels ? root.labels.reviewChipText() : "Review"
+                        color: root.theme ? root.theme.reviewColor : "#f3d79a"
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Kirigami.Theme.smallFont.pointSize
+                        font.capitalization: Font.AllUppercase
+                    }
+
+                    HoverHandler {
+                        id: reviewHover
+                        cursorShape: Qt.WhatsThisCursor
+                    }
+
+                    QQC2.ToolTip.text: root.labels && root.rowData
+                        ? root.labels.reviewTooltip(root.rowData)
+                        : ""
+                    QQC2.ToolTip.visible: reviewHover.hovered
                         && QQC2.ToolTip.text.length > 0
                 }
             }

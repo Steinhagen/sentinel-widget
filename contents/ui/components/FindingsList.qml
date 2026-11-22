@@ -19,6 +19,7 @@ Rectangle {
     property bool groupsExpanded: true
     property string groupSortKey: ""
     property bool groupSortDescending: false
+    property bool triageAvailable: false
 
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
@@ -80,6 +81,11 @@ Rectangle {
         font: Kirigami.Theme.smallFont
         text: root.labels ? root.labels.fixText({ labelKey: "release", labelArg: "unstable" }) : "unstable"
     }
+    TextMetrics {
+        id: metricReview
+        font: Kirigami.Theme.smallFont
+        text: root.labels ? root.labels.reviewChipText() : "Review"
+    }
 
     readonly property real fixPillWidth: Math.max(
         metricFixed.width,
@@ -91,10 +97,15 @@ Rectangle {
         metricNa.width,
         metricUnstable.width) + Kirigami.Units.smallSpacing * 2.2
 
+    readonly property real reviewColumnWidth: root.triageAvailable
+        ? metricReview.width + Kirigami.Units.smallSpacing * 3.5
+        : 0
+
     readonly property var headerColumns: [
         { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
         { key: "cve", width: Kirigami.Units.gridUnit * 8.5, fill: false, align: "left" },
         { key: "package", width: 0, fill: true, align: "left" },
+        { key: "review", width: root.reviewColumnWidth, fill: false, align: "left" },
         { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
     ]
 
@@ -178,8 +189,10 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     horizontalAlignment: modelData.align === "center"
                         ? Text.AlignHCenter : Text.AlignLeft
-                    text: (root.labels ? root.labels.headerLabel(modelData.key) : modelData.key)
-                        + " " + root.sortArrow(modelData.key)
+                    text: modelData.key === "review"
+                        ? (root.labels ? root.labels.reviewChipText() : "Review")
+                        : (root.labels ? root.labels.headerLabel(modelData.key) : modelData.key)
+                            + " " + root.sortArrow(modelData.key)
                     color: root.sortKey === modelData.key
                         ? Kirigami.Theme.textColor
                         : (root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor)
@@ -192,6 +205,7 @@ Rectangle {
 
                 MouseArea {
                     anchors.fill: parent
+                    enabled: modelData.key !== "review"
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.sortRequested(modelData.key)
@@ -240,6 +254,7 @@ Rectangle {
             labels: root.labels
             systemChannel: root.systemChannel
             fixPillWidth: root.fixPillWidth
+            reviewWidth: root.reviewColumnWidth
 
             onOpenFinding: (url) => root.openFinding(url)
             onFilterPackageRequested: (name) => root.filterPackageRequested(name)

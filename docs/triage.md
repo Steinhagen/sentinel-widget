@@ -182,7 +182,8 @@ badge. The toolbar count shows them as `837 of 837 (+ 95 false positives)`;
 turning the setting off brings them back. `confirmed` and `unverified` findings
 are always shown.
 
-Unverified rows carry a **REVIEW** chip after the CVE id. Hovering it explains
+Unverified rows carry a **REVIEW** chip in its own column, between the package
+and the fix state. Hovering it explains
 why the row could not be confirmed and, for a product-name match, names the CVE's
 own vendor → product (`Fidelis Cybersecurity → Fidelis Network`). That is what
 distinguishes a name collision from a real hit; the grouped review queue uses the
