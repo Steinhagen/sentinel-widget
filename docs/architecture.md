@@ -1536,7 +1536,7 @@ Measured before the refactor:
 
 - `contents/ui/main.qml`: 130 lines, composition root only.
 - 10 domain modules, 8 services, 2 state objects and 16 components.
-- 57 Node domain tests, 33 qmltestrunner service/state tests.
+- 58 Node domain tests, 33 qmltestrunner service/state tests.
 - qmllint (Qt 6.12): 175 warnings, down from 752 unqualified accesses,
   24 missing properties and 6 unresolved types; the remaining warnings are
   mostly context properties (`Plasmoid`, `i18n`, `Qt`) and `Loader.item`

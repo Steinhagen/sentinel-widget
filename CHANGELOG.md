@@ -5,7 +5,7 @@
 - Refactor the applet into layered `domain` (pure `.mjs`), `services`,
   `state` and `components` modules; `main.qml` is now a ~130-line composition
   root instead of a 3,625-line monolith.
-- Add 57 Node domain tests, 33 qmltestrunner service/state tests, sanitized
+- Add 58 Node domain tests, 33 qmltestrunner service/state tests, sanitized
   v7/legacy fixtures, a 2,000-row performance budget and CI checks.
 - Skip reading `status.json` when its mtime/size is unchanged.
 - Add explicit load-error, scan-error and newer-schema states.
@@ -20,7 +20,8 @@
 - Add a grouped findings view with section headers for Priority, Package or
   Origin; every finding row keeps the flat two-line layout.
 - Add a **Group by** menu and a global plus/minus control to show or hide all
-  findings in the grouped view.
+  findings in the grouped view. Group headers are individually clickable and
+  have a larger hover/click target.
 - Move severity and fix-state filtering into one compact **Filters** menu.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.

@@ -701,6 +701,12 @@ QtObject {
         return i18np("%1 finding", "%1 findings", count);
     }
 
+    function groupToggleTooltip(expanded) {
+        return expanded
+            ? i18n("Click to hide these findings")
+            : i18n("Click to show these findings");
+    }
+
     function criticalExposureTitle() {
         return i18n("CRITICAL EXPOSURE");
     }

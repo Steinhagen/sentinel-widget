@@ -26,6 +26,7 @@ Rectangle {
     signal nixpkgsSearchRequested(string packageName)
     signal holdUpdatesChanged(bool held)
     signal sortRequested(string key)
+    signal groupToggleRequested(string groupKey)
 
     color: root.theme ? root.theme.cardColor : "transparent"
     radius: 12
@@ -202,6 +203,7 @@ Rectangle {
         GroupHeader {
             theme: root.theme
             labels: root.labels
+            onToggleRequested: (key) => root.groupToggleRequested(key)
         }
     }
 
@@ -261,6 +263,7 @@ Rectangle {
                     item.groupBy = modelData.groupBy;
                     item.groupKey = modelData.key;
                     item.groupCount = modelData.count;
+                    item.expanded = modelData.expanded;
                 } else {
                     item.rowData = modelData;
                 }

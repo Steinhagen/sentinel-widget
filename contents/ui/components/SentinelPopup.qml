@@ -170,6 +170,7 @@ PlasmaExtras.Representation {
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
                 onSortRequested: (key) => root.vm.toggleSort(key)
+                onGroupToggleRequested: (key) => root.vm.toggleGroup(key)
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)
                 onFilterOriginRequested: (name) => root.vm.showOrigin(name)

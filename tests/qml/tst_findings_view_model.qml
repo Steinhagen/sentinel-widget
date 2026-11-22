@@ -147,6 +147,38 @@ TestCase {
         compare(env.vm.groupsExpanded, true);
         verify(env.vm.rows.some(row => row.rowType === "finding"));
 
+        env.vm.setGroupBy("priority");
+        const critical = env.vm.rows.find(row =>
+            row.rowType === "group" && row.key === "critical");
+        verify(critical !== undefined);
+        compare(critical.expanded, true);
+        const criticalCount = critical.count;
+        env.vm.toggleGroup("critical");
+        compare(env.vm.groupExpanded("critical"), false);
+        compare(env.vm.groupsExpanded, false);
+        const collapsedCritical = env.vm.rows.find(row =>
+            row.rowType === "group" && row.key === "critical");
+        compare(collapsedCritical.expanded, false);
+        verify(env.vm.rows.every(row =>
+            row.rowType === "group" || row.severityBand !== "critical"));
+        compare(env.vm.visibleCount, 13);
+        verify(env.vm.rows.length < env.vm.filteredRows.length);
+
+        env.vm.toggleGroupsExpanded();
+        compare(env.vm.groupsExpanded, true);
+        verify(env.vm.rows.some(row =>
+            row.rowType === "finding" && row.severityBand === "critical"));
+
+        env.vm.toggleGroupsExpanded();
+        compare(env.vm.groupsExpanded, false);
+        verify(env.vm.rows.every(row => row.rowType === "group"));
+        let allCollapsedTotal = 0;
+        for (const row of env.vm.rows) {
+            allCollapsedTotal += row.count;
+        }
+        compare(allCollapsedTotal, 13);
+        compare(env.vm.visibleCount, 13);
+
         env.vm.setGroupBy("none");
         compare(env.vm.groupBy, "none");
         compare(env.vm.rows[0].rowType, "finding");

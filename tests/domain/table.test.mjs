@@ -6,6 +6,7 @@ import {
     compareRows,
     findingCount,
     flattenGroups,
+    groupKeysOf,
     sortRows,
     valueOf
 } from "../../contents/ui/domain/table.mjs";
@@ -113,4 +114,19 @@ test("collapsed groups keep only headers and full counts", () => {
     assert.ok(collapsed.every((entry) => entry.rowType === "group"));
     assert.equal(collapsed.reduce((sum, entry) => sum + entry.count, 0), rows.length);
     assert.equal(findingCount(collapsed), 0);
+});
+
+test("individual groups can be collapsed", () => {
+    const keys = groupKeysOf(rows, "priority");
+    assert.deepEqual([...keys].sort(), ["critical", "high", "medium", "unknown"]);
+    const partial = flattenGroups(rows, "priority", true, { critical: true });
+    const criticalHeader = partial.find((entry) =>
+        entry.rowType === "group" && entry.key === "critical");
+    const highHeader = partial.find((entry) =>
+        entry.rowType === "group" && entry.key === "high");
+    assert.equal(criticalHeader.expanded, false);
+    assert.equal(highHeader.expanded, true);
+    assert.ok(partial.every((entry) =>
+        entry.rowType === "group" || entry.severityBand !== "critical"));
+    assert.equal(findingCount(partial), rows.length - criticalHeader.count);
 });

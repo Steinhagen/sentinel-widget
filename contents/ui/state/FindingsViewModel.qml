@@ -20,7 +20,8 @@ QtObject {
     property string sortKey: "severity"
     property bool sortDescending: true
     property string groupBy: "none"
-    property bool groupsExpanded: true
+    property var collapsedGroups: ({})
+    property int groupsRevision: 0
 
     readonly property var reportModel: store ? store.report : null
     readonly property int checkedRevision: store ? store.checkedRevision : 0
@@ -38,10 +39,34 @@ QtObject {
 
     readonly property var allRows: vm.buildAllRows()
     readonly property var filteredRows: vm.buildFilteredRows()
-    readonly property var rows: vm.groupBy === "none"
-        ? vm.filteredRows
-        : Table.flattenGroups(vm.filteredRows, vm.groupBy, vm.groupsExpanded)
+    readonly property var rows: {
+        const revision = vm.groupsRevision;
+        if (revision < 0) {
+            return [];
+        }
+        return vm.groupBy === "none"
+            ? vm.filteredRows
+            : Table.flattenGroups(vm.filteredRows, vm.groupBy, true, vm.collapsedGroups);
+    }
     readonly property var counts: Filters.countsOf(vm.allRows)
+    readonly property var visibleGroupKeys: {
+        const revision = vm.groupsRevision;
+        if (revision < 0) {
+            return [];
+        }
+        return Table.groupKeysOf(vm.filteredRows, vm.groupBy);
+    }
+    readonly property int collapsedVisibleGroups: {
+        const revision = vm.groupsRevision;
+        let count = 0;
+        for (let i = 0; i < vm.visibleGroupKeys.length; ++i) {
+            if (vm.collapsedGroups[vm.visibleGroupKeys[i]] === true) {
+                count += 1;
+            }
+        }
+        return revision < 0 ? 0 : count;
+    }
+    readonly property bool groupsExpanded: vm.collapsedVisibleGroups === 0
 
     readonly property int totalCount: vm.reportModel
         ? (vm.reportModel.vulnerabilities ? vm.reportModel.vulnerabilities.length : 0)
@@ -239,20 +264,44 @@ QtObject {
             return;
         }
         vm.groupBy = value;
-        vm.groupsExpanded = true;
+        vm.collapsedGroups = ({});
+        vm.groupsRevision += 1;
         vm.resetScroll();
     }
 
-    function setGroupsExpanded(value) {
-        const next = !!value;
-        if (vm.groupsExpanded === next) {
-            return;
+    function groupExpanded(key) {
+        return vm.collapsedGroups[key] !== true;
+    }
+
+    function toggleGroup(key) {
+        const next = {};
+        for (const name in vm.collapsedGroups) {
+            if (name !== key && vm.collapsedGroups[name] === true) {
+                next[name] = true;
+            }
         }
-        vm.groupsExpanded = next;
-        vm.resetScroll();
+        if (vm.collapsedGroups[key] !== true) {
+            next[key] = true;
+        }
+        vm.collapsedGroups = next;
+        vm.groupsRevision += 1;
+        vm.rowsReset(true);
     }
 
     function toggleGroupsExpanded() {
-        vm.setGroupsExpanded(!vm.groupsExpanded);
+        if (vm.groupBy === "none") {
+            return;
+        }
+        if (vm.groupsExpanded) {
+            const next = {};
+            for (let i = 0; i < vm.visibleGroupKeys.length; ++i) {
+                next[vm.visibleGroupKeys[i]] = true;
+            }
+            vm.collapsedGroups = next;
+        } else {
+            vm.collapsedGroups = ({});
+        }
+        vm.groupsRevision += 1;
+        vm.resetScroll();
     }
 }

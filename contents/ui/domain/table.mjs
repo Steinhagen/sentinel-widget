@@ -158,12 +158,30 @@ export function rowGroupKeyOf(row, groupBy) {
     }
 }
 
-export function flattenGroups(rows, groupBy, expanded) {
+export function groupKeysOf(rows, groupBy) {
+    const mode = groupBy || "origin";
+    if (mode === "none") {
+        return [];
+    }
+    const seen = {};
+    const keys = [];
+    for (let i = 0; i < rows.length; ++i) {
+        const key = rowGroupKeyOf(rows[i], mode);
+        if (!seen[key]) {
+            seen[key] = true;
+            keys.push(key);
+        }
+    }
+    return keys;
+}
+
+export function flattenGroups(rows, groupBy, expanded, collapsedGroups) {
     const mode = groupBy || "origin";
     if (mode === "none") {
         return rows;
     }
     const showRows = expanded !== false;
+    const collapsed = collapsedGroups || {};
     const groups = {};
     const order = [];
     for (let i = 0; i < rows.length; ++i) {
@@ -199,14 +217,16 @@ export function flattenGroups(rows, groupBy, expanded) {
     const result = [];
     for (let g = 0; g < order.length; ++g) {
         const group = groups[order[g]];
+        const groupExpanded = showRows && collapsed[group.key] !== true;
         result.push({
             rowType: "group",
             groupBy: mode,
             key: group.key,
             count: group.count,
-            maxSeverity: group.maxSeverity
+            maxSeverity: group.maxSeverity,
+            expanded: groupExpanded
         });
-        if (showRows) {
+        if (groupExpanded) {
             for (let i = 0; i < group.rows.length; ++i) {
                 result.push(group.rows[i]);
             }
