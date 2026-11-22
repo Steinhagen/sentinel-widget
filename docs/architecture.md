@@ -207,6 +207,8 @@ contents/
       SeverityCard.qml
       FixesCard.qml
       FindingsToolbar.qml
+      FilterPopup.qml            # advanced CVE/package/origin/filter form
+      ActiveFiltersBar.qml       # removable chips for the current filters
       FindingsList.qml
       FindingRow.qml
       GroupHeader.qml
@@ -416,6 +418,7 @@ QtObject {
     property string trackerState: ""
     property string packageFilter: ""
     property string originFilter: ""
+    property string cveFilter: ""
     property string sortKey: "severity"
     property bool sortDescending: true
     property string groupBy: "none"
@@ -459,7 +462,9 @@ Responsibilities:
 | `RiskCard` | max severity, findings, packages, CVEs | none |
 | `SeverityCard` | bands, selected band, theme | `selected(band)` |
 | `FixesCard` | fix bands, total, selected state, theme | `selected(state)` |
-| `FindingsToolbar` | search text, filters, counts, group mode, expanded state | `searchChanged`, `clearFilters`, `groupBySelected`, `toggleGroupsExpandedRequested` |
+| `FindingsToolbar` | search text, filters, counts, group mode, expanded state | `searchChanged`, `filtersApplied`, `clearFiltersRequested`, `groupBySelected` |
+| `FilterPopup` | current CVE/package/origin/severity/fix filters | `filtersApplied`, `clearAllRequested` |
+| `ActiveFiltersBar` | active filter values, theme, labels | `removeFilter`, `clearAllRequested` |
 | `FindingsList` | rows, grouped mode, theme, labels | `openFinding`, `filterPackage`, `filterOrigin`, `openFix`, `openTracker`, `copy`, `menuRequested` |
 | `FindingRow` | `required property var rowData`, theme, labels | row intents |
 | `GroupHeader` | group title/kind, count, expanded | `toggleRequested` |
@@ -1221,7 +1226,7 @@ the repository.
 | Fix | every `fix_state`, every branch `kind`/`state`, fixed on another channel, system channel empty/unstable/stable, `system_known:false`, legacy master fallback, no rows, `issue-open`, URL fallback |
 | Tracker | found/missing/unknown/none, on-demand checked map, each filter, each progress phase, totals/done, auth/throttle/failure, stale progress |
 | Origins | empty, single, multiple, duplicate chain nodes, version suffix, chain equals package, >1 chains, group key, count |
-| Filters | search each field, trim/case, combined, severity+fix+tracker, package/origin, active flag, counts |
+| Filters | search each field, trim/case, combined, severity+fix+tracker, package/origin/CVE, active flag, counts |
 | Sort | numeric/text, nulls, ties, ascending/descending, every exposed key, toggling |
 | Group | order by max severity/count/name, item order, counts, unknown origin, no mutation, 0/1/many |
 | Diff | unchanged, findings change, tracker-only change, `fix_branches` change, `origins.chains` change, reordered keys |
@@ -1538,7 +1543,7 @@ Measured before the refactor:
 
 - `contents/ui/main.qml`: 130 lines, composition root only.
 - 10 domain modules, 8 services, 2 state objects and 16 components.
-- 59 Node domain tests, 25 qmltestrunner test functions.
+- 60 Node domain tests, 26 qmltestrunner test functions.
 - qmllint (Qt 6.12): 175 warnings, down from 752 unqualified accesses,
   24 missing properties and 6 unresolved types; the remaining warnings are
   mostly context properties (`Plasmoid`, `i18n`, `Qt`) and `Loader.item`

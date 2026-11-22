@@ -771,11 +771,77 @@ QtObject {
     }
 
     function filtersButton() {
-        return i18n("Filters");
+        return i18n("Filter");
     }
 
     function filtersTooltip() {
-        return i18n("Filter by severity or fix state");
+        return i18n("Filter by CVE, package, origin, severity or fix state");
+    }
+
+    function advancedFilterTitle() {
+        return i18n("Filter findings");
+    }
+
+    function cvePlaceholder() {
+        return i18n("CVE ID");
+    }
+
+    function packagePlaceholder() {
+        return i18n("Package");
+    }
+
+    function originPlaceholder() {
+        return i18n("Origin");
+    }
+
+    function severityLabel() {
+        return i18n("Severity");
+    }
+
+    function fixStateLabel() {
+        return i18n("Fix state");
+    }
+
+    function applyFiltersText() {
+        return i18n("Apply");
+    }
+
+    function filterChipText(key, value) {
+        switch (key) {
+        case "text":
+            return i18n("Search: %1", value);
+        case "cve":
+            return i18n("CVE: %1", value);
+        case "package":
+            return i18n("Package: %1", value);
+        case "origin":
+            return i18n("Origin: %1", value);
+        case "severity":
+            return i18n("Severity: %1", severityBandLabel(value));
+        case "fixState":
+            return i18n("Fix: %1", fixBucketLabel(value));
+        default:
+            return value;
+        }
+    }
+
+    function removeFilterTooltip(key) {
+        switch (key) {
+        case "text":
+            return i18n("Clear the search");
+        case "cve":
+            return i18n("Remove the CVE filter");
+        case "package":
+            return i18n("Remove the package filter");
+        case "origin":
+            return i18n("Remove the origin filter");
+        case "severity":
+            return i18n("Remove the severity filter");
+        case "fixState":
+            return i18n("Remove the fix-state filter");
+        default:
+            return i18n("Remove this filter");
+        }
     }
 
     function searchPlaceholder() {

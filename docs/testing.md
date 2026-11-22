@@ -10,7 +10,7 @@ network.
 
 ## Commands
 
-Current suite: 59 Node domain tests and 25 qmltestrunner test functions.
+Current suite: 60 Node domain tests and 26 qmltestrunner test functions.
 
 ```sh
 # one command for everything available

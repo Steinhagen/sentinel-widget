@@ -5,7 +5,7 @@
 - Refactor the applet into layered `domain` (pure `.mjs`), `services`,
   `state` and `components` modules; `main.qml` is now a ~130-line composition
   root instead of a 3,625-line monolith.
-- Add 59 Node domain tests, 25 qmltestrunner test functions, sanitized
+- Add 60 Node domain tests, 26 qmltestrunner test functions, sanitized
   v7/legacy fixtures, a 2,000-row performance budget and CI checks.
 - Skip reading `status.json` when its mtime/size is unchanged.
 - Add explicit load-error, scan-error and newer-schema states.
@@ -26,11 +26,11 @@
   sortable finding counts, above the normal table header. The Group by button
   is a current-state split button (Flat / Priority / Package / Origin), so the
   ungrouped state is no longer blank.
-- Hide the toolbar Filters button while the summary cards are visible, since
-  the severity and fix-state card rows provide the same choices.
+- Replace the Filters menu with a Filter popover for CVE, package, origin,
+  severity and fix state. Show every active filter as a removable chip below
+  the toolbar, including filters set by clicking a package or origin.
 - Disable SearchField auto-accept so live filtering no longer blurs the search
   field after the first keystroke.
-- Move severity and fix-state filtering into one compact **Filters** menu.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
 - Give every fix pill the same width, sized to the longest fix-state label,

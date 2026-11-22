@@ -81,6 +81,27 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_cve_advanced_filter() {
+        const env = testCase.makeVm();
+        env.vm.applyFilters("CVE-2026-111497", "", "", "", "");
+        compare(env.vm.cveFilter, "CVE-2026-111497");
+        compare(env.vm.visibleCount, 1);
+        compare(env.vm.anyFilterActive, true);
+
+        env.vm.clearFilter("cve");
+        compare(env.vm.cveFilter, "");
+        compare(env.vm.visibleCount, 13);
+
+        env.vm.applyFilters("111497", "", "", "", "");
+        env.vm.showPackage("brotli");
+        compare(env.vm.cveFilter, "");
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_package_and_origin_drill_down() {
         const env = testCase.makeVm();
         env.vm.showPackage("brotli");

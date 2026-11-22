@@ -1,8 +1,7 @@
 // Table filters and aggregate counts.
 //
 // A filter state is deliberately small: only controls reachable from the
-// toolbar and row cells are represented. `cve`, `version`, `via` and `master`
-// per-column filters from the old table are not exposed anywhere.
+// toolbar, the advanced filter panel and row cells are represented.
 
 import { TrackerState } from "./types.mjs";
 
@@ -13,7 +12,8 @@ export function empty() {
         fixState: "",
         trackerState: "",
         package: "",
-        origin: ""
+        origin: "",
+        cve: ""
     };
 }
 
@@ -24,7 +24,8 @@ export function isActive(filters) {
         || String(value.fixState || "").length > 0
         || String(value.trackerState || "").length > 0
         || String(value.package || "").length > 0
-        || String(value.origin || "").length > 0;
+        || String(value.origin || "").length > 0
+        || String(value.cve || "").length > 0;
 }
 
 function trackerMatches(row, filter) {
@@ -74,6 +75,12 @@ export function matches(row, filters) {
     if (value.origin) {
         const needle = String(value.origin).trim().toLowerCase();
         if (String(row.originSearch || "").toLowerCase().indexOf(needle) === -1) {
+            return false;
+        }
+    }
+    if (value.cve) {
+        const needle = String(value.cve).trim().toLowerCase();
+        if (String(row.id || "").toLowerCase().indexOf(needle) === -1) {
             return false;
         }
     }

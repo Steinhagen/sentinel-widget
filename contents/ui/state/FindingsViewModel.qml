@@ -17,6 +17,7 @@ QtObject {
     property string trackerState: ""
     property string packageFilter: ""
     property string originFilter: ""
+    property string cveFilter: ""
     property string sortKey: "severity"
     property bool sortDescending: true
     property string groupBy: "none"
@@ -36,7 +37,8 @@ QtObject {
         fixState: vm.fixState,
         trackerState: vm.trackerState,
         package: vm.packageFilter,
-        origin: vm.originFilter
+        origin: vm.originFilter,
+        cve: vm.cveFilter
     })
 
     readonly property var allRows: vm.buildAllRows()
@@ -221,6 +223,42 @@ QtObject {
         vm.trackerState = "";
         vm.packageFilter = "";
         vm.originFilter = "";
+        vm.cveFilter = "";
+        vm.resetScroll();
+    }
+
+    function clearFilter(key) {
+        switch (key) {
+        case "text":
+            vm.searchText = "";
+            break;
+        case "severity":
+            vm.severityBand = "";
+            break;
+        case "fixState":
+            vm.fixState = "";
+            break;
+        case "package":
+            vm.packageFilter = "";
+            break;
+        case "origin":
+            vm.originFilter = "";
+            break;
+        case "cve":
+            vm.cveFilter = "";
+            break;
+        default:
+            return;
+        }
+        vm.resetScroll();
+    }
+
+    function applyFilters(cve, packageName, originName, severity, fix) {
+        vm.cveFilter = String(cve || "").trim();
+        vm.packageFilter = String(packageName || "").trim();
+        vm.originFilter = String(originName || "").trim();
+        vm.severityBand = String(severity || "");
+        vm.fixState = String(fix || "");
         vm.resetScroll();
     }
 
@@ -233,6 +271,7 @@ QtObject {
         vm.fixState = "";
         vm.trackerState = "";
         vm.originFilter = "";
+        vm.cveFilter = "";
         vm.packageFilter = String(name);
         vm.resetScroll();
     }
@@ -246,6 +285,7 @@ QtObject {
         vm.fixState = "";
         vm.trackerState = "";
         vm.packageFilter = "";
+        vm.cveFilter = "";
         vm.originFilter = String(name);
         vm.resetScroll();
     }

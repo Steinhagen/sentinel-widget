@@ -140,17 +140,35 @@ PlasmaExtras.Representation {
                 searchText: root.vm.searchText
                 severityBand: root.vm.severityBand
                 fixState: root.vm.fixState
-                anyFilterActive: root.vm.anyFilterActive
+                cveFilter: root.vm.cveFilter
+                packageFilter: root.vm.packageFilter
+                originFilter: root.vm.originFilter
                 visibleCount: root.vm.visibleCount
                 totalCount: root.vm.totalCount
                 groupBy: root.vm.groupBy
                 cardsVisible: root.vm.hasFindings && !root.compactLayout
                 labels: root.labels
                 onSearchChanged: (text) => root.vm.setSearchText(text)
-                onSeveritySelected: (band) => root.vm.setSeverityBand(band)
-                onFixStateSelected: (band) => root.vm.setFixState(band)
+                onFiltersApplied: (cve, packageName, origin, severity, fix) =>
+                    root.vm.applyFilters(cve, packageName, origin, severity, fix)
                 onClearFiltersRequested: root.vm.clearFilters()
                 onGroupBySelected: (mode) => root.vm.setGroupBy(mode)
+            }
+
+            ActiveFiltersBar {
+                Layout.preferredWidth: root.lowerWidth
+                Layout.maximumWidth: root.lowerWidth
+                Layout.alignment: Qt.AlignHCenter
+                searchText: root.vm.searchText
+                severityBand: root.vm.severityBand
+                fixState: root.vm.fixState
+                cveFilter: root.vm.cveFilter
+                packageFilter: root.vm.packageFilter
+                originFilter: root.vm.originFilter
+                theme: root.theme
+                labels: root.labels
+                onRemoveFilter: (key) => root.vm.clearFilter(key)
+                onClearAllRequested: root.vm.clearFilters()
             }
 
             FindingsList {

@@ -10,7 +10,9 @@ RowLayout {
     property string searchText: ""
     property string severityBand: ""
     property string fixState: ""
-    property bool anyFilterActive: false
+    property string cveFilter: ""
+    property string packageFilter: ""
+    property string originFilter: ""
     property int visibleCount: 0
     property int totalCount: 0
     property string groupBy: "none"
@@ -18,10 +20,16 @@ RowLayout {
     property var labels: null
 
     signal searchChanged(string text)
-    signal severitySelected(string band)
-    signal fixStateSelected(string band)
+    signal filtersApplied(string cve, string packageName, string origin,
+        string severity, string fixState)
     signal clearFiltersRequested()
     signal groupBySelected(string groupBy)
+
+    onSearchTextChanged: {
+        if (searchField.text !== searchText && !searchField.activeFocus) {
+            searchField.text = searchText;
+        }
+    }
 
     Layout.fillWidth: false
     spacing: Kirigami.Units.smallSpacing
@@ -49,106 +57,31 @@ RowLayout {
     PlasmaComponents3.ToolButton {
         id: filtersButton
 
-        visible: !root.cardsVisible
-        text: root.labels ? root.labels.filtersButton() : "Filters"
+        text: root.labels ? root.labels.filtersButton() : "Filter"
         icon.name: "view-filter"
         display: QQC2.AbstractButton.TextBesideIcon
-        onClicked: filtersMenu.popup(filtersButton, 0, filtersButton.height)
+        onClicked: filterPopup.open()
 
         QQC2.ToolTip.text: root.labels ? root.labels.filtersTooltip() : ""
         QQC2.ToolTip.visible: hovered
     }
 
-    QQC2.Menu {
-        id: filtersMenu
+    FilterPopup {
+        id: filterPopup
 
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.allSeverities() : ""
-            checkable: true
-            checked: root.severityBand === ""
-            onTriggered: root.severitySelected("")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.severityBandLabel("critical") : ""
-            checkable: true
-            checked: root.severityBand === "critical"
-            onTriggered: root.severitySelected("critical")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.severityBandLabel("high") : ""
-            checkable: true
-            checked: root.severityBand === "high"
-            onTriggered: root.severitySelected("high")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.severityBandLabel("medium") : ""
-            checkable: true
-            checked: root.severityBand === "medium"
-            onTriggered: root.severitySelected("medium")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.severityBandLabel("low") : ""
-            checkable: true
-            checked: root.severityBand === "low"
-            onTriggered: root.severitySelected("low")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.unknownSeverity() : ""
-            checkable: true
-            checked: root.severityBand === "unknown"
-            onTriggered: root.severitySelected("unknown")
-        }
-
-        QQC2.MenuSeparator {}
-
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.allFixStates() : ""
-            checkable: true
-            checked: root.fixState === ""
-            onTriggered: root.fixStateSelected("")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.fixFilterLabel("fixed") : ""
-            checkable: true
-            checked: root.fixState === "fixed"
-            onTriggered: root.fixStateSelected("fixed")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.fixFilterLabel("progress") : ""
-            checkable: true
-            checked: root.fixState === "progress"
-            onTriggered: root.fixStateSelected("progress")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.fixFilterLabel("none") : ""
-            checkable: true
-            checked: root.fixState === "none"
-            onTriggered: root.fixStateSelected("none")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.fixFilterLabel("unknown") : ""
-            checkable: true
-            checked: root.fixState === "unknown"
-            onTriggered: root.fixStateSelected("unknown")
-        }
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.fixFilterLabel("n/a") : ""
-            checkable: true
-            checked: root.fixState === "n/a"
-            onTriggered: root.fixStateSelected("n/a")
-        }
-
-        QQC2.MenuSeparator {}
-
-        QQC2.MenuItem {
-            text: root.labels ? root.labels.clearFiltersText() : ""
-            icon.name: "edit-clear-all"
-            enabled: root.anyFilterActive
-            onTriggered: {
-                searchField.text = "";
-                root.clearFiltersRequested();
-            }
-        }
+        parent: root
+        x: Math.max(0, filtersButton.x + filtersButton.width - width)
+        y: filtersButton.y + filtersButton.height + Kirigami.Units.smallSpacing
+        cveFilter: root.cveFilter
+        packageFilter: root.packageFilter
+        originFilter: root.originFilter
+        severityBand: root.severityBand
+        fixState: root.fixState
+        showCommon: !root.cardsVisible
+        labels: root.labels
+        onFiltersApplied: (cve, packageName, origin, severity, fix) =>
+            root.filtersApplied(cve, packageName, origin, severity, fix)
+        onClearAllRequested: root.clearFiltersRequested()
     }
 
     PlasmaComponents3.ToolButton {
@@ -225,20 +158,6 @@ RowLayout {
             checked: root.groupBy === "origin"
             onTriggered: root.groupBySelected("origin")
         }
-    }
-
-    PlasmaComponents3.ToolButton {
-        icon.name: "edit-clear-all"
-        text: root.labels ? root.labels.clearFiltersText() : ""
-        display: QQC2.AbstractButton.IconOnly
-        visible: root.anyFilterActive
-        onClicked: {
-            searchField.text = "";
-            root.clearFiltersRequested();
-        }
-
-        QQC2.ToolTip.text: root.labels ? root.labels.clearFiltersTooltip() : ""
-        QQC2.ToolTip.visible: hovered
     }
 
     PlasmaComponents3.Label {

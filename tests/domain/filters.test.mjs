@@ -17,6 +17,7 @@ test("empty state is inactive", () => {
     assert.equal(isActive({ trackerState: "missing" }), true);
     assert.equal(isActive({ package: "zlib" }), true);
     assert.equal(isActive({ origin: "curl" }), true);
+    assert.equal(isActive({ cve: "CVE-2026-111497" }), true);
 });
 
 test("search is case-insensitive and covers CVE, package and origin", () => {
@@ -54,6 +55,13 @@ test("package and origin drill-down use substrings", () => {
     assert.ok(apply(rows, { package: "brot" }).length >= 1);
     assert.ok(apply(rows, { origin: "imagemagick" }).length >= 1);
     assert.ok(apply(rows, { package: "brot", origin: "imagemagick" }).length >= 1);
+});
+
+test("CVE filter is a case-insensitive substring", () => {
+    assert.equal(apply(rows, { cve: "CVE-2026-111497" }).length, 1);
+    assert.equal(apply(rows, { cve: "111497" }).length, 1);
+    assert.equal(apply(rows, { cve: "not-a-cve" }).length, 0);
+    assert.equal(apply(rows, { cve: "111497", package: "brotli" }).length, 1);
 });
 
 test("aggregate counts cover every row", () => {
