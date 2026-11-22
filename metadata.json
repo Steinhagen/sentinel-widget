@@ -1,0 +1,18 @@
+{
+  "KPackageStructure": "Plasma/Applet",
+  "KPlugin": {
+    "Authors": [
+      {
+        "Name": "catalin"
+      }
+    ],
+    "Category": "System Information",
+    "Description": "Security posture and vulnerability overview for NixOS.",
+    "Icon": "security-medium",
+    "Id": "io.github.steinhagen.sentinel",
+    "License": "MIT",
+    "Name": "Sentinel",
+    "Version": "0.1.0"
+  },
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
