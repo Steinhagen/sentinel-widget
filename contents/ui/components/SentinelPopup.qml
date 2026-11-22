@@ -78,9 +78,7 @@ PlasmaExtras.Representation {
     }
 
     header: HeaderBar {
-        horizontalInset: (root.store && root.store.hasReport && !root.compactLayout)
-            ? Math.max(0, (root.width - root.cardsWidth) / 2)
-            : Kirigami.Units.smallSpacing
+        alignedWidth: root.lowerWidth
         postureLabel: root.labels.postureLabel(root.vm.state, root.store.hasReport)
         stateSummary: root.labels.stateSummary(root.store.report,
             root.store.scanning, root.vm.affectedPackages, root.vm.maxSeverity)

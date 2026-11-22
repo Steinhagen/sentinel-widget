@@ -34,6 +34,8 @@
   field after the first keystroke.
 - Keep the table at the card width when the summary cards are hidden, instead
   of expanding to the full popup width and overflowing its margins.
+- Align the header row's icon and Settings button with the centered table in
+  both the card and list-only layouts.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
 - Give every fix pill the same width, sized to the longest fix-state label,

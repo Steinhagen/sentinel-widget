@@ -22,7 +22,7 @@ PlasmaExtras.PlasmoidHeading {
     property string trackerWarningText: ""
     property var labels: null
     property var theme: null
-    property real horizontalInset: Kirigami.Units.smallSpacing
+    property real alignedWidth: 0
 
     signal scanRequested()
     signal settingsRequested()
@@ -38,12 +38,11 @@ PlasmaExtras.PlasmoidHeading {
         RowLayout {
             id: headerRow
 
-            anchors.fill: parent
-            anchors.leftMargin: Math.max(0,
-                root.horizontalInset - Kirigami.Units.smallSpacing
-                + Math.round(Kirigami.Units.gridUnit * 0.22))
-            anchors.rightMargin: Math.max(0,
-                root.horizontalInset - Kirigami.Units.smallSpacing)
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+            width: root.alignedWidth > 0
+                ? Math.min(root.alignedWidth, parent.width) : parent.width
+            height: implicitHeight
             spacing: Kirigami.Units.smallSpacing
 
             Rectangle {
