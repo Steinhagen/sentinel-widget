@@ -2,6 +2,8 @@
 
 import { TrackerState } from "./types.mjs";
 
+export { TrackerState };
+
 const CVE_RE = /^CVE-\d{4}-\d+$/;
 
 export function isCve(id) {

@@ -1,0 +1,139 @@
+import QtQuick
+import QtTest
+import "../../contents/ui/domain/status.mjs" as Status
+
+TestCase {
+    id: testCase
+    name: "FindingsViewModel"
+
+    function spy(target, signalName) {
+        const spy = Qt.createQmlObject("import QtTest; SignalSpy {}", testCase);
+        spy.signalName = signalName;
+        spy.target = target;
+        return spy;
+    }
+
+    function loadFixture(name) {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", Qt.resolvedUrl("../fixtures/" + name), false);
+        xhr.send();
+        return JSON.parse(xhr.responseText);
+    }
+
+    function makeVm() {
+        const store = Qt.createComponent(Qt.resolvedUrl("FakeStore.qml")).createObject(testCase);
+        const labels = Qt.createComponent(Qt.resolvedUrl("FakeLabels.qml")).createObject(testCase);
+        const clock = Qt.createQmlObject("import QtQml; QtObject { property double now: 1795360000000 }", testCase);
+        const vm = Qt.createComponent(Qt.resolvedUrl("../../contents/ui/state/FindingsViewModel.qml"))
+            .createObject(testCase, { store: store, labels: labels });
+        store.clock = clock;
+        const report = Status.normalizeReport(testCase.loadFixture("status-v7.json"));
+        store.report = report;
+        store.tracker = report.tracker;
+        store.systemChannel = report.tracker.system_channel;
+        return { store: store, labels: labels, clock: clock, vm: vm };
+    }
+
+    function test_initial_rows_and_counts() {
+        const env = testCase.makeVm();
+        compare(env.vm.totalCount, 13);
+        compare(env.vm.visibleCount, 13);
+        compare(env.vm.rows.length, 13);
+        compare(env.vm.maxSeverity, 9.9);
+        compare(env.vm.affectedPackages, 13);
+        compare(env.vm.severityBands[1].count, 5);
+        compare(env.vm.fixStateTotal, 9);
+        compare(env.vm.hasFindings, true);
+        compare(env.vm.anyFilterActive, false);
+        verify(env.vm.lastScanAge > 0);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_search_filter_and_clear() {
+        const env = testCase.makeVm();
+        const reset = testCase.spy(env.vm, "rowsReset");
+
+        env.vm.setSearchText("brotli");
+        compare(env.vm.visibleCount, 1);
+        compare(env.vm.rows[0].id, "CVE-2026-111497");
+        compare(env.vm.anyFilterActive, true);
+        compare(reset.count, 1);
+        compare(reset.signalArguments[0][0], false);
+
+        env.vm.setSeverityBand("critical");
+        compare(env.vm.rows.every(row => row.severityBand === "critical"), true);
+        env.vm.setFixState("fixed");
+        compare(env.vm.rows.every(row => row.fix.bucket === "fixed"), true);
+        env.vm.setTrackerState("linked");
+        compare(env.vm.rows.every(row => row.trackerState === "found"), true);
+
+        env.vm.clearFilters();
+        compare(env.vm.visibleCount, 13);
+        compare(env.vm.anyFilterActive, false);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_package_and_origin_drill_down() {
+        const env = testCase.makeVm();
+        env.vm.showPackage("brotli");
+        compare(env.vm.packageFilter, "brotli");
+        compare(env.vm.visibleCount, 1);
+
+        env.vm.showOrigin("imagemagick");
+        compare(env.vm.packageFilter, "");
+        compare(env.vm.originFilter, "imagemagick");
+        verify(env.vm.visibleCount >= 1);
+        verify(env.vm.rows.every(row => row.originSearch.indexOf("imagemagick") >= 0));
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_sort_and_group() {
+        const env = testCase.makeVm();
+        env.vm.toggleSort("severity");
+        compare(env.vm.sortKey, "severity");
+        compare(env.vm.sortDescending, false);
+        env.vm.toggleSort("severity");
+        compare(env.vm.sortDescending, true);
+        compare(env.vm.rows[0].severityValue, 9.9);
+
+        env.vm.setGroupByOrigin(true);
+        compare(env.vm.rows[0].rowType, "group");
+        verify(env.vm.rows[0].count > 0);
+        compare(env.vm.visibleCount, 13);
+        const reset = testCase.spy(env.vm, "rowsReset");
+        env.vm.setGroupByOrigin(false);
+        compare(env.vm.rows[0].rowType, "finding");
+        compare(reset.count, 1);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_report_change_preserves_scroll_signal() {
+        const env = testCase.makeVm();
+        const reset = testCase.spy(env.vm, "rowsReset");
+        const next = Status.normalizeReport(testCase.loadFixture("status-v7.json"));
+        next.state = "secure";
+        env.store.report = next;
+        compare(reset.count, 1);
+        compare(reset.signalArguments[0][0], true);
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+}
