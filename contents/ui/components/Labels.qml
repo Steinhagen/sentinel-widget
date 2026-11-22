@@ -782,6 +782,14 @@ QtObject {
         return i18n("Filter findings");
     }
 
+    function filterFieldsHint() {
+        return i18n("CVE, package or origin");
+    }
+
+    function severityAndFixLabel() {
+        return i18n("Severity and fix state");
+    }
+
     function cvePlaceholder() {
         return i18n("CVE ID");
     }

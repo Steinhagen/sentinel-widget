@@ -26,8 +26,9 @@
   sortable finding counts, above the normal table header. The Group by button
   is a current-state split button (Flat / Priority / Package / Origin), so the
   ungrouped state is no longer blank.
-- Replace the Filters menu with a Filter popover for CVE, package, origin,
-  severity and fix state. Show every active filter as a removable chip below
+- Replace the Filters menu with a compact Filter popover for CVE, package,
+  origin, severity and fix state. Its form stays within the popup when the
+  summary cards are hidden. Show every active filter as a removable chip below
   the toolbar, including filters set by clicking a package or origin.
 - Disable SearchField auto-accept so live filtering no longer blurs the search
   field after the first keystroke.
