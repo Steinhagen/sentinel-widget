@@ -1,40 +1,63 @@
-# Scanner backend contract
+# Scanner backend
 
-Sentinel is only the Plasma frontend. The data comes from the **Sentinel**
-backend and the applet expects this contract:
+Sentinel ships both halves: the Plasma applet and the scanner backend. The
+backend is a NixOS module (`nix/module.nix`) that installs the applet and two
+services:
 
-- Status file: `/var/lib/sentinel/status.json`
-- Scan trigger: `systemctl start --no-block sentinel.service`
-- The file is written by the backend after a scan; the applet refreshes it
-  periodically and after **Scan now**.
-- Optional triage sidecar: `/var/lib/sentinel/triage.json`, written by
-  [`tools/triage.mjs`](../tools/triage.mjs) (or by the backend). The applet
-  hides `suppressed` findings when the **Triage verdicts** setting is on. See
-  [triage.md](triage.md).
+- **`sentinel.service`** runs `vulnxscan` over `/run/current-system` and writes
+  `/var/lib/sentinel/status.json` through `nix/backend/sentinel-status.py`. It
+  starts from the applet’s **Scan now** button or the daily timer.
+- **`sentinel-tracker.service`** annotates the findings with the Nixpkgs
+  security tracker, then runs `tools/triage.mjs --embed`, which folds the
+  triage verdicts into the same `status.json`. It runs after every scan and on
+  its own 15-minute timer (to resume interrupted passes and refresh tracker
+  answers).
 
-The current backend lives in the author's NixOS flake (`system/sentinel.nix`,
-`system/sentinel-status.py`) and is not part of this widget repository.
+The applet reads `status.json` only. There is no third service and no second
+report file to keep in sync.
 
-At the time of writing, the relevant top-level fields are:
+## Enabling it
 
-```json
+```nix
+inputs.sentinel-widget.url = "github:Steinhagen/sentinel-widget/main";
+
 {
-  "schema_version": 7,
-  "state": "vulnerable",
-  "findings": 1057,
-  "max_severity": 9.9,
-  "packages_affected": 132,
-  "severity_counts": { "critical": 46, "high": 294, "medium": 545, "low": 72, "unknown": 100 },
-  "scanned_at": "2026-11-21 00:04",
-  "vulnerabilities": []
+  imports = [ inputs.sentinel-widget.nixosModules.default ];
+
+  services.sentinel = {
+    enable = true;
+    user = "alice";   # whose applet settings hold the tracker token
+  };
 }
 ```
 
-Each `vulnerabilities[]` entry supplies the table fields (`id`, `package`,
-`version`, `severity`, `scanners`, `confidence`, `url`) plus `origins` and
-`tracker` metadata. Schema details and the scanner implementation stay with the
-backend so the widget can remain a thin presentation layer.
+Options:
 
-If you want to publish a fully self-contained KDE Store widget, package the
-backend as a separate service/package and make the store description explicit
-about the NixOS requirement.
+| Option | Meaning |
+| --- | --- |
+| `enable` | install the applet and the two services |
+| `user` | user whose Plasma applet configuration holds the tracker token; `null` uses only `/var/lib/sentinel/tracker-token` |
+| `package` | applet package to install; the flake fills it in |
+
+## Files
+
+| File | Written by | Purpose |
+| --- | --- | --- |
+| `/var/lib/sentinel/status.json` | scan, then tracker/triage | findings, tracker annotations and triage verdicts |
+| `/var/lib/sentinel/report.csv` | scan | raw scanner report |
+| `/var/lib/sentinel/evidence.json` | scan | component evidence for the origin chains |
+| `/var/lib/sentinel/last.log` | scan, tracker, triage | append-only log |
+| `/var/lib/sentinel/tracker-token` | operator (optional) | root-readable tracker token |
+| `/var/lib/sentinel/triage-ignore.json` | operator (optional) | CVE + package dismissals |
+
+The applet starts the scan with `systemctl start --no-block sentinel.service`;
+the module’s polkit rule allows `wheel` users to do that without a password
+prompt.
+
+## Status contract
+
+The applet depends on the fields in [`status-schema.md`](status-schema.md).
+Each finding may carry `verdict`, `verdict_reasons`, `verdict_vendor` and
+`verdict_product`, produced by `tools/triage.mjs --embed`. A sidecar
+`triage.json` is still accepted for manual runs of the tool, but the module
+does not write one.

@@ -186,11 +186,13 @@ test("detailsOf falls back to an embedded verdict", () => {
         version: "9.0.2",
         verdict: "unverified",
         verdict_reasons: ["no-version-range"],
+        verdict_vendor: "Facebook",
+        verdict_product: "Facebook Thrift",
     }, null);
     assert.deepEqual(details, {
         verdict: "unverified",
         reasons: ["no-version-range"],
-        vendor: "",
-        product: "",
+        vendor: "Facebook",
+        product: "Facebook Thrift",
     });
 });

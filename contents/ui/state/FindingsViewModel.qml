@@ -40,6 +40,21 @@ QtObject {
         ? store.triage : null
     readonly property int triageRevision: store && store.triageRevision !== undefined
         ? store.triageRevision : 0
+    readonly property bool triageAvailable: {
+        if (vm.triage !== null) {
+            return true;
+        }
+        const list = vm.reportModel ? vm.reportModel.vulnerabilities : null;
+        if (!list) {
+            return false;
+        }
+        for (let i = 0; i < list.length; ++i) {
+            if (list[i].verdict) {
+                return true;
+            }
+        }
+        return false;
+    }
     readonly property bool hasFindings: vm.totalCount > 0
 
     readonly property var visibleFindings: {

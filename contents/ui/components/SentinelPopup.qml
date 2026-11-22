@@ -188,7 +188,7 @@ PlasmaExtras.Representation {
                 theme: root.theme
                 labels: root.labels
                 systemChannel: root.store.systemChannel
-                triageAvailable: root.vm.triage !== null
+                triageAvailable: root.vm.triageAvailable
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
                 groupBy: root.vm.groupBy

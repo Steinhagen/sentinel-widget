@@ -307,6 +307,27 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_embedded_verdicts_are_used() {
+        const env = testCase.makeVm();
+        const raw = testCase.loadFixture("status-v7.json");
+        raw.vulnerabilities[0].verdict = "unverified";
+        raw.vulnerabilities[0].verdict_reasons = ["product-only-match"];
+        raw.vulnerabilities[0].verdict_vendor = "Mozilla";
+        raw.vulnerabilities[0].verdict_product = "Focus for Android";
+        env.store.report = Status.normalizeReport(raw);
+
+        compare(env.vm.triageAvailable, true);
+        const row = env.vm.rows.find(r => r.id === "CVE-2026-111497");
+        compare(row.needsReview, true);
+        compare(row.triageVendor, "Mozilla");
+        compare(row.triageProduct, "Focus for Android");
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_triage_hides_suppressed_findings() {
         const env = testCase.makeVm();
         env.store.triage = Triage.parseTriageText(JSON.stringify({

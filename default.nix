@@ -1,24 +1,4 @@
-{ stdenv, lib }:
-
-stdenv.mkDerivation {
-  pname = "sentinel-widget";
-  version = "0.2.0";
-
-  src = ./.;
-
-  dontConfigure = true;
-  dontBuild = true;
-
-  installPhase = ''
-    runHook preInstall
-    mkdir -p $out/share/plasma/plasmoids/io.github.steinhagen.sentinel
-    cp -r metadata.json contents $out/share/plasma/plasmoids/io.github.steinhagen.sentinel/
-    runHook postInstall
-  '';
-
-  meta = {
-    description = "Plasma 6 security dashboard for NixOS vulnerability scans";
-    license = lib.licenses.mit;
-    platforms = lib.platforms.linux;
-  };
-}
+# Convenience entry point for non-flake builds; the flake uses nix/applet.nix
+# directly. `nix-build -E 'with import <nixpkgs> {}; callPackage ./default.nix {}'`
+{ lib, stdenv }:
+import ./nix/applet.nix { inherit lib stdenv; }

@@ -6,7 +6,7 @@ the applet does not invoke the scanner directly.
 | File | Purpose |
 | --- | --- |
 | `/var/lib/sentinel/status.json` | Latest scan result and tracker progress |
-| `/var/lib/sentinel/triage.json` | Optional triage verdicts; see below |
+| `/var/lib/sentinel/triage.json` | Optional triage verdicts; the NixOS module embeds them instead |
 | `/var/lib/sentinel/report.csv` | Optional CSV report opened from the context menu |
 | `/var/lib/sentinel/last.log` | Scan log opened from the context menu |
 
@@ -67,14 +67,18 @@ Legacy compatibility:
 | `tracker` | object | Nixpkgs security tracker annotation; see below |
 | `verdict` | string | Optional triage verdict: `confirmed`, `unverified`, `suppressed` |
 | `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected` |
+| `verdict_vendor` | string | CVE vendor, shown in the REVIEW tooltip |
+| `verdict_product` | string | CVE product, shown in the REVIEW tooltip |
 
 ### Triage verdicts
 
-A finding may carry its triage verdict directly. When it does not, the applet
-reads the sidecar report at `/var/lib/sentinel/triage.json`, written by
-[`tools/triage.mjs`](../tools/triage.mjs) (see [triage.md](triage.md)). The
-report is `{ "findings": [ { "id", "package", "version", "verdict", "reasons" } ] }`;
-entries are joined to findings by `id`, `package` and `version`.
+A finding carries its triage verdict directly: `verdict`,
+`verdict_reasons`, `verdict_vendor` and `verdict_product`. The NixOS module
+writes them with `tools/triage.mjs --embed` at the end of every tracker pass
+(see [triage.md](triage.md)). For manual runs the applet also accepts a sidecar
+report at `/var/lib/sentinel/triage.json`, shaped
+`{ "findings": [ { "id", "package", "version", "verdict", "reasons" } ] }` and
+joined to findings by `id`, `package` and `version`.
 
 With the triage setting enabled, findings whose verdict is `suppressed` are
 hidden from the list, the counts and the panel badge. `confirmed` and

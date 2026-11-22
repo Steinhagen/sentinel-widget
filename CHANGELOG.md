@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The scanner backend and its systemd units now ship in this repository:
+  `nixosModules.default` installs the applet, the scan service and the tracker
+  service, and `services.sentinel.enable` turns them on. The applet and the
+  backend always come from the same revision.
+- `tools/triage.mjs --embed` writes the triage verdicts into `status.json`, so
+  the applet reads a single file; the tracker pass runs it automatically.
+
 - Added a complete Romanian translation (`translate/ro.po`), compiled to
   `contents/locale/ro/LC_MESSAGES/plasma_applet_io.github.steinhagen.sentinel.mo`
   and loaded through Ki18n like any other Plasma applet.

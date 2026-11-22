@@ -29,7 +29,7 @@
  */
 
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -698,6 +698,46 @@ export function verdictFor(finding, cve, options = {}) {
 }
 
 /**
+ * Write the verdicts into the findings of a status document, so the applet
+ * needs only status.json (no sidecar report).
+ *
+ * @param {any} status
+ * @param {Array<{id: string, package: string, version: string, verdict: string, reasons: string[]}>} results
+ * @returns {number} findings updated
+ */
+export function embedVerdicts(status, results) {
+    const byKey = new Map();
+    for (const result of results) {
+        byKey.set(`${result.id}|${result.package}|${result.version}`, result);
+    }
+    const findings = Array.isArray(status?.vulnerabilities)
+        ? status.vulnerabilities
+        : (Array.isArray(status?.top) ? status.top : []);
+    let updated = 0;
+    for (const finding of findings) {
+        const result = byKey.get(
+            `${finding.id}|${finding.package}|${finding.version}`);
+        if (!result) {
+            continue;
+        }
+        finding.verdict = result.verdict;
+        finding.verdict_reasons = result.reasons ?? [];
+        if (result.vendor) {
+            finding.verdict_vendor = result.vendor;
+        } else {
+            delete finding.verdict_vendor;
+        }
+        if (result.product) {
+            finding.verdict_product = result.product;
+        } else {
+            delete finding.verdict_product;
+        }
+        updated += 1;
+    }
+    return updated;
+}
+
+/**
  * Count verdicts and reasons.
  *
  * @param {Array<{verdict: Verdict, reasons: string[]}>} results
@@ -878,6 +918,7 @@ function parseArgs(argv) {
             "sentinel-triage",
         ),
         out: null,
+        embed: false,
         ignore: null,
         fetch: false,
         concurrency: 6,
@@ -907,6 +948,9 @@ function parseArgs(argv) {
                 break;
             case "--out":
                 options.out = next();
+                break;
+            case "--embed":
+                options.embed = true;
                 break;
             case "--ignore":
                 options.ignore = next();
@@ -970,6 +1014,7 @@ async function main() {
                 "  --only IDS          comma separated CVE ids",
                 "  --limit N           at most N findings",
                 "  --out FILE          write the JSON report",
+                "  --embed             write the verdicts into status.json",
                 "  --quiet             no summary output",
                 "",
             ].join("\n"),
@@ -1043,6 +1088,21 @@ async function main() {
 
     if (options.out) {
         await writeFile(options.out, `${JSON.stringify(report, null, 2)}\n`);
+    }
+
+    if (options.embed) {
+        // Fold the verdicts into the scan itself; the applet then reads a
+        // single file. Write through a temporary name so a concurrent read
+        // never sees a half-written status.json.
+        const raw = JSON.parse(await readFile(options.status, "utf8"));
+        const updated = embedVerdicts(raw, results);
+        const temporary = `${options.status}.tmp`;
+        await writeFile(temporary, `${JSON.stringify(raw, null, 2)}\n`);
+        await rename(temporary, options.status);
+        if (!options.quiet) {
+            process.stdout.write(
+                `embedded ${updated} verdicts into ${options.status}\n`);
+        }
     }
 
     if (!options.quiet) {

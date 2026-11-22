@@ -111,8 +111,8 @@ export function detailsOf(finding, triage) {
         return {
             verdict: embedded,
             reasons: arrayOf(finding.verdict_reasons).map(String),
-            vendor: "",
-            product: ""
+            vendor: stringOf(finding.verdict_vendor),
+            product: stringOf(finding.verdict_product)
         };
     }
     if (!triage || !triage.byKey) {

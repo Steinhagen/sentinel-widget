@@ -3,9 +3,10 @@
 A KDE Plasma 6 widget for **NixOS** that turns the latest vulnerability scan
 into a compact security dashboard.
 
-> **Standalone source snapshot.** This repository contains the Plasma widget.
-> The scanner backend is not included; the widget reads the status file written
-> by the **Sentinel** service. See [Requirements](#requirements).
+This repository contains both halves: the Plasma applet and the scanner
+backend, wired together by a NixOS module (`nix/module.nix`). On NixOS you
+import the flake module and enable the service; the applet is installed from
+the same revision, so the two cannot drift apart.
 
 ## Features
 
@@ -40,24 +41,40 @@ into a compact security dashboard.
 
 ## Requirements
 
-Sentinel is a frontend. It expects:
-
 - **KDE Plasma 6** and Qt 6.
-- A **Sentinel** backend that writes `/var/lib/sentinel/status.json`.
-- A systemd unit named `sentinel.service`; the widget starts it with
-  `systemctl start --no-block sentinel.service` when **Scan now** is pressed.
+- **NixOS** with flakes, for the backend. The applet alone is a dashboard; the
+  scan needs root and the vulnerability databases.
 
-> The scanner backend and this applet share the **Sentinel** name. Until the
-> backend is updated to the same service and path names, the applet has no
-> report to display.
+### NixOS
 
-The backend is part of the author's NixOS flake (`system/sentinel.nix`,
-`system/sentinel-status.py`) and is intentionally **not** copied into this
-widget repository. Without it the widget displays **Not scanned yet** and the
-**Scan now** button cannot produce data.
+```nix
+inputs.sentinel-widget.url = "github:Steinhagen/sentinel-widget/main";
 
-The optional Nixpkgs tracker token can be set in the widget configuration.
-Anonymous tracker access is rate-limited.
+{
+  imports = [ inputs.sentinel-widget.nixosModules.default ];
+
+  services.sentinel = {
+    enable = true;
+    user = "alice";   # whose applet settings hold the tracker token
+  };
+}
+```
+
+That is the whole recipe. The module installs the applet and two services:
+
+- `sentinel.service` — runs the scan when **Scan now** is pressed or from the
+  daily timer, and writes `/var/lib/sentinel/status.json`;
+- `sentinel-tracker.service` — checks the findings against the Nixpkgs security
+  tracker, then folds the triage verdicts into the same `status.json`.
+
+The first scan downloads the vulnerability databases; the first tracker pass
+can take a while without an API token. The applet picks the report up on its
+own timer.
+
+The tracker token is optional and can be set in the widget configuration
+(stored in the user's KDE config, read by the root service) or installed as a
+root-readable file at `/var/lib/sentinel/tracker-token`. Anonymous tracker
+access is rate-limited.
 
 ## Installation
 

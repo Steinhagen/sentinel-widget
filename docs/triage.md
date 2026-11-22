@@ -167,14 +167,21 @@ menu when you are triaging interactively.
 
 ## In the widget
 
-The applet reads the report as a sidecar next to the status file:
+The NixOS module runs the tool at the end of every tracker pass and embeds the
+verdicts into `status.json`:
 
 ```console
-sudo nix develop --command node tools/triage.mjs \
+node tools/triage.mjs \
     --status /var/lib/sentinel/status.json \
     --evidence /var/lib/sentinel/evidence.json \
-    --out /var/lib/sentinel/triage.json
+    --cache /var/cache/sentinel/triage-cache \
+    --ignore /var/lib/sentinel/triage-ignore.json \
+    --embed
 ```
+
+There is no sidecar file to manage and nothing extra to schedule. The applet
+still accepts a report at `/var/lib/sentinel/triage.json` (written with
+`--out`) for manual runs, but the module does not write one.
 
 The **Triage verdicts** setting (configure dialog, enabled by default) hides
 `suppressed` findings from the list, the summary cards, the counts and the panel

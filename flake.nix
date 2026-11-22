@@ -5,10 +5,28 @@
 
   outputs = { self, nixpkgs }:
     let
+      systems = [ "x86_64-linux" "aarch64-linux" ];
+      forAllSystems = nixpkgs.lib.genAttrs systems;
+      pkgsFor = system: import nixpkgs { inherit system; };
+
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
+      pkgs = pkgsFor system;
       kde = pkgs.kdePackages;
     in {
+      packages = forAllSystems (system: {
+        sentinel-widget = (pkgsFor system).callPackage ./nix/applet.nix { };
+        default = self.packages.${system}.sentinel-widget;
+      });
+
+      # Import this from a NixOS configuration and set
+      # services.sentinel.enable = true. The applet package is filled in here
+      # so the applet and the backend always come from the same revision.
+      nixosModules.default = { pkgs, ... }: {
+        imports = [ ./nix/module.nix ];
+        services.sentinel.package = pkgs.lib.mkDefault
+          (self.packages.${pkgs.stdenv.hostPlatform.system}.sentinel-widget);
+      };
+
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
           gettext

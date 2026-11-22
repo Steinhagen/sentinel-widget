@@ -4,6 +4,7 @@ import {
     compareVersions,
     cveListPath,
     ignoreEntryOf,
+    embedVerdicts,
     evaluateRange,
     evaluateRanges,
     isScopedVendor,
@@ -355,4 +356,40 @@ test("dismissals are scoped to one package", () => {
         { id: "CVE-2021-35049", package: "network", version: "3.2.8.0" },
         fidelis, { ignore });
     assert.equal(result.verdict, "unverified");
+});
+
+test("embedVerdicts writes the verdicts into the findings", () => {
+    const status = {
+        vulnerabilities: [
+            { id: "CVE-2021-24028", package: "thrift", version: "0.25.0" },
+            { id: "CVE-2026-1", package: "ffmpeg", version: "9.0.2" },
+            { id: "CVE-2026-2", package: "other", version: "1" },
+        ],
+    };
+    const updated = embedVerdicts(status, [
+        {
+            id: "CVE-2021-24028",
+            package: "thrift",
+            version: "0.25.0",
+            verdict: "unverified",
+            reasons: ["product-only-match"],
+            vendor: "Facebook",
+            product: "Facebook Thrift",
+        },
+        {
+            id: "CVE-2026-1",
+            package: "ffmpeg",
+            version: "9.0.2",
+            verdict: "confirmed",
+            reasons: ["version-in-range"],
+        },
+    ]);
+    assert.equal(updated, 2);
+    assert.equal(status.vulnerabilities[0].verdict, "unverified");
+    assert.deepEqual(status.vulnerabilities[0].verdict_reasons, ["product-only-match"]);
+    assert.equal(status.vulnerabilities[0].verdict_vendor, "Facebook");
+    assert.equal(status.vulnerabilities[0].verdict_product, "Facebook Thrift");
+    assert.equal(status.vulnerabilities[1].verdict, "confirmed");
+    assert.equal("verdict_vendor" in status.vulnerabilities[1], false);
+    assert.equal("verdict" in status.vulnerabilities[2], false);
 });
