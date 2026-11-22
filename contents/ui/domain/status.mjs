@@ -85,6 +85,11 @@ export function normalizeFinding(raw) {
 
     finding.tracker = source.tracker && typeof source.tracker === "object"
         ? source.tracker : null;
+
+    // Optional triage verdict. Backends may embed it; otherwise the applet
+    // reads the sidecar report written by tools/triage.mjs.
+    finding.verdict = stringOf(source.verdict);
+    finding.verdict_reasons = arrayOf(source.verdict_reasons).map(String);
     return finding;
 }
 

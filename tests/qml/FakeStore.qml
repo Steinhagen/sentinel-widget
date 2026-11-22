@@ -2,6 +2,8 @@ import QtQml
 
 QtObject {
     property var report: null
+    property var triage: null
+    property int triageRevision: 0
     property var checked: ({})
     property int checkedRevision: 0
     property string systemChannel: ""

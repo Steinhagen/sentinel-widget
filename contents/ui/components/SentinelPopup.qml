@@ -147,6 +147,7 @@ PlasmaExtras.Representation {
                 originFilter: root.vm.originFilter
                 visibleCount: root.vm.visibleCount
                 totalCount: root.vm.totalCount
+                hiddenCount: root.vm.hiddenCount
                 groupBy: root.vm.groupBy
                 cardsVisible: root.vm.hasFindings && !root.compactLayout
                 labels: root.labels

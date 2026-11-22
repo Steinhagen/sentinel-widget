@@ -215,4 +215,45 @@ TestCase {
         env.client.destroy();
         env.clock.destroy();
     }
+
+    function test_loads_triage_sidecar_and_clears_it() {
+        const env = testCase.makeStore();
+        const triage = Qt.createComponent(Qt.resolvedUrl("FakeStatusSource.qml"))
+            .createObject(testCase);
+        env.store.triageSource = triage;
+
+        const payload = JSON.stringify({
+            findings: [{
+                id: "CVE-2021-35049",
+                package: "network",
+                version: "3.2.8.0",
+                verdict: "suppressed",
+                reasons: ["version-not-affected"]
+            }]
+        });
+        triage.deliver(payload, "");
+        compare(env.store.triage !== null, true);
+        compare(env.store.triageRevision, 1);
+        compare(env.store.triage.byKey["CVE-2021-35049|network|3.2.8.0"].verdict,
+            "suppressed");
+
+        // The same file again does not invalidate the rows.
+        triage.deliver(payload, "");
+        compare(env.store.triageRevision, 1);
+
+        // A missing sidecar removes the verdicts again.
+        triage.deliver("", "missing");
+        compare(env.store.triage, null);
+        compare(env.store.triageRevision, 2);
+
+        env.store.refresh();
+        verify(triage.readCount >= 1);
+
+        triage.destroy();
+        env.store.destroy();
+        env.source.destroy();
+        env.service.destroy();
+        env.client.destroy();
+        env.clock.destroy();
+    }
 }

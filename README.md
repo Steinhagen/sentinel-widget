@@ -120,6 +120,11 @@ A store submission usually needs:
 Right-click the widget and choose **Configure…**:
 
 - **Panel badge:** finding count, dot, or hidden.
+- **Triage verdicts:** hide findings that the triage pass classified as false
+  positives (enabled by default). The verdicts come from
+  `/var/lib/sentinel/triage.json`, written by
+  [`tools/triage.mjs`](tools/triage.mjs), or from a `verdict` field on the
+  finding itself. See [docs/triage.md](docs/triage.md).
 - **Tracker API token:** used for authenticated Nixpkgs security tracker lookups.
 
 Use the summary cards for quick severity and fix-state filtering, or the
@@ -138,7 +143,8 @@ line under the title for the About/help text.
 The layered architecture and module boundaries are documented in
 [docs/architecture.md](docs/architecture.md); the backend contract is in
 [docs/status-schema.md](docs/status-schema.md) and the test guide is in
-[docs/testing.md](docs/testing.md).
+[docs/testing.md](docs/testing.md). `tools/triage.mjs` re-classifies a scan as
+confirmed / unverified / suppressed; see [docs/triage.md](docs/triage.md).
 
 ```bash
 nix develop

@@ -6,6 +6,7 @@ the applet does not invoke the scanner directly.
 | File | Purpose |
 | --- | --- |
 | `/var/lib/sentinel/status.json` | Latest scan result and tracker progress |
+| `/var/lib/sentinel/triage.json` | Optional triage verdicts; see below |
 | `/var/lib/sentinel/report.csv` | Optional CSV report opened from the context menu |
 | `/var/lib/sentinel/last.log` | Scan log opened from the context menu |
 
@@ -64,6 +65,21 @@ Legacy compatibility:
 | `patch_state` | string | Backend-specific patch information |
 | `origins` | object | Dependency provenance; see below |
 | `tracker` | object | Nixpkgs security tracker annotation; see below |
+| `verdict` | string | Optional triage verdict: `confirmed`, `unverified`, `suppressed` |
+| `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected` |
+
+### Triage verdicts
+
+A finding may carry its triage verdict directly. When it does not, the applet
+reads the sidecar report at `/var/lib/sentinel/triage.json`, written by
+[`tools/triage.mjs`](../tools/triage.mjs) (see [triage.md](triage.md)). The
+report is `{ "findings": [ { "id", "package", "version", "verdict", "reasons" } ] }`;
+entries are joined to findings by `id`, `package` and `version`.
+
+With the triage setting enabled, findings whose verdict is `suppressed` are
+hidden from the list, the counts and the panel badge. `confirmed` and
+`unverified` findings stay visible; `unverified` means the tool could not
+prove the match either way.
 
 ### `origins`
 

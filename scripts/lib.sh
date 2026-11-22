@@ -58,6 +58,6 @@ setup_qml_environment() {
 
 node_test_files() {
     local root="$1"
-    find "$root/tests/domain" -maxdepth 1 -name '*.test.mjs' -type f 2>/dev/null \
+    find "$root/tests/domain" "$root/tests/tools" -maxdepth 1 -name '*.test.mjs' -type f 2>/dev/null \
         | sort
 }

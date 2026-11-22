@@ -1,7 +1,9 @@
 import QtQml
 import "../domain/filters.mjs" as Filters
+import "../domain/severity.mjs" as Severity
 import "../domain/table.mjs" as Table
 import "../domain/time.mjs" as Time
+import "../domain/triage.mjs" as Triage
 
 // Selection and derived rows for the findings table. It knows nothing about
 // ListView, tooltips, colors or the applet shell.
@@ -10,6 +12,9 @@ QtObject {
 
     required property var store
     required property var labels
+
+    // Bound to the widget setting in main.qml.
+    property bool triageEnabled: true
 
     property string searchText: ""
     property string severityBand: ""
@@ -29,7 +34,32 @@ QtObject {
     readonly property var reportModel: store ? store.report : null
     readonly property int checkedRevision: store ? store.checkedRevision : 0
     readonly property string systemChannel: store ? store.systemChannel : ""
+    readonly property var triage: store && store.triage !== undefined
+        ? store.triage : null
+    readonly property int triageRevision: store && store.triageRevision !== undefined
+        ? store.triageRevision : 0
     readonly property bool hasFindings: vm.totalCount > 0
+
+    readonly property var visibleFindings: {
+        const revision = vm.triageRevision;
+        if (revision < 0) {
+            return [];
+        }
+        const source = vm.reportModel ? vm.reportModel.vulnerabilities : null;
+        if (!source) {
+            return [];
+        }
+        return Triage.visibleFindings(source, vm.triage, vm.triageEnabled);
+    }
+
+    readonly property int hiddenCount: {
+        const revision = vm.triageRevision;
+        const source = vm.reportModel ? vm.reportModel.vulnerabilities : null;
+        if (revision < 0 || !source) {
+            return 0;
+        }
+        return Triage.suppressedCount(source, vm.triage, vm.triageEnabled);
+    }
 
     readonly property var filters: ({
         text: vm.searchText,
@@ -73,28 +103,48 @@ QtObject {
     }
     readonly property bool groupsExpanded: vm.collapsedVisibleGroups === 0
 
-    readonly property int totalCount: vm.reportModel
-        ? (vm.reportModel.vulnerabilities ? vm.reportModel.vulnerabilities.length : 0)
-        : 0
+    readonly property int totalCount: vm.visibleFindings.length
     readonly property int visibleCount: Table.findingCount(vm.filteredRows)
     readonly property bool anyFilterActive: Filters.isActive(vm.filters)
 
-    readonly property real maxSeverity: vm.reportModel
-        ? Number(vm.reportModel.maxSeverity || 0) : 0
-    readonly property int affectedPackages: vm.reportModel
-        ? Number(vm.reportModel.packagesAffected || 0) : 0
+    readonly property real maxSeverity: {
+        let max = 0;
+        const list = vm.visibleFindings;
+        for (let i = 0; i < list.length; ++i) {
+            const value = Number(list[i].severity);
+            if (isFinite(value) && value > max) {
+                max = value;
+            }
+        }
+        return max;
+    }
+    readonly property int affectedPackages: {
+        const seen = {};
+        const list = vm.visibleFindings;
+        for (let i = 0; i < list.length; ++i) {
+            const name = list[i].package;
+            if (name) {
+                seen[name] = true;
+            }
+        }
+        return Object.keys(seen).length;
+    }
     readonly property int trackedCves: vm.store && vm.store.tracker
         ? Number(vm.store.tracker.cves || 0) : 0
 
     readonly property var severityBands: {
-        const counts = vm.reportModel ? vm.reportModel.severityCounts : null;
+        const counts = { critical: 0, high: 0, medium: 0, low: 0, unknown: 0 };
+        const list = vm.visibleFindings;
+        for (let i = 0; i < list.length; ++i) {
+            counts[Severity.bandOf(list[i].severity)] += 1;
+        }
         return [
             { key: "", count: vm.totalCount },
-            { key: "critical", count: counts ? Number(counts.critical || 0) : 0 },
-            { key: "high", count: counts ? Number(counts.high || 0) : 0 },
-            { key: "medium", count: counts ? Number(counts.medium || 0) : 0 },
-            { key: "low", count: counts ? Number(counts.low || 0) : 0 },
-            { key: "unknown", count: counts ? Number(counts.unknown || 0) : 0 }
+            { key: "critical", count: counts.critical },
+            { key: "high", count: counts.high },
+            { key: "medium", count: counts.medium },
+            { key: "low", count: counts.low },
+            { key: "unknown", count: counts.unknown }
         ];
     }
 
@@ -137,6 +187,8 @@ QtObject {
     onReportModelChanged: vm.rowsReset(true)
     onCheckedRevisionChanged: vm.rowsReset(true)
     onSystemChannelChanged: vm.rowsReset(true)
+    onTriageRevisionChanged: vm.rowsReset(true)
+    onTriageEnabledChanged: vm.rowsReset(true)
 
     function buildAllRows() {
         const revision = vm.checkedRevision;
@@ -144,7 +196,7 @@ QtObject {
         if (!report) {
             return [];
         }
-        const source = report.vulnerabilities || [];
+        const source = vm.visibleFindings;
         const rows = Table.buildRows(source, {
             systemChannel: vm.systemChannel,
             checked: vm.store ? vm.store.checked : {}

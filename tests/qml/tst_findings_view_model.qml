@@ -1,6 +1,7 @@
 import QtQuick
 import QtTest
 import "../../contents/ui/domain/status.mjs" as Status
+import "../../contents/ui/domain/triage.mjs" as Triage
 
 TestCase {
     id: testCase
@@ -252,6 +253,39 @@ TestCase {
         env.store.report = next;
         compare(reset.count, 1);
         compare(reset.signalArguments[0][0], true);
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_triage_hides_suppressed_findings() {
+        const env = testCase.makeVm();
+        env.store.triage = Triage.parseTriageText(JSON.stringify({
+            findings: [{
+                id: "CVE-2021-35049",
+                package: "network",
+                version: "3.2.8.0",
+                verdict: "suppressed",
+                reasons: ["version-not-affected"]
+            }]
+        }));
+        env.store.triageRevision += 1;
+
+        compare(env.vm.totalCount, 12);
+        compare(env.vm.hiddenCount, 1);
+        compare(env.vm.maxSeverity, 9.8);
+        compare(env.vm.affectedPackages, 12);
+        compare(env.vm.rows.length, 12);
+        verify(!env.vm.rows.some(row => row.id === "CVE-2021-35049"));
+        compare(env.vm.severityBands[1].count, 4);
+
+        env.vm.triageEnabled = false;
+        compare(env.vm.totalCount, 13);
+        compare(env.vm.hiddenCount, 0);
+        compare(env.vm.maxSeverity, 9.9);
+        verify(env.vm.rows.some(row => row.id === "CVE-2021-35049"));
+
         env.vm.destroy();
         env.store.destroy();
         env.labels.destroy();

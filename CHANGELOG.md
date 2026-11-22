@@ -16,8 +16,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   template and rebuilding the catalogs, plus `scripts/test-i18n.sh` to fail CI on
   untranslated, fuzzy or stale catalogs.
 - Added a Romanian widget description in `metadata.json`.
+- Added `tools/triage.mjs`, a post-scan pass that re-derives each finding's
+  identity from the CVE record and classifies it as `confirmed`, `unverified` or
+  `suppressed`; documented in `docs/triage.md`.
+- Added `tests/tools/triage.test.mjs` to the `node --test` suite.
+- Added a **Triage verdicts** setting (enabled by default) that hides findings
+  classified as false positives, plus the hidden count in the toolbar. Verdicts
+  come from `/var/lib/sentinel/triage.json` or from a `verdict` field on the
+  finding.
 
 ### Changed
+
+- The findings list, summary cards, counts and panel badge now honor triage
+  verdicts; `unverified` findings stay visible.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

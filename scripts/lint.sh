@@ -31,6 +31,9 @@ if command -v node >/dev/null 2>&1; then
     while IFS= read -r file; do
         node --check "$file"
     done < <(find "$ROOT/contents" -name '*.mjs' -type f 2>/dev/null | sort)
+    while IFS= read -r file; do
+        node --check "$file"
+    done < <(find "$ROOT/tools" -name '*.mjs' -type f 2>/dev/null | sort)
 fi
 
 if command -v python3 >/dev/null 2>&1; then

@@ -11,6 +11,7 @@ KCM.SimpleKCM {
 
     property alias cfg_badgeMode: badgeModeCombo.currentValue
     property alias cfg_sentinelTrackerToken: tokenField.text
+    property alias cfg_triageEnabled: triageCheck.checked
 
     Kirigami.FormLayout {
         QQC2.ComboBox {
@@ -25,6 +26,23 @@ KCM.SimpleKCM {
             ]
             textRole: "text"
             valueRole: "value"
+        }
+
+        QQC2.CheckBox {
+            id: triageCheck
+
+            Kirigami.FormData.label: i18n("Triage verdicts:")
+
+            text: i18n("Hide findings classified as false positives")
+        }
+
+        PlasmaComponents3.Label {
+            Layout.fillWidth: true
+            Layout.maximumWidth: Kirigami.Units.gridUnit * 30
+            wrapMode: Text.WordWrap
+            opacity: 0.7
+            font: Kirigami.Theme.smallFont
+            text: i18n("Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible.")
         }
 
         RowLayout {

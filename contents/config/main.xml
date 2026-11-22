@@ -12,5 +12,8 @@
     <entry name="sentinelTrackerToken" type="String">
       <default></default>
     </entry>
+    <entry name="triageEnabled" type="Bool">
+      <default>true</default>
+    </entry>
   </group>
 </kcfg>

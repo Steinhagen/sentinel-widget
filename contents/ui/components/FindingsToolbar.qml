@@ -15,6 +15,7 @@ RowLayout {
     property string originFilter: ""
     property int visibleCount: 0
     property int totalCount: 0
+    property int hiddenCount: 0
     property string groupBy: "none"
     property bool cardsVisible: false
     property var labels: null
@@ -162,5 +163,23 @@ RowLayout {
         opacity: 0.7
         font.family: Kirigami.Theme.smallFont.family
         font.pointSize: Kirigami.Theme.smallFont.pointSize
+    }
+
+    PlasmaComponents3.Label {
+        visible: root.hiddenCount > 0
+        text: root.labels ? root.labels.triageHiddenLabel(root.hiddenCount) : ""
+        opacity: 0.7
+        font.family: Kirigami.Theme.smallFont.family
+        font.pointSize: Kirigami.Theme.smallFont.pointSize
+
+        QQC2.ToolTip.text: root.labels ? root.labels.triageHiddenTooltip() : ""
+        QQC2.ToolTip.visible: hiddenCountArea.containsMouse
+
+        MouseArea {
+            id: hiddenCountArea
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+        }
     }
 }

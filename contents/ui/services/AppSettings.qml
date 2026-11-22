@@ -7,6 +7,7 @@ QtObject {
 
     property string badgeMode: "count"
     property string trackerToken: ""
+    property bool triageEnabled: true
 
     readonly property string effectiveBadgeMode: {
         switch (settings.badgeMode) {

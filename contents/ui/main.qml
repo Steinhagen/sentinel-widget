@@ -12,6 +12,7 @@ PlasmoidItem {
 
     // Written by the Sentinel scan service.
     readonly property string statusFile: "/var/lib/sentinel/status.json"
+    readonly property string triageFile: "/var/lib/sentinel/triage.json"
     readonly property string reportFile: "/var/lib/sentinel/report.csv"
     readonly property string logFile: "/var/lib/sentinel/last.log"
 
@@ -20,6 +21,7 @@ PlasmoidItem {
         id: appletSettings
         badgeMode: Plasmoid.configuration.badgeMode || "count"
         trackerToken: Plasmoid.configuration.sentinelTrackerToken || ""
+        triageEnabled: Plasmoid.configuration.triageEnabled !== false
     }
 
     CommandRunner { id: commandRunner }
@@ -27,6 +29,11 @@ PlasmoidItem {
         id: statusFileSource
         runner: commandRunner
         path: applet.statusFile
+    }
+    StatusFileSource {
+        id: triageFileSource
+        runner: commandRunner
+        path: applet.triageFile
     }
     ScanService {
         id: sentinelService
@@ -45,9 +52,11 @@ PlasmoidItem {
     ScanStore {
         id: scanStore
         source: statusFileSource
+        triageSource: triageFileSource
         scanService: sentinelService
         trackerClient: trackerClientService
         clock: appletClock
+        triageFile: applet.triageFile
         reportFile: applet.reportFile
         logFile: applet.logFile
     }
@@ -59,6 +68,7 @@ PlasmoidItem {
         id: viewModel
         store: scanStore
         labels: sentinelLabels
+        triageEnabled: appletSettings.triageEnabled
     }
 
     Plasmoid.title: i18n("Sentinel")
@@ -66,7 +76,8 @@ PlasmoidItem {
     Plasmoid.busy: scanStore.scanning
 
     // The shell's default compact representation uses this badge.
-    badgeText: sentinelLabels.badgeText(scanStore.report, appletSettings.effectiveBadgeMode)
+    badgeText: sentinelLabels.badgeText(scanStore.report,
+        appletSettings.effectiveBadgeMode, viewModel.totalCount)
 
     toolTipMainText: i18n("Sentinel")
     toolTipSubText: sentinelLabels.toolTipSubText(scanStore, viewModel)

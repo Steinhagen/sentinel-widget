@@ -591,19 +591,25 @@ QtObject {
         return tracker.length > 0 ? detail + "\n" + tracker : detail;
     }
 
-    function badgeText(report, badgeMode) {
+    function badgeText(report, badgeMode, count) {
         if (!report || (report.state !== "vulnerable" && report.state !== "warn")) {
             return "";
         }
+        const findings = count === undefined || count === null
+            ? Number(report.findings || 0)
+            : Number(count);
         switch (badgeMode) {
         case "none":
             return "";
         case "dot":
-            return "•";
+            return findings > 0 ? "•" : "";
         default:
-            return report.findings > 999
+            if (findings <= 0) {
+                return "";
+            }
+            return findings > 999
                 ? i18nc("number of vulnerabilities", "999+")
-                : i18nc("number of vulnerabilities", "%1", report.findings);
+                : i18nc("number of vulnerabilities", "%1", findings);
         }
     }
 
@@ -671,6 +677,14 @@ QtObject {
 
     function countLabel(visible, total) {
         return i18n("%1 of %2", visible, total);
+    }
+
+    function triageHiddenLabel(count) {
+        return i18np("%1 false positive hidden", "%1 false positives hidden", count);
+    }
+
+    function triageHiddenTooltip() {
+        return i18n("The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again.");
     }
 
     function noMatchesText() {

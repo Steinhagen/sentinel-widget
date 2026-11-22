@@ -624,6 +624,17 @@ msgid "%1 of %2"
 msgstr "%1 din %2"
 
 #: contents/ui/components/Labels.qml
+msgid "%1 false positive hidden"
+msgid_plural "%1 false positives hidden"
+msgstr[0] "%1 pozitiv fals ascuns"
+msgstr[1] "%1 pozitive false ascunse"
+msgstr[2] "%1 de pozitive false ascunse"
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again."
+msgstr "Trecerea de triaj a decis că aceste constatări nu descriu pachetul instalat. Dezactivați setarea pentru a le afișa din nou."
+
+#: contents/ui/components/Labels.qml
 msgid "No vulnerabilities match your search or filters."
 msgstr "Nicio vulnerabilitate nu corespunde căutării sau filtrelor."
 
@@ -947,6 +958,18 @@ msgstr "Afișează un punct"
 #: contents/ui/configGeneral.qml
 msgid "Hide the badge"
 msgstr "Ascunde insigna"
+
+#: contents/ui/configGeneral.qml
+msgid "Triage verdicts:"
+msgstr "Verdicte de triaj:"
+
+#: contents/ui/configGeneral.qml
+msgid "Hide findings classified as false positives"
+msgstr "Ascunde constatările clasificate drept pozitive false"
+
+#: contents/ui/configGeneral.qml
+msgid "Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible."
+msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse. Verdictele provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Constatările pe care nu le-a putut verifica rămân vizibile."
 
 #: contents/ui/configGeneral.qml
 msgid "Tracker API token:"

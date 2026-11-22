@@ -2,6 +2,7 @@ import QtQml
 import QtQuick
 import "../domain/status.mjs" as Status
 import "../domain/tracker.mjs" as Tracker
+import "../domain/triage.mjs" as Triage
 import "../domain/urls.mjs" as Urls
 
 // Owns the latest scan, tracker progress, the scan lifecycle and load errors.
@@ -16,12 +17,17 @@ QtObject {
     required property var trackerClient
     required property var clock
 
+    // Optional sidecar written by tools/triage.mjs.
+    property var triageSource: null
+    property string triageFile: ""
+
     property string reportFile: ""
     property string logFile: ""
     property string trackerBase: Urls.TRACKER_BASE
 
     property var report: null
     property var tracker: null
+    property var triage: null
     property string phase: "idle"
     property bool serviceActive: false
     property string loadError: ""
@@ -29,6 +35,8 @@ QtObject {
     property bool schemaNewer: false
     property string reportFingerprint: ""
     property string trackerFingerprint: ""
+    property string triageFingerprint: ""
+    property int triageRevision: 0
     property string preScanStamp: ""
 
     // Set by FindingsList while a tooltip is open; rows are not replaced until
@@ -69,6 +77,13 @@ QtObject {
         }
     }
 
+    property Connections triageConnection: Connections {
+        target: store.triageSource
+        function onLoaded(text, errorCode) {
+            store.onTriageLoaded(text, errorCode);
+        }
+    }
+
     property Connections trackerConnection: Connections {
         target: store.trackerClient
         function onResult(cve, state, detail) {
@@ -103,7 +118,41 @@ QtObject {
 
     function refresh() {
         store.source.read();
+        store.readTriage();
         store.checkScanService();
+    }
+
+    function readTriage() {
+        if (store.triageSource) {
+            store.triageSource.read();
+        }
+    }
+
+    function onTriageLoaded(text, errorCode) {
+        if (errorCode) {
+            store.clearTriage();
+            return;
+        }
+        const parsed = Triage.parseTriageText(text);
+        if (!parsed.ok) {
+            store.clearTriage();
+            return;
+        }
+        if (parsed.fingerprint === store.triageFingerprint) {
+            return;
+        }
+        store.triage = parsed;
+        store.triageFingerprint = parsed.fingerprint;
+        store.triageRevision += 1;
+    }
+
+    function clearTriage() {
+        if (store.triage === null && store.triageFingerprint === "") {
+            return;
+        }
+        store.triage = null;
+        store.triageFingerprint = "";
+        store.triageRevision += 1;
     }
 
     function checkScanService() {

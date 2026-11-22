@@ -7,6 +7,10 @@ backend and the applet expects this contract:
 - Scan trigger: `systemctl start --no-block sentinel.service`
 - The file is written by the backend after a scan; the applet refreshes it
   periodically and after **Scan now**.
+- Optional triage sidecar: `/var/lib/sentinel/triage.json`, written by
+  [`tools/triage.mjs`](../tools/triage.mjs) (or by the backend). The applet
+  hides `suppressed` findings when the **Triage verdicts** setting is on. See
+  [triage.md](triage.md).
 
 The current backend lives in the author's NixOS flake (`system/sentinel.nix`,
 `system/sentinel-status.py`) and is not part of this widget repository.

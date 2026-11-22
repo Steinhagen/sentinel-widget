@@ -606,6 +606,16 @@ msgid "%1 of %2"
 msgstr ""
 
 #: contents/ui/components/Labels.qml
+msgid "%1 false positive hidden"
+msgid_plural "%1 false positives hidden"
+msgstr[0] ""
+msgstr[1] ""
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
 msgid "No vulnerabilities match your search or filters."
 msgstr ""
 
@@ -925,6 +935,18 @@ msgstr ""
 
 #: contents/ui/configGeneral.qml
 msgid "Hide the badge"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Triage verdicts:"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Hide findings classified as false positives"
+msgstr ""
+
+#: contents/ui/configGeneral.qml
+msgid "Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible."
 msgstr ""
 
 #: contents/ui/configGeneral.qml
