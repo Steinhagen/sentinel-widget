@@ -8,7 +8,6 @@ PlasmaExtras.Representation {
 
     property var store: null
     property var vm: null
-    property var settings: null
     property var theme: null
     property var labels: null
 
@@ -169,7 +168,6 @@ PlasmaExtras.Representation {
                 grouped: root.vm.groupByOrigin
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
-                totalCount: root.vm.totalCount
                 onSortRequested: (key) => root.vm.toggleSort(key)
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)

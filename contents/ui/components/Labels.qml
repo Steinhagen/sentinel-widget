@@ -1,5 +1,7 @@
 import QtQml
 import QtQuick
+import "../domain/time.mjs" as Time
+import "../domain/tracker.mjs" as Tracker
 
 // All user-facing copy and token-to-word mapping. Domain modules stay free of
 // i18n; components receive this object explicitly.
@@ -7,7 +9,6 @@ QtObject {
     id: labels
 
     readonly property string masterHelpText: i18n("The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n\n• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n• 26.05 — fixed on another line; it is not on the way to this system's channel.\n• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n• no fix — still affected in every branch that was checked.\n• unknown / n/a / — — no verdict, no coverage, or no data.\n\nHover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs.")
-    readonly property string confidenceHelpText: i18n("“Detected by” lists the scan engines that reported the finding and how closely each matched it to the installed package:\n\n• exact — the package and version/derivation match the vulnerability record exactly.\n• expanded — the component was found by expanding an SBOM or bundled component, so the match is indirect.\n• mixed — some scanners matched exactly and some by expansion.\n• version only — only the package name and version were matched; the exact derivation was not confirmed.\n\nvulnix scans Nix derivations; grype scans the SBOM and its components.")
 
     function postureLabel(state, hasReport) {
         if (!hasReport) {
@@ -36,23 +37,6 @@ QtObject {
             return "security-low";
         default:
             return "security-medium";
-        }
-    }
-
-    function stateLabel(state, hasReport, findings) {
-        if (!hasReport) {
-            return i18n("Not scanned yet");
-        }
-        switch (state) {
-        case "secure":
-            return i18n("System is secure");
-        case "vulnerable":
-        case "warn":
-            return i18np("%1 potential vulnerability", "%1 potential vulnerabilities", findings);
-        case "unknown":
-            return i18n("Vulnerability status unknown");
-        default:
-            return i18n("Not scanned yet");
         }
     }
 
@@ -226,21 +210,6 @@ QtObject {
         }
     }
 
-    function confidenceDescription(value) {
-        switch (value) {
-        case "component_exact":
-            return i18n("the package and version/derivation match the vulnerability record exactly");
-        case "component_expanded":
-            return i18n("the component was found by expanding an SBOM or bundled component, so the match is indirect");
-        case "component_mixed":
-            return i18n("some scanners matched exactly and some by expansion");
-        case "package_version_only":
-            return i18n("only the package name and version were matched; the exact derivation was not confirmed");
-        default:
-            return i18n("no confidence information is available");
-        }
-    }
-
     function scannersLabel(scanners) {
         return (scanners && scanners.length) ? scanners.join(", ") : "—";
     }
@@ -250,23 +219,8 @@ QtObject {
             + (row.confidence ? " · " + confidenceLabel(row.confidence) : "");
     }
 
-    function viaShortText(row) {
-        const lines = [i18n("Detected by: %1", scannersLabel(row.scanners))];
-        if (row.confidence) {
-            lines.push(i18n("Confidence: %1 — %2",
-                confidenceLabel(row.confidence),
-                confidenceDescription(row.confidence)));
-        } else {
-            lines.push(i18n("Confidence: not reported"));
-        }
-        if (row.patch_state) {
-            lines.push(i18n("Patch state: %1", row.patch_state));
-        }
-        return lines.join("\n");
-    }
-
     function trackerStatusLabel(status) {
-        switch (status) {
+        switch (Tracker.statusLabelKey(status)) {
         case "published":
             return i18n("published");
         case "accepted":
@@ -298,20 +252,14 @@ QtObject {
     }
 
     function affectedProductsText(tracker) {
-        const products = tracker && tracker.affected_products
-            ? tracker.affected_products : [];
+        const products = Tracker.affectedProductsOf(tracker);
         const parts = [];
         for (let i = 0; i < products.length; ++i) {
-            const product = products[i] || {};
-            const constraints = [];
-            const values = product.version_constraints || [];
-            for (let j = 0; j < values.length; ++j) {
-                if (values[j] && values[j].length >= 2) {
-                    constraints.push(values[j][1]);
-                }
-            }
-            parts.push((product.name || "?")
-                + (constraints.length > 0 ? " (" + constraints.join(", ") + ")" : ""));
+            const product = products[i];
+            parts.push(product.name
+                + (product.constraints.length > 0
+                    ? " (" + product.constraints.join(", ") + ")"
+                    : ""));
         }
         return parts.join(", ");
     }
@@ -462,19 +410,19 @@ QtObject {
     }
 
     function relativeTime(ageSeconds) {
-        if (ageSeconds < 0) {
+        const token = Time.relativeToken(ageSeconds);
+        switch (token.key) {
+        case "just-now":
+            return i18n("just now");
+        case "minutes":
+            return i18np("%1 minute ago", "%1 minutes ago", token.value);
+        case "hours":
+            return i18np("%1 hour ago", "%1 hours ago", token.value);
+        case "days":
+            return i18np("%1 day ago", "%1 days ago", token.value);
+        default:
             return "";
         }
-        if (ageSeconds < 60) {
-            return i18n("just now");
-        }
-        if (ageSeconds < 3600) {
-            return i18np("%1 minute ago", "%1 minutes ago", Math.floor(ageSeconds / 60));
-        }
-        if (ageSeconds < 86400) {
-            return i18np("%1 hour ago", "%1 hours ago", Math.floor(ageSeconds / 3600));
-        }
-        return i18np("%1 day ago", "%1 days ago", Math.floor(ageSeconds / 86400));
     }
 
     function lastScanLabel(ageSeconds) {

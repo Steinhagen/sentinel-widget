@@ -1,7 +1,15 @@
 // Row construction, sorting and flat grouping.
 
 import { bandOf, formatScore, hasScore, isBold, numberOf } from "./severity.mjs";
-import { chainText, groupKeyOf, namesOf, normalizedChain, searchTextOf } from "./origins.mjs";
+import {
+    chainText,
+    chainsOf,
+    groupKeyOf,
+    namesOf,
+    normalizedChain,
+    searchTextOf,
+    storePathsOf
+} from "./origins.mjs";
 import { classify } from "./fix.mjs";
 import { stateOf, statusOf } from "./tracker.mjs";
 
@@ -42,8 +50,8 @@ export function buildFindingRow(finding, context) {
         primary: originNames.length > 0 ? originNames[0] : "",
         chain: chain,
         chainText: chain.join(" → "),
-        chains: arrayOf(source.origins && source.origins.chains),
-        storePaths: arrayOf(source.origins && source.origins.store_paths),
+        chains: chainsOf(source),
+        storePaths: storePathsOf(source),
         groupKey: groupKeyOf(source),
         searchText: searchTextOf(source)
     };

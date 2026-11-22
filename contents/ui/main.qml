@@ -115,7 +115,6 @@ PlasmoidItem {
     fullRepresentation: SentinelPopup {
         store: scanStore
         vm: viewModel
-        settings: appletSettings
         theme: sentinelTheme
         labels: sentinelLabels
 

@@ -181,6 +181,7 @@ QtObject {
         }
         const next = parsed.report;
         store.loadError = "";
+        store.scanError = "";
         store.schemaNewer = next.schemaNewer;
 
         if (next.trackerFingerprint !== store.trackerFingerprint) {

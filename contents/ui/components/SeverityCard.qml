@@ -74,6 +74,16 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 16
                     radius: 4
+                    activeFocusOnTab: true
+
+                    Accessible.role: Accessible.Button
+                    Accessible.name: root.labels
+                        ? root.labels.severityBandLabel(modelData.key) : modelData.key
+                    Accessible.onPressAction: root.bandSelected(modelData.key)
+
+                    Keys.onReturnPressed: root.bandSelected(modelData.key)
+                    Keys.onSpacePressed: root.bandSelected(modelData.key)
+
                     color: root.selected === modelData.key
                         ? (root.theme ? root.theme.rowHover : "transparent")
                         : "transparent"

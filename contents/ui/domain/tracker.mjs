@@ -39,10 +39,6 @@ export function pageUrl(baseUrl, id) {
     return baseUrl + "/suggestions/by-cve/" + encodeURIComponent(String(id || ""));
 }
 
-export function apiUrl(baseUrl, id) {
-    return baseUrl + "/api/v1/suggestions/by-cve/" + encodeURIComponent(String(id || ""));
-}
-
 export function urlFor(baseUrl, finding, checked) {
     const state = stateOf(finding, checked);
     if (state === TrackerState.NONE || state === TrackerState.MISSING) {

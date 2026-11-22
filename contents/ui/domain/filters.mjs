@@ -119,12 +119,3 @@ export function countsOf(rows) {
     }
     return result;
 }
-
-export function bandCount(bands, key) {
-    for (let i = 0; i < bands.length; ++i) {
-        if (bands[i].key === key) {
-            return bands[i].count;
-        }
-    }
-    return 0;
-}

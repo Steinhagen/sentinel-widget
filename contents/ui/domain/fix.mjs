@@ -43,22 +43,6 @@ export function masterStatusOf(finding) {
     return "";
 }
 
-export function fixedRowWhere(finding, predicate) {
-    const rows = branchRows(finding);
-    for (let i = 0; i < rows.length; ++i) {
-        if (rows[i] && rows[i].state === "unaffected" && predicate(rows[i])) {
-            return rows[i];
-        }
-    }
-    return null;
-}
-
-export function masterFixed(finding) {
-    return fixedRowWhere(finding, function (row) {
-        return row.name === "master";
-    }) !== null;
-}
-
 export function shortChannelName(name) {
     const value = String(name || "");
     if (value === "nixos-unstable") {
@@ -216,12 +200,4 @@ export function masterFixUrl(finding) {
         return "";
     }
     return tracker.github_issue_url || tracker.url || "";
-}
-
-export function hasFixUrl(finding) {
-    return masterFixUrl(finding).length > 0;
-}
-
-export function matchesBucket(finding, bucket) {
-    return classify(finding, "").bucket === bucket;
 }

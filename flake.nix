@@ -11,6 +11,7 @@
     in {
       devShells.${system}.default = pkgs.mkShell {
         packages = with pkgs; [
+          gettext
           jq
           nodejs
           python3

@@ -79,7 +79,3 @@ export function searchTextOf(finding) {
         + " "
         + chainText(finding);
 }
-
-export function introducedByText(finding) {
-    return namesOf(finding).join(", ");
-}

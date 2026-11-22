@@ -9,11 +9,20 @@ ROOT="$(sentinel_root)"
 
 echo "== package =="
 PYTHON="${PYTHON:-python3}" "$ROOT/package.sh"
-archive="$(find "$ROOT/dist" -maxdepth 1 -name '*.plasmoid' -type f | sort | tail -n 1)"
-if [ -z "$archive" ]; then
-    echo "package.sh did not produce a .plasmoid archive" >&2
+
+if command -v jq >/dev/null 2>&1; then
+    version="$(jq -r '.KPlugin.Version' "$ROOT/metadata.json")"
+    archive="$ROOT/dist/sentinel-$version.plasmoid"
+else
+    archive="$(find "$ROOT/dist" -maxdepth 1 -name '*.plasmoid' -type f -printf '%T@ %p\n' \
+        | sort -n | tail -n 1 | cut -d' ' -f2-)"
+fi
+
+if [ -z "$archive" ] || [ ! -f "$archive" ]; then
+    echo "package.sh did not produce the expected .plasmoid archive" >&2
     exit 1
 fi
+
 "${PYTHON:-python3}" - "$archive" <<'PY'
 import sys, zipfile
 path = sys.argv[1]

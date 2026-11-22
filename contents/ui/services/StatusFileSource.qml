@@ -47,6 +47,7 @@ QtObject {
                 source.loaded(String(stdout || ""), "");
                 return;
             }
+            source.lastStat = "";
             source.loaded("", source.errorFor(stderr));
         });
     }

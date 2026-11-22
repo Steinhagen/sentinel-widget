@@ -42,6 +42,21 @@ PlasmaComponents3.ItemDelegate {
     topPadding: Kirigami.Units.smallSpacing
     bottomPadding: Kirigami.Units.smallSpacing
     hoverEnabled: true
+    activeFocusOnTab: true
+
+    Keys.onReturnPressed: {
+        if (root.rowData && root.rowData.url) {
+            root.openFinding(root.rowData.url);
+        }
+    }
+
+    Keys.onSpacePressed: {
+        if (root.rowData && root.rowData.url) {
+            root.openFinding(root.rowData.url);
+        }
+    }
+
+    Keys.onMenuPressed: rowMenu.popup()
 
     onClicked: {
         if (root.rowData && root.rowData.url) {

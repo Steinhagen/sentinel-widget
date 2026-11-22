@@ -12,10 +12,5 @@
     <entry name="vulnscanTrackerToken" type="String">
       <default></default>
     </entry>
-    <!-- JSON object of column key -> width in grid units; empty means the
-         built-in defaults. Written by the header drag handles. -->
-    <entry name="columnWidths" type="String">
-      <default></default>
-    </entry>
   </group>
 </kcfg>

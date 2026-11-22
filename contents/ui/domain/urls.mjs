@@ -19,12 +19,6 @@ export function nixpkgsSearch(packageName) {
         + encodeURIComponent(String(packageName || ""));
 }
 
-export function trackerIssue(baseUrl, issue) {
-    return String(baseUrl || TRACKER_BASE)
-        + "/issues/"
-        + encodeURIComponent(String(issue || ""));
-}
-
 export function isSafeExternalUrl(url) {
     const value = String(url || "");
     return value.indexOf("https://") === 0 || value.indexOf("http://") === 0;

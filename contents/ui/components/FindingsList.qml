@@ -16,7 +16,6 @@ Rectangle {
     property bool grouped: false
     property string sortKey: "severity"
     property bool sortDescending: true
-    property int totalCount: 0
 
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
@@ -91,8 +90,6 @@ Rectangle {
         { key: "package", width: 0, fill: true, align: "left" },
         { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
     ]
-
-    property real savedContentY: 0
 
     function sortArrow(key) {
         if (root.sortKey !== key) {
@@ -233,6 +230,8 @@ Rectangle {
     ListView {
         id: findingsList
         objectName: "findingsListView"
+        Accessible.role: Accessible.List
+        Accessible.name: root.labels ? root.labels.appTitle() : "Sentinel"
 
         anchors.top: listHeaderRule.bottom
         anchors.left: parent.left
@@ -254,7 +253,6 @@ Rectangle {
             id: rowLoader
 
             required property var modelData
-            required property int index
 
             width: ListView.view.width - ListView.view.rightMargin
             sourceComponent: modelData.rowType === "group"
