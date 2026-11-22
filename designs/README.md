@@ -83,3 +83,17 @@ if a single menu button is preferred over a split control.
 **Implemented:** 01, as the current-state split button in the applet toolbar
 (without the leading icon; the toolbar Filters button is hidden when the
 summary cards are visible).
+
+## CVSS exposure card — ring vs scale
+
+Two ways to fix the exposure ring, which currently draws a fixed 78% arc
+instead of mapping the score: [gallery](cvss-ring-directions.html) ·
+[overview](cvss-ring-directions.png).
+
+| # | Direction | What it is best at |
+|---|-----------|--------------------|
+| 01 | [Proportional CVSS ring](cvss-ring-directions.png) | Keeps the current circle; arc maps `maxSeverity / 10` |
+| 02 | [CVSS band scale](cvss-ring-directions.png) | Explicit score, 0–10 position and severity band |
+
+**Recommendation:** 02 for readability at this card size; 01 if the circle is
+part of the visual identity and near-maximum scores can look almost full.
