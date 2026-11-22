@@ -9,9 +9,21 @@ if [ -z "$QMLINT" ]; then
     exit 1
 fi
 
+setup_qml_environment "$QMLINT"
+
+import_args=()
+if [ -n "${QML2_IMPORT_PATH:-}" ]; then
+    IFS=':' read -r -a import_dirs <<< "$QML2_IMPORT_PATH"
+    for dir in "${import_dirs[@]}"; do
+        if [ -d "$dir" ]; then
+            import_args+=("-I" "$dir")
+        fi
+    done
+fi
+
 echo "== qmllint =="
 while IFS= read -r file; do
-    "$QMLINT" "$file"
+    "$QMLINT" "${import_args[@]}" "$file"
 done < <(find "$ROOT/contents" -name '*.qml' -type f | sort)
 
 if command -v node >/dev/null 2>&1; then
