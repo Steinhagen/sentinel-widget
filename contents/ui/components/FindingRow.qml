@@ -14,8 +14,6 @@ PlasmaComponents3.ItemDelegate {
     property var labels: null
     property string systemChannel: ""
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
-    property bool grouped: false
-
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
@@ -245,7 +243,7 @@ PlasmaComponents3.ItemDelegate {
             Layout.leftMargin: Kirigami.Units.gridUnit * 2
                 + Kirigami.Units.smallSpacing
             spacing: Kirigami.Units.smallSpacing
-            visible: !root.grouped && root.originChain.length > 0
+            visible: root.originChain.length > 0
 
             PlasmaComponents3.Label {
                 text: "↳"

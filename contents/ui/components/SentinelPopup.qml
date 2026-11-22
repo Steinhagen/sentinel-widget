@@ -165,7 +165,6 @@ PlasmaExtras.Representation {
                 theme: root.theme
                 labels: root.labels
                 systemChannel: root.store.systemChannel
-                grouped: root.vm.groupByOrigin
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
                 onSortRequested: (key) => root.vm.toggleSort(key)

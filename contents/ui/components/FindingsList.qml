@@ -13,7 +13,6 @@ Rectangle {
     property var theme: null
     property var labels: null
     property string systemChannel: ""
-    property bool grouped: false
     property string sortKey: "severity"
     property bool sortDescending: true
 
@@ -214,7 +213,6 @@ Rectangle {
             labels: root.labels
             systemChannel: root.systemChannel
             fixPillWidth: root.fixPillWidth
-            grouped: root.grouped
 
             onOpenFinding: (url) => root.openFinding(url)
             onFilterPackageRequested: (name) => root.filterPackageRequested(name)
