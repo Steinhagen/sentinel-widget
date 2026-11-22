@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — grouping control directions</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --panel: #22262d;
+    --panel2: #2a2e36;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #343841;
+    --blue: #3daee9;
+    --blue-dark: #1f6f93;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --red: #fb7185;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0f1115;
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .page-head { max-width: 892px; margin: 0 auto 18px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 23px; letter-spacing: -.2px; }
+  .page-head p { margin: 0; color: #aab0b9; line-height: 1.55; }
+  .recommend {
+    max-width: 892px;
+    margin: 0 auto 26px;
+    padding: 11px 14px;
+    border: 1px solid #2f4a5c;
+    border-left: 3px solid var(--blue);
+    background: #18232b;
+    border-radius: 8px;
+    color: #b9c1c9;
+  }
+  .recommend b { color: #8fd3f5; }
+  .design { max-width: 892px; margin: 0 auto 30px; }
+  .design-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 7px; }
+  .num { color: #59616c; font: 12px "DejaVu Sans Mono", monospace; }
+  .design h2 { margin: 0; font-size: 15px; letter-spacing: -.1px; }
+  .tagline { margin-left: auto; color: #8f96a0; font-size: 11.5px; }
+  .applet {
+    width: 892px;
+    max-width: 100%;
+    background: var(--bg);
+    border: 1px solid #2b3038;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+  }
+  .toolbar {
+    height: 62px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    border-bottom: 1px solid #262a31;
+  }
+  .search {
+    width: 338px;
+    height: 30px;
+    border: 1px solid #3a404a;
+    background: #171a1f;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 9px;
+    color: #aeb4bc;
+  }
+  .search svg { width: 14px; height: 14px; flex: none; opacity: .85; }
+  .search span { color: #7f8791; font-size: 13px; }
+  .tb {
+    height: 30px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 6px;
+    color: #d8dbe0;
+    white-space: nowrap;
+  }
+  .tb svg { width: 15px; height: 15px; opacity: .9; }
+  .tb.plain { background: transparent; }
+  .tb.soft { background: #262b33; border: 1px solid #363c46; }
+  .tb.flat { border: 1px solid transparent; }
+  .count { margin-left: auto; color: #aab0b9; font-size: 12px; white-space: nowrap; }
+  .split {
+    display: inline-flex;
+    align-items: stretch;
+    height: 30px;
+    border: 1px solid #3a404a;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #20242b;
+    white-space: nowrap;
+  }
+  .split .left {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 0 9px; color: #dfe3e8;
+  }
+  .split .right {
+    width: 27px; display: flex; align-items: center; justify-content: center;
+    border-left: 1px solid #3a404a; color: #aeb4bc;
+  }
+  .split.active { border-color: #3b6b86; background: #1d303b; }
+  .split.active .left { color: #a9d9f2; }
+  .split.active .right { border-left-color: #3b6b86; color: #a9d9f2; }
+  .dim { opacity: .42; }
+  .chev { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 5px solid currentColor; }
+  .segments { display: inline-flex; height: 30px; border: 1px solid #3a404a; border-radius: 6px; overflow: hidden; background: #1d2127; }
+  .segment { display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; color: #aeb4bc; border-right: 1px solid #30353e; white-space: nowrap; }
+  .segment:last-child { border-right: 0; }
+  .segment.active { background: #2a3b47; color: #b8e2f8; box-shadow: inset 0 0 0 1px #3b6b86; }
+  .segment svg { width: 14px; height: 14px; }
+  .view-btn { height: 30px; border: 1px solid #3a404a; background: #1d2127; border-radius: 6px; display: inline-flex; align-items: center; gap: 8px; padding: 0 9px; color: #c9ced5; white-space: nowrap; }
+  .view-btn b { color: #e8eaed; font-weight: 500; }
+  .group-chip { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .group-chip .caption { color: #9aa0a6; font-size: 12px; }
+  .chip { height: 30px; padding: 0 9px; border-radius: 15px; border: 1px solid #3a404a; background: #1d2127; color: #aeb4bc; display: inline-flex; align-items: center; gap: 7px; }
+  .chip.on { color: #b8e2f8; border-color: #3b6b86; background: #1d303b; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: #707781; }
+  .chip.on .dot { background: var(--blue); }
+  .switch { width: 27px; height: 16px; border-radius: 8px; background: #3a404a; position: relative; display: inline-block; }
+  .switch::after { content: ""; position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #b9c0c8; left: 2px; top: 2px; }
+  .switch.on { background: #2a6f91; }
+  .switch.on::after { left: 13px; background: #d9f2ff; }
+  .state-row {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px 10px;
+    color: #7f8791;
+    font-size: 11.5px;
+    border-bottom: 1px solid #262a31;
+  }
+  .state-row .state-label { width: 92px; color: #68707a; }
+  .state-row .spacer { flex: 1; }
+  .note { margin: 8px 2px 0; color: #9aa0a6; line-height: 1.55; font-size: 12.5px; }
+  .note b { color: #d5d9de; font-weight: 600; }
+  .good { color: #8fd3a8; }
+  .warn { color: #e6c47a; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<div class="page-head">
+  <h1>Sentinel — what should the grouping control say when nothing is grouped?</h1>
+  <p>Five directions for the flat-list state. The toolbar, cards and table stay unchanged; only the grouping control and its active-mode treatment differ.</p>
+</div>
+<div class="recommend">
+  <b>Recommendation:</b> <b>01 — current-state split button</b>. It always names the state (“Flat” / “Package”), keeps one compact control, and preserves the existing menu. <b>03</b> is the cleanest fallback if you prefer a single menu button over a split control.
+</div>
+
+<section class="design">
+  <div class="design-head"><span class="num">01</span><h2>Current-state split button</h2><span class="tagline">One control · always names the mode</span></div>
+  <div class="applet">
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="m10.2 10.2 3.1 3.1"/></svg><span>Search…</span></div>
+      <div class="tb plain"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2.5 3h11L9.5 8v4.2L6.5 13V8z"/></svg>Filters</div>
+      <div class="split"><span class="left"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 4h10M3 8h10M3 12h7"/></svg>Flat</span><span class="right"><span class="chev"></span></span></div>
+      <div class="count">932 of 932</div>
+    </div>
+    <div class="state-row"><span class="state-label">When grouped</span><div class="split active"><span class="left"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2.5" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="9" y="2.5" width="4.5" height="4.5" rx="1"/><rect x="2.5" y="9" width="4.5" height="4.5" rx="1"/><rect x="9" y="9" width="4.5" height="4.5" rx="1"/></svg>Package</span><span class="right"><span class="chev"></span></span></div><span class="spacer"></span><span>Group bar · − · Package ↕ · Findings ↕</span></div>
+  </div>
+  <p class="note"><b>Why it works:</b> the flat state says <span class="good">Flat</span>, not “Group by” with no value. The menu chooses <i>Flat list</i>, <i>Priority</i>, <i>Package</i> or <i>Origin</i>; the left side always reflects the choice. <span class="warn">Trade-off:</span> two hit targets in one control.</p>
+</section>
+
+<section class="design">
+  <div class="design-head"><span class="num">02</span><h2>Segmented view switcher</h2><span class="tagline">All modes visible · one click</span></div>
+  <div class="applet">
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="m10.2 10.2 3.1 3.1"/></svg><span>Search…</span></div>
+      <div class="tb plain"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2.5 3h11L9.5 8v4.2L6.5 13V8z"/></svg>Filters</div>
+      <div class="segments">
+        <div class="segment active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 4h10M3 8h10M3 12h7"/></svg>List</div>
+        <div class="segment">Priority</div>
+        <div class="segment">Package</div>
+        <div class="segment">Origin</div>
+      </div>
+      <div class="count">932 of 932</div>
+    </div>
+    <div class="state-row"><span class="state-label">When grouped</span><div class="segments"><div class="segment">List</div><div class="segment">Priority</div><div class="segment active">Package</div><div class="segment">Origin</div></div><span class="spacer"></span><span>Group bar · − · Package ↕ · Findings ↕</span></div>
+  </div>
+  <p class="note"><b>Why it works:</b> there is no empty state at all — <span class="good">List</span> is selected when flat. Every mode is one click away. <span class="warn">Trade-off:</span> four segments use a lot of toolbar width and compete with Search and Filters; less suitable for the 36-grid-unit minimum.</p>
+</section>
+
+<section class="design">
+  <div class="design-head"><span class="num">03</span><h2>View menu</h2><span class="tagline">Compact single button · mode language</span></div>
+  <div class="applet">
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="m10.2 10.2 3.1 3.1"/></svg><span>Search…</span></div>
+      <div class="tb plain"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2.5 3h11L9.5 8v4.2L6.5 13V8z"/></svg>Filters</div>
+      <div class="view-btn"><span>View:</span><b>Flat</b><span class="chev"></span></div>
+      <div class="count">932 of 932</div>
+    </div>
+    <div class="state-row"><span class="state-label">When grouped</span><div class="view-btn"><span>View:</span><b>Package</b><span class="chev"></span></div><span class="spacer"></span><span>Group bar · − · Package ↕ · Findings ↕</span></div>
+  </div>
+  <p class="note"><b>Why it works:</b> “View: Flat” reads as a complete state, and the menu lists Flat list / Priority / Package / Origin. It is the most compact option. <span class="warn">Trade-off:</span> “View” is slightly less explicit about grouping than “Group by”.</p>
+</section>
+
+<section class="design">
+  <div class="design-head"><span class="num">04</span><h2>Group chip with an explicit Off state</h2><span class="tagline">Keeps the word “Group” · clear on/off</span></div>
+  <div class="applet">
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="m10.2 10.2 3.1 3.1"/></svg><span>Search…</span></div>
+      <div class="tb plain"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2.5 3h11L9.5 8v4.2L6.5 13V8z"/></svg>Filters</div>
+      <div class="group-chip"><span class="caption">Group</span><span class="chip"><span class="dot"></span>Off<span class="chev"></span></span></div>
+      <div class="count">932 of 932</div>
+    </div>
+    <div class="state-row"><span class="state-label">When grouped</span><div class="group-chip"><span class="caption">Group</span><span class="chip on"><span class="dot"></span>Package<span class="chev"></span></span></div><span class="spacer"></span><span>Group bar · − · Package ↕ · Findings ↕</span></div>
+  </div>
+  <p class="note"><b>Why it works:</b> “Group: Off” is impossible to misread, and the active chip clearly says Package. The dot encodes state without relying on colour alone. <span class="warn">Trade-off:</span> caption + pill costs more width and adds two visual objects.</p>
+</section>
+
+<section class="design">
+  <div class="design-head"><span class="num">05</span><h2>Group switch + mode selector</h2><span class="tagline">Most explicit · most chrome</span></div>
+  <div class="applet">
+    <div class="toolbar">
+      <div class="search"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="7" cy="7" r="4.2"/><path d="m10.2 10.2 3.1 3.1"/></svg><span>Search…</span></div>
+      <div class="tb plain"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2.5 3h11L9.5 8v4.2L6.5 13V8z"/></svg>Filters</div>
+      <div class="tb flat"><span class="switch"></span>Group</div>
+      <div class="view-btn dim"><b>Priority</b><span class="chev"></span></div>
+      <div class="count">932 of 932</div>
+    </div>
+    <div class="state-row"><span class="state-label">When grouped</span><div class="tb flat"><span class="switch on"></span>Group</div><div class="view-btn"><b>Package</b><span class="chev"></span></div><span class="spacer"></span><span>Group bar · − · Package ↕ · Findings ↕</span></div>
+  </div>
+  <p class="note"><b>Why it works:</b> the switch is the clearest on/off state, and the selector is disabled while grouping is off. <span class="warn">Trade-off:</span> two controls and a disabled dropdown add the most toolbar complexity for a mode most users leave off.</p>
+</section>
+
+</body>
+</html>

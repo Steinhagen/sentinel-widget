@@ -60,3 +60,22 @@ context: [gallery](progress-indicators.html) · [overview](progress-indicators.p
 
 **Recommendation:** 01 for the tracker (determinate) with an indeterminate
 shimmer during the scan itself; 05 if the header should stay completely clean.
+
+## Grouping control — the flat (ungrouped) state
+
+The current toolbar shows an empty **Group by** label when no grouping is
+selected. Five directions for making that state explicit and visually
+intentional: [gallery](grouping-empty-states.html) ·
+[overview](grouping-empty-states.png).
+
+| # | Design | What it is best at |
+|---|--------|--------------------|
+| 01 | [Current-state split button](grouping-empty-states.png) | Always names Flat/Package; compact |
+| 02 | [Segmented view switcher](grouping-empty-states.png) | Every mode one click away; widest |
+| 03 | [View menu](grouping-empty-states.png) | Most compact; complete mode label |
+| 04 | [Group chip with Off state](grouping-empty-states.png) | Clearest on/off while keeping “Group” |
+| 05 | [Group switch + selector](grouping-empty-states.png) | Most explicit; most chrome |
+
+**Recommendation:** 01 — the split button always shows the active state
+(“Flat”, “Package”, …) and keeps the existing menu. 03 is the compact fallback
+if a single menu button is preferred over a split control.
