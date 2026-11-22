@@ -5,115 +5,118 @@ All notable changes to Market Monitor are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [Unreleased]
 
-- Refactor the applet into layered `domain` (pure `.mjs`), `services`,
-  `state` and `components` modules; `main.qml` is now a ~130-line composition
+### Added
+
+- Added a compact, click-to-sort header for CVSS, CVE, Package and Fix, with an
+  arrow showing the active sort direction.
+- Added a grouped findings view with Priority, Package and Origin section
+  headers. Each finding keeps the two-line row layout.
+- Added a current-state **Group by** menu button, individually collapsible
+  group headers, a global expand/collapse control, and a sortable group column
+  bar.
+- Added an advanced **Filter** popover for CVE, package and origin, with
+  severity and fix-state controls shown when the summary cards are hidden.
+- Added removable chips below the toolbar for every active search, CVE,
+  package, origin, severity and fix-state filter, including filters set by
+  clicking a package or origin in a row.
+- Added explicit load-error, scan-error and newer-schema states.
+- Added 60 Node domain tests, 26 QML test functions, sanitized v7/legacy
+  fixtures, a 2,000-row performance budget and CI checks.
+
+### Changed
+
+- Refactored the applet into layered `domain` (pure `.mjs`), `services`,
+  `state` and `components` modules. `main.qml` is now a ~130-line composition
   root instead of a 3,625-line monolith.
-- Add 60 Node domain tests, 26 qmltestrunner test functions, sanitized
-  v7/legacy fixtures, a 2,000-row performance budget and CI checks.
-- Skip reading `status.json` when its mtime/size is unchanged.
-- Add explicit load-error, scan-error and newer-schema states.
-- Remove the dead column-width configuration and unused legacy members.
-- Fix the tracker pending count, compact-layout inset, stale tracker
-  fingerprints and tracker polling gate.
-
-- Replace the wide column table with a two-line findings list: CVSS score,
-  CVE, package + version, fix status, and the full dependency-origin chain.
-  Removed the column header row, per-column filter row, severity chips, the
-  detector column and column resizing.
-- Rename the backend contract from the old scanner name to Sentinel:
-  `/var/lib/sentinel`, `sentinel.service`, `system/sentinel.nix`,
-  `system/sentinel-status.py`, and the `sentinelTrackerToken` setting.
-- Add a grouped findings view with section headers for Priority, Package or
-  Origin; every finding row keeps the flat two-line layout.
-- Add a **Group by** menu and a global plus/minus control to show or hide all
-  findings in the grouped view. Group headers are individually clickable and
-  have a larger hover/click target.
-- Add a group column bar with the expand control, sortable group names and
-  sortable finding counts, above the normal table header. The Group by button
-  is a current-state split button (Flat / Priority / Package / Origin), so the
-  ungrouped state is no longer blank.
-- Replace the Filters menu with a compact Filter popover for CVE, package,
-  origin, severity and fix state. Its form stays within the popup when the
-  summary cards are hidden. Show every active filter as a removable chip below
-  the toolbar, including filters set by clicking a package or origin.
-- Disable SearchField auto-accept so live filtering no longer blurs the search
-  field after the first keystroke.
-- Keep the table at the card width when the summary cards are hidden, instead
-  of expanding to the full popup width and overflowing its margins.
-- Align the header row's icon and Settings button with the centered table in
-  both the card and list-only layouts.
-- Match the grouping-mode label to the toolbar's normal font size, restore
-  its list/group icon, and style the menu as a flat toolbar button with a
-  chevron.
-- Make the critical-exposure ring's arc proportional to the highest CVSS score
-  instead of drawing a fixed 78% arc.
-- Colour-code the fix pills: green for fixed, amber for pending/staging, red
-  for no fix, grey for unknown/n/a.
-- Give every fix pill the same width, sized to the longest fix-state label,
-  and centre the text inside it.
-- Give each row a consistent minimum height and more vertical padding, so
-  rows without an origin chain remain comfortable and easy to click.
-- Move post-scan tracker progress to a compact indicator next to the
-  last-scan timestamp and remove the bottom progress row. Tracker warnings
-  appear as a small icon with the detail in its tooltip.
-- Merge scan and tracker progress into one header slot: the scanner animates
+- Replaced the wide column table with a two-line findings list carrying the
+  CVSS score, CVE, package and version, fix status, and the full
+  dependency-origin chain.
+- Renamed the backend contract to Sentinel: `/var/lib/sentinel`,
+  `sentinel.service`, `system/sentinel.nix`, `system/sentinel-status.py` and
+  the `sentinelTrackerToken` setting.
+- Reworked the **READY TO FIX** card to mirror the Severity card with a stacked
+  fix-state bar and clickable Fixed/Pending/No fix/Unknown/n/a rows.
+- Increased dashboard card height and spacing, enlarged card titles, and
+  included n/a in the fix breakdown.
+- Moved post-scan tracker progress into the header next to the scan timestamp;
+  tracker warnings are now a small icon with a detailed tooltip.
+- Merged scan and tracker progress into one header slot: the scanner animates
   the bar, tracker checks fill it, and the separate scanner spinner is gone.
-- Recover the Scanning state from `systemctl is-active` after a shell restart;
-  hide stale tracker progress and flag an interrupted scan when the service is
-  no longer running.
-- Clip the indeterminate scan sweep to its header track so it cannot draw
-  over the timestamp or the Scan button.
-- Add a compact click-to-sort column header for CVSS, CVE, Package and Fix,
-  with an arrow showing the active sort direction.
-- Align the toolbar and findings table to the combined width of the three
-  cards instead of the full popup width.
-- Inset the header content to the cards' width so the logo and Settings button
-  line up with the outer card edges.
-- Center the card row as a fixed-width group, matching the toolbar and table,
-  so the application's left and right padding are symmetric.
-- Redesign the READY TO FIX card to mirror the Severity card: title, stacked
-  fix-state bar, and five clickable rows (Fixed/Pending/No fix/Unknown/n/a)
-  with the same padding and row rhythm. The Fixed row filters to fixes.
-- Increase the dashboard card height and spacing, enlarge the small card
-  titles, and include n/a in the fix breakdown so the cards read more
-  comfortably.
-- Remove the **Top origin** card to make the dashboard narrower; origins remain
-  visible in the findings list and group-by-origin mode. Reduce the
-  default/minimum width from 50 to 36 grid units.
-- Remove the duplicate **Review fixes** link from the critical-exposure card;
-  the fixes card owns that action. Keep all three cards at their natural
-  widths and centre them so no card absorbs the spare width.
-- Remove the report, scan-log and About buttons from the header. Report and log
-  stay in the context menu; the About/help text moves to the summary tooltip.
-  Shrink the risk card slightly to match the narrower panel.
-- Fix “Review fixes” leaving an unclearable filter: it now uses the explicit
-  fix-state filter, and Clear filters also resets the legacy per-column field.
-- Centre the CVSS score in its column and add the 3 px severity strip to the
-  row padding, so the score has equal space on both sides.
-- Hide the summary cards when the popup is too short, so they cannot
-  overlap the findings list.
+- Aligned the header content, toolbar and findings table to the fixed card-row
+  width, then centered the card row so the panel padding is symmetric.
+- Gave every finding row a consistent minimum height and more vertical padding,
+  including rows without an origin chain.
+- Colour-coded fix pills (green fixed, amber pending/staging, red no fix, grey
+  unknown/n/a) and sized them to the longest fix-state label.
+- Skipped reading `status.json` when its mtime and size are unchanged.
+- Restored the list/group icon and normal toolbar font size on the grouping
+  menu, and styled it as a flat button with a chevron.
 
-## 0.1.0 — 2026-11-22
+### Fixed
 
-- First standalone release of **Sentinel**; the version numbering restarts at
+- Fixed the tracker pending count and the tracker polling gate.
+- Fixed stale tracker fingerprints being retained across scans.
+- Fixed the compact-layout inset.
+- Fixed the search field losing focus after the first keystroke by disabling
+  SearchField auto-accept for live filtering.
+- Fixed the table overflowing the popup when the summary cards were hidden;
+  it now keeps the card width in both layouts.
+- Fixed **Review fixes** leaving an unclearable filter by using the explicit
+  fix-state filter and resetting the legacy per-column field.
+- Fixed the critical-exposure ring, whose arc is now proportional to the
+  highest CVSS score instead of a fixed 78%.
+- Fixed CVSS score centering and the severity-strip spacing in each row.
+- Fixed the indeterminate scan sweep drawing outside its header track.
+- Restored the Scanning state after a shell restart by checking
+  `systemctl is-active`; stale tracker progress is hidden and an interrupted
+  scan is flagged.
+- Hid the summary cards when the popup is too short so they cannot overlap the
+  findings list.
+
+### Removed
+
+- Removed the column header row, per-column filter row, severity chips, detector
+  column and column resizing from the old table.
+- Removed the dead column-width configuration and unused legacy members.
+- Removed the **Top origin** card to narrow the dashboard; origins remain in
+  finding rows and group-by-origin mode. Reduced the default/minimum width from
+  50 to 36 grid units.
+- Removed the duplicate **Review fixes** link from the critical-exposure card;
+  the fixes card owns that action.
+- Removed the report, scan-log and About buttons from the header; report and
+  log remain in the context menu, and help moved to the summary tooltip.
+
+## [0.1.0] - 2026-11-22
+
+### Added
+
+- First standalone release of **Sentinel**. Version numbering restarts at
   0.1.0 for this repository.
-- Publish the applet as **Sentinel**: `KPlugin.Id` is now
+- Published the applet as **Sentinel**: `KPlugin.Id` is
   `io.github.steinhagen.sentinel` and `KPlugin.Name` is `Sentinel`.
-- Unify the scan timestamp: the header label next to **Scan now** is the only
-  place it is shown (relative time, exact local time in its tooltip). Removed
-  the timestamp from the summary line, the footer bar and the secure-state
-  explanation.
-- Drop the footer bar. Its report, scan-log and help buttons moved into the
-  header; its finding count was already duplicated in the search toolbar.
 
-## 1.8.0 — 2026-11-21
+### Changed
+
+- Unified the scan timestamp into the single header label next to **Scan now**.
+  Relative time is shown inline; the exact local time is in its tooltip.
+
+### Removed
+
+- Dropped the footer bar. Its report, scan-log and help actions moved into the
+  header; its finding count was already duplicated in the search toolbar.
+- Removed the duplicate timestamp from the summary line, footer and secure-state
+  explanation.
+
+## [1.8.0] - 2026-11-21
+
+### Added
 
 - Standalone source snapshot of the Sentinel / System Vulnerability Status
   Plasma applet.
-- Four-card security dashboard (risk, severity, available fixes, top origin).
-- Sortable/filterable table with severity chips, persistent column widths and
-  an always-visible scrollbar.
+- Four-card security dashboard: risk, severity, available fixes and top origin.
+- Sortable and filterable findings table with severity chips, persistent column
+  widths and an always-visible scrollbar.
 - Automatic light/dark theming through `Kirigami.Theme`.
 - Dependency-origin data and Nixpkgs security tracker integration.
