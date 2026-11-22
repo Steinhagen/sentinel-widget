@@ -144,6 +144,7 @@ PlasmaExtras.Representation {
                 visibleCount: root.vm.visibleCount
                 totalCount: root.vm.totalCount
                 groupBy: root.vm.groupBy
+                cardsVisible: root.vm.hasFindings && !root.compactLayout
                 labels: root.labels
                 onSearchChanged: (text) => root.vm.setSearchText(text)
                 onSeveritySelected: (band) => root.vm.setSeverityBand(band)

@@ -80,4 +80,6 @@ intentional: [gallery](grouping-empty-states.html) ·
 (“Flat”, “Package”, …) and keeps the existing menu. 03 is the compact fallback
 if a single menu button is preferred over a split control.
 
-**Implemented:** 01, as the current-state split button in the applet toolbar.
+**Implemented:** 01, as the current-state split button in the applet toolbar
+(without the leading icon; the toolbar Filters button is hidden when the
+summary cards are visible).

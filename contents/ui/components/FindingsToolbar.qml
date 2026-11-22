@@ -14,6 +14,7 @@ RowLayout {
     property int visibleCount: 0
     property int totalCount: 0
     property string groupBy: "none"
+    property bool cardsVisible: false
     property var labels: null
 
     signal searchChanged(string text)
@@ -50,6 +51,7 @@ RowLayout {
     PlasmaComponents3.ToolButton {
         id: filtersButton
 
+        visible: !root.cardsVisible
         text: root.labels ? root.labels.filtersButton() : "Filters"
         icon.name: "view-filter"
         display: QQC2.AbstractButton.TextBesideIcon
@@ -164,12 +166,6 @@ RowLayout {
 
         contentItem: RowLayout {
             spacing: Kirigami.Units.smallSpacing
-
-            Kirigami.Icon {
-                Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                source: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
-            }
 
             PlasmaComponents3.Label {
                 text: root.labels

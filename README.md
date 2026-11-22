@@ -21,7 +21,7 @@ into a compact security dashboard.
   and a global expand/collapse control.
 - The grouped view adds a second header bar for expand/collapse, group-name
   sorting and finding-count sorting.
-- Search plus a compact **Filters** menu for severity and fix state.
+- Search, plus a compact **Filters** menu when the summary cards are hidden.
 - The cards, toolbar and findings table share one centered width.
 - The header logo and Settings button align with the outer card edges.
 - Table scrolls independently.
@@ -120,11 +120,12 @@ Right-click the widget and choose **Configure…**:
 - **Panel badge:** finding count, dot, or hidden.
 - **Tracker API token:** used for authenticated Nixpkgs security tracker lookups.
 
-Use the list's **Filters** menu for severity and fix state, and the
-**Group by** menu to choose Priority, Package or Origin sections. Click a
-section header to show or hide that group, or use the plus/minus control in the
-group bar to show or hide every group at once. The group bar also sorts groups
-by name or finding count.
+Use the summary cards for severity and fix-state filtering; when the cards are
+hidden (for example in a compact popup), the **Filters** menu provides the same
+choices. Use the **Group by** split button to choose Flat, Priority, Package or
+Origin. Click a section header to show or hide that group, or use the
+plus/minus control in the group bar to show or hide every group at once. The
+group bar also sorts groups by name or finding count.
 The CSV report and scan log are in the widget's context menu; hover the summary
 line under the title for the About/help text.
 

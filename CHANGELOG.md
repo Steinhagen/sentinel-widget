@@ -26,6 +26,8 @@
   sortable finding counts, above the normal table header. The Group by button
   is a current-state split button (Flat / Priority / Package / Origin), so the
   ungrouped state is no longer blank.
+- Hide the toolbar Filters button while the summary cards are visible, since
+  the severity and fix-state card rows provide the same choices.
 - Move severity and fix-state filtering into one compact **Filters** menu.
 - Colour-code the fix pills: green for fixed, amber for pending/staging, red
   for no fix, grey for unknown/n/a.
