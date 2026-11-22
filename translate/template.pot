@@ -606,17 +606,51 @@ msgid "%1 of %2"
 msgstr ""
 
 #: contents/ui/components/Labels.qml
+msgid "%1 of %2 (+ %3 false positive)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "%1 of %2 (+ %3 false positives)"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Only the product name matches: %1 → %2"
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Only the product name matches; the vendor does not."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE record does not say which product or version it affects."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE record has no affected version range."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE's version scheme does not compare with the installed version."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE is scoped to a distribution or platform, not to this package."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass could not confirm that this CVE describes the installed package."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
+msgid "Right-click the row and choose “Ignore this finding” if it is a false positive."
+msgstr ""
+
+#: contents/ui/components/Labels.qml
 msgid "Ignore this finding (false positive)"
 msgstr ""
 
 #: contents/ui/components/Labels.qml
-msgid "%1 false positive hidden"
-msgid_plural "%1 false positives hidden"
-msgstr[0] ""
-msgstr[1] ""
-
-#: contents/ui/components/Labels.qml
-msgid "The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again."
+msgid "The parenthesised findings are hidden by the triage pass. Turn the setting off to show them again."
 msgstr ""
 
 #: contents/ui/components/Labels.qml

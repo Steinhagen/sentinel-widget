@@ -675,20 +675,55 @@ QtObject {
         return i18n("Sort by %1", label);
     }
 
-    function countLabel(visible, total) {
-        return i18n("%1 of %2", visible, total);
+    function countLabel(visible, total, hidden) {
+        const hiddenCount = Number(hidden || 0);
+        if (hiddenCount <= 0) {
+            return i18n("%1 of %2", visible, total);
+        }
+        if (hiddenCount === 1) {
+            return i18n("%1 of %2 (+ %3 false positive)", visible, total, hiddenCount);
+        }
+        return i18n("%1 of %2 (+ %3 false positives)", visible, total, hiddenCount);
+    }
+
+    function reviewChipText() {
+        return i18n("Review");
+    }
+
+    function reviewTooltip(row) {
+        if (!row) {
+            return "";
+        }
+        const reasons = row.triageReasons || [];
+        const parts = [];
+        if (reasons.indexOf("product-only-match") >= 0) {
+            if (row.triageVendor && row.triageProduct) {
+                parts.push(i18n("Only the product name matches: %1 → %2",
+                    row.triageVendor, row.triageProduct));
+            } else {
+                parts.push(i18n("Only the product name matches; the vendor does not."));
+            }
+        } else if (reasons.indexOf("no-affected-data") >= 0) {
+            parts.push(i18n("The CVE record does not say which product or version it affects."));
+        } else if (reasons.indexOf("no-version-range") >= 0) {
+            parts.push(i18n("The CVE record has no affected version range."));
+        } else if (reasons.indexOf("version-incomparable") >= 0) {
+            parts.push(i18n("The CVE's version scheme does not compare with the installed version."));
+        } else if (reasons.indexOf("vendor-scoped-cve") >= 0) {
+            parts.push(i18n("The CVE is scoped to a distribution or platform, not to this package."));
+        } else {
+            parts.push(i18n("The triage pass could not confirm that this CVE describes the installed package."));
+        }
+        parts.push(i18n("Right-click the row and choose “Ignore this finding” if it is a false positive."));
+        return parts.join("\n");
     }
 
     function ignoreFindingText() {
         return i18n("Ignore this finding (false positive)");
     }
 
-    function triageHiddenLabel(count) {
-        return i18np("%1 false positive hidden", "%1 false positives hidden", count);
-    }
-
     function triageHiddenTooltip() {
-        return i18n("The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again.");
+        return i18n("The parenthesised findings are hidden by the triage pass or ignored by you. Ignored findings can be restored in the settings.");
     }
 
     function noMatchesText() {

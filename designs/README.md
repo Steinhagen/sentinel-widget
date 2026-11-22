@@ -99,3 +99,13 @@ instead of mapping the score: [gallery](cvss-ring-directions.html) ·
 part of the visual identity and near-maximum scores can look almost full.
 
 **Implemented:** 01, with the arc driven by `maxSeverity / 10`.
+
+## Review markers
+
+[review-queue.html](review-queue.html) explores how to identify the false
+positives in the list: an amber marker, a **Needs review** filter, and a review
+queue grouped by the CVE's vendor → product so a cluster can be dismissed at
+once. [review-markers.html](review-markers.html) compares five placements for
+the marker without dropping the dependency-origin line; the widget uses the
+**REVIEW** chip from variant 4 (after the CVE id), with the CVE's
+vendor → product in its tooltip.

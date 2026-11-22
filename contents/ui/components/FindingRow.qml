@@ -138,6 +138,42 @@ PlasmaComponents3.ItemDelegate {
                     && QQC2.ToolTip.text.length > 0
             }
 
+            Rectangle {
+                id: reviewChip
+
+                visible: root.rowData ? root.rowData.needsReview === true : false
+                Layout.preferredHeight: reviewChipLabel.implicitHeight
+                    + Kirigami.Units.smallSpacing
+                implicitWidth: reviewChipLabel.implicitWidth
+                    + Kirigami.Units.smallSpacing * 3
+                radius: 99
+                color: root.theme ? root.theme.reviewSurface : "#3a2f16"
+                border.width: 1
+                border.color: root.theme ? root.theme.reviewBorder : "#6b5624"
+
+                PlasmaComponents3.Label {
+                    id: reviewChipLabel
+
+                    anchors.centerIn: parent
+                    text: root.labels ? root.labels.reviewChipText() : "Review"
+                    color: root.theme ? root.theme.reviewColor : "#f3d79a"
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                    font.capitalization: Font.AllUppercase
+                }
+
+                HoverHandler {
+                    id: reviewHover
+                    cursorShape: Qt.WhatsThisCursor
+                }
+
+                QQC2.ToolTip.text: root.labels && root.rowData
+                    ? root.labels.reviewTooltip(root.rowData)
+                    : ""
+                QQC2.ToolTip.visible: reviewHover.hovered
+                    && QQC2.ToolTip.text.length > 0
+            }
+
             Item {
                 Layout.fillWidth: true
                 implicitHeight: packageRow.implicitHeight

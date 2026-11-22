@@ -277,6 +277,36 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_unverified_rows_are_marked_for_review() {
+        const env = testCase.makeVm();
+        env.store.triage = Triage.parseTriageText(JSON.stringify({
+            findings: [{
+                id: "CVE-2026-111497",
+                package: "brotli",
+                version: "1.2.1",
+                verdict: "unverified",
+                reasons: ["product-only-match"],
+                vendor: "Google",
+                product: "Brotli"
+            }]
+        }));
+        env.store.triageRevision += 1;
+
+        const marked = env.vm.rows.find(row => row.id === "CVE-2026-111497");
+        compare(marked.needsReview, true);
+        compare(marked.triageVendor, "Google");
+        compare(marked.triageProduct, "Brotli");
+        compare(marked.triageReasons[0], "product-only-match");
+
+        const plain = env.vm.rows.find(row => row.id === "CVE-2021-35049");
+        compare(plain.needsReview, false);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_triage_hides_suppressed_findings() {
         const env = testCase.makeVm();
         env.store.triage = Triage.parseTriageText(JSON.stringify({

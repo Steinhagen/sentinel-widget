@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — review queue design</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --panel: #20242b;
+    --panel2: #262b33;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #2b3038;
+    --accent: #3daee9;
+    --cve: #7cc7f0;
+    --critical: #fb7185;
+    --high: #fbbf24;
+    --low: #4ade80;
+    --review: #fbbf24;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 28px;
+    background: #0f1115;
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .head { max-width: 1240px; margin: 0 auto 20px; }
+  .head h1 { margin: 0 0 6px; font-size: 24px; letter-spacing: -.2px; }
+  .head p { margin: 0; color: #aab0b9; max-width: 860px; line-height: 1.55; }
+  .head b { color: var(--text); }
+
+  .frames {
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  figure { margin: 0; }
+  figcaption {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    margin: 0 0 8px 2px;
+    color: #cfd4da;
+    font-size: 12.5px;
+  }
+  figcaption .tag {
+    color: #8f96a0;
+    font: 11px "DejaVu Sans Mono", monospace;
+  }
+
+  .widget {
+    background: var(--bg);
+    border: 1px solid #2b3038;
+    border-radius: 14px;
+    padding: 12px 14px 14px;
+    min-height: 560px;
+  }
+
+  .topline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 10px;
+  }
+  .logo {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: linear-gradient(135deg, #3daee9, #7c5cff);
+    display: grid; place-items: center;
+    color: white; font-size: 12px; font-weight: 700;
+  }
+  .title { font-weight: 600; }
+  .state {
+    color: #fb7185; font-size: 11px; font-weight: 600;
+    background: #3a1d24; border: 1px solid #5b2a33;
+    padding: 1px 7px; border-radius: 999px;
+  }
+  .scan { margin-left: auto; color: var(--faint); font-size: 11.5px; }
+
+  .toolbar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .search {
+    flex: 1;
+    display: flex; align-items: center; gap: 6px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; color: var(--faint);
+    font-size: 12px;
+  }
+  .btn {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 10px; color: #cfd4da; font-size: 12px;
+    white-space: nowrap;
+  }
+  .btn.accent { border-color: #2f5a73; color: #8fd3f5; }
+
+  .segments {
+    display: flex; gap: 4px; padding: 3px;
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 9px; margin-bottom: 8px; width: fit-content;
+  }
+  .seg {
+    padding: 4px 10px; border-radius: 6px; font-size: 12px; color: var(--muted);
+  }
+  .seg.on { background: #2f3a46; color: var(--text); }
+  .seg .n { color: var(--faint); margin-left: 5px; }
+  .seg.on .n { color: #cfd4da; }
+
+  .bulkbar {
+    display: flex; align-items: center; gap: 8px;
+    background: #2a2416; border: 1px solid #4a3c1c;
+    border-radius: 9px; padding: 7px 10px; margin-bottom: 10px;
+    color: #e8d9b5; font-size: 12px;
+  }
+  .bulkbar .spacer { flex: 1; }
+  .bulk-ignore {
+    background: #3a2f16; border: 1px solid #6b5624; color: #f3d79a;
+    border-radius: 7px; padding: 4px 9px; font-size: 12px; white-space: nowrap;
+  }
+
+  .count {
+    margin-left: auto; color: var(--faint); font-size: 11.5px;
+  }
+
+  .grouphead {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px; margin-top: 10px;
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+  .grouphead .vendor { font-weight: 600; }
+  .grouphead .arrow { color: var(--faint); }
+  .grouphead .product { color: #cfd4da; }
+  .grouphead .n {
+    background: #333b46; border-radius: 999px; padding: 0 7px;
+    color: #cfd4da; font-size: 11px;
+  }
+  .grouphead .why { color: var(--faint); font-size: 11px; margin-left: 2px; }
+  .grouphead .spacer { flex: 1; }
+  .group-ignore {
+    background: #2a2416; border: 1px solid #5c4a20; color: #f3d79a;
+    border-radius: 7px; padding: 3px 8px; font-size: 11.5px; white-space: nowrap;
+  }
+  .group-ignore.disabled { color: #6f7680; border-color: #333a44; background: transparent; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 38px 1fr 58px;
+    gap: 8px;
+    padding: 7px 8px 7px 6px;
+    border-bottom: 1px solid #232830;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row .score { color: var(--critical); font-weight: 700; font-size: 13px; }
+  .row .main { min-width: 0; }
+  .line1 { display: flex; align-items: baseline; gap: 7px; }
+  .cve { color: var(--cve); font-family: "DejaVu Sans Mono", monospace; font-size: 11.5px; }
+  .pkg { color: var(--text); font-weight: 600; }
+  .ver { color: var(--faint); font-size: 11.5px; }
+  .line2 {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--faint); font-size: 11px; margin-top: 2px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .line2 .chain { color: var(--faint); }
+  .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--review); flex: 0 0 auto;
+  }
+  .reviewtext { color: #e3c169; }
+  .reviewtext b { color: #f3d79a; font-weight: 600; }
+  .confirmed { color: #7fd39a; }
+  .fix { color: var(--faint); font-size: 11px; text-align: right; padding-top: 2px; }
+  .fix.ok { color: #7fd39a; }
+
+  .row.unverified .main { }
+  .legend {
+    max-width: 1240px; margin: 22px auto 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  .note {
+    background: #151a20; border: 1px solid #262d36; border-radius: 10px;
+    padding: 10px 12px; color: #aab0b9; line-height: 1.5; font-size: 12px;
+  }
+  .note b { color: #d7dce1; }
+  .note .k { color: #8fd3f5; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>Sentinel — identifying the false positives</h1>
+  <p>The list keeps every finding the scanners reported, but the triage report already knows
+     which rows are <b>confirmed</b> and which ones are only a <b>best guess</b>. The design
+     makes that visible: an amber marker and the CVE’s own vendor → product on the row, a
+     <b>Needs review</b> filter, and a review queue that groups the guesses by cluster so a
+     whole group can be dismissed at once.</p>
+</div>
+
+<div class="frames">
+
+  <figure>
+    <figcaption><span class="tag">A</span> In the list — every unverified row is marked</figcaption>
+    <div class="widget">
+
+      <div class="topline">
+        <div class="logo">S</div>
+        <div class="title">Sentinel</div>
+        <div class="state">Vulnerable</div>
+        <div class="scan">scanned 2 min ago</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">⌕ Search…</div>
+        <div class="btn">Filter</div>
+        <div class="btn">Group by ▾</div>
+        <div class="count">836 of 932</div>
+      </div>
+
+      <div class="segments">
+        <div class="seg on">All <span class="n">932</span></div>
+        <div class="seg">Confirmed <span class="n">519</span></div>
+        <div class="seg">Needs review <span class="n">317</span></div>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">9.9</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+          <div class="line2"><span class="dot"></span><span class="reviewtext">only the product name matches — <b>Fidelis Cybersecurity → Fidelis Network</b></span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">8.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+          <div class="line2"><span class="dot"></span><span class="reviewtext">only the product name matches — <b>Mozilla → Focus for Android</b></span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="row">
+        <div class="score">9.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+          <div class="line2"><span class="confirmed">✓ confirmed</span><span class="chain">· tracker NIXPKGS-2026-3162 · fixed in 1.2.1</span></div>
+        </div>
+        <div class="fix ok">fixed</div>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">9.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2021-24028</span><span class="pkg">thrift</span><span class="ver">0.25.0</span></div>
+          <div class="line2"><span class="dot"></span><span class="reviewtext">only the product name matches — <b>Facebook → Facebook Thrift</b></span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">8.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2024-28863</span><span class="pkg">tar</span><span class="ver">0.6.4.0</span></div>
+          <div class="line2"><span class="dot"></span><span class="reviewtext">only the product name matches — <b>isaacs → node-tar</b></span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+    </div>
+  </figure>
+
+  <figure>
+    <figcaption><span class="tag">B</span> Review queue — grouped by cluster, dismiss in bulk</figcaption>
+    <div class="widget">
+
+      <div class="topline">
+        <div class="logo">S</div>
+        <div class="title">Sentinel</div>
+        <div class="state">Vulnerable</div>
+        <div class="scan">scanned 2 min ago</div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search">⌕ Search…</div>
+        <div class="btn">Filter</div>
+        <div class="btn accent">Group by: review cluster ▾</div>
+        <div class="count">317 of 932</div>
+      </div>
+
+      <div class="segments">
+        <div class="seg">All <span class="n">932</span></div>
+        <div class="seg">Confirmed <span class="n">519</span></div>
+        <div class="seg on">Needs review <span class="n">317</span></div>
+      </div>
+
+      <div class="bulkbar">
+        <span>108 rows match a product name only — check the vendor before dismissing.</span>
+        <span class="spacer"></span>
+        <span class="bulk-ignore">Ignore all shown (108)</span>
+      </div>
+
+      <div class="grouphead">
+        <span class="vendor">Mozilla</span>
+        <span class="arrow">→</span>
+        <span class="product">Focus for Android</span>
+        <span class="n">15</span>
+        <span class="spacer"></span>
+        <span class="group-ignore">Ignore all 15</span>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">8.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+          <div class="line2"><span class="chain">haskell-language-server → focus</span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">6.5</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2023-29538</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+          <div class="line2"><span class="chain">haskell-language-server → focus</span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="grouphead">
+        <span class="vendor">Fidelis Cybersecurity</span>
+        <span class="arrow">→</span>
+        <span class="product">Fidelis Network</span>
+        <span class="n">13</span>
+        <span class="spacer"></span>
+        <span class="group-ignore">Ignore all 13</span>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">9.9</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+          <div class="line2"><span class="chain">haskell-language-server → network</span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+      <div class="grouphead">
+        <span class="vendor">? (no vendor in the CVE)</span>
+        <span class="arrow">→</span>
+        <span class="product">kernel</span>
+        <span class="n">18</span>
+        <span class="why">likely real</span>
+        <span class="spacer"></span>
+        <span class="group-ignore disabled">Ignore all 18</span>
+      </div>
+
+      <div class="row unverified">
+        <div class="score">7.8</div>
+        <div class="main">
+          <div class="line1"><span class="cve">CVE-2019-1010022</span><span class="pkg">linux</span><span class="ver">7.3.5</span></div>
+          <div class="line2"><span class="chain">boot.kernelPackages → linux</span></div>
+        </div>
+        <div class="fix">n/a</div>
+      </div>
+
+    </div>
+  </figure>
+
+</div>
+
+<div class="legend">
+  <div class="note"><b><span class="swatch" style="background:#fbbf24"></span>Amber marker = needs review.</b>
+    It is the triage verdict <span class="k">unverified</span>: the row is shown, but not claimed as
+    affecting you. Confirmed rows show a green check and never get the marker.</div>
+  <div class="note"><b>CVE vendor → product on line 2.</b>
+    This is the single fact that separates a name collision from a real hit: <i>Fidelis → Network</i>
+    is not the Haskell <span class="k">network</span> library; <i>? → kernel</i> probably is your kernel.</div>
+  <div class="note"><b>One action per cluster.</b>
+    <i>Ignore all 15</i> adds the 15 CVE + package pairs to the applet’s local list at once;
+    <b>Restore all</b> in Settings → Ignored findings brings them back. No root files involved.</div>
+</div>
+
+</body>
+</html>

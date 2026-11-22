@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — review markers without losing the origin row</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --panel: #20242b;
+    --panel2: #262b33;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #2b3038;
+    --accent: #3daee9;
+    --cve: #7cc7f0;
+    --critical: #fb7185;
+    --review: #fbbf24;
+    --ok: #7fd39a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 26px 28px 34px;
+    background: #0f1115; color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px; line-height: 1.35;
+  }
+  .page-head { max-width: 820px; margin: 0 auto 18px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: -.2px; }
+  .page-head p { margin: 0; color: #aab0b9; line-height: 1.55; }
+  .page-head b { color: var(--text); }
+
+  .recommend {
+    max-width: 820px; margin: 0 auto 22px; padding: 10px 13px;
+    border: 1px solid #2f4a5c; border-left: 3px solid var(--accent);
+    background: #18232b; border-radius: 8px; color: #b9c1c9; font-size: 12.5px;
+  }
+  .recommend b { color: #8fd3f5; }
+
+  .variant { max-width: 820px; margin: 0 auto 22px; }
+  .vhead { display: flex; align-items: baseline; gap: 9px; margin-bottom: 7px; }
+  .tag { color: #59616c; font: 11px "DejaVu Sans Mono", monospace; }
+  .vhead h2 { margin: 0; font-size: 14.5px; font-weight: 600; }
+  .note-inline { margin-left: auto; color: #8f96a0; font-size: 11.5px; }
+
+  .widget {
+    position: relative;
+    background: var(--bg); border: 1px solid #2b3038; border-radius: 12px;
+    padding: 6px 10px;
+  }
+  .row {
+    display: grid; grid-template-columns: 40px 1fr 52px;
+    gap: 8px; align-items: start;
+    padding: 7px 6px; border-bottom: 1px solid #232830;
+  }
+  .row:last-child { border-bottom: 0; }
+  .row.rail { border-left: 3px solid var(--review); padding-left: 3px; }
+  .score { color: var(--critical); font-weight: 700; font-size: 13px; }
+  .main { min-width: 0; }
+  .line1 { display: flex; align-items: center; gap: 7px; }
+  .cve { color: var(--cve); font-family: "DejaVu Sans Mono", monospace; font-size: 11.5px; }
+  .pkg { color: var(--text); font-weight: 600; }
+  .ver { color: var(--faint); font-size: 11.5px; }
+  .line2 {
+    display: flex; align-items: center; gap: 5px;
+    color: var(--faint); font-size: 11px; margin-top: 2px; min-width: 0;
+  }
+  .line2 .chain { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .line2 .suffix {
+    color: #e3c169; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .line2 .sep { color: #4a515b; }
+  .line3 {
+    display: flex; align-items: center; gap: 5px; margin-top: 2px;
+    color: #e3c169; font-size: 11px;
+  }
+  .line3 b { color: #f3d79a; font-weight: 600; }
+  .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--review); flex: 0 0 auto;
+  }
+  .chip {
+    font-size: 9.5px; letter-spacing: .02em; text-transform: uppercase;
+    color: #f3d79a; background: #3a2f16; border: 1px solid #6b5624;
+    border-radius: 999px; padding: 0 6px; flex: 0 0 auto;
+  }
+  .fix { text-align: right; }
+  .pill {
+    display: inline-block; font-size: 10px; color: #b9c1c9;
+    background: #2a3038; border: 1px solid #353d47;
+    border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  }
+  .pill.ok { color: #9fe0b8; background: #1d3327; border-color: #2c4d3a; }
+  .branch { color: #4f5862; }
+
+  /* hover callout, drawn for variants that rely on a tooltip */
+  .tooltip {
+    position: absolute; right: 14px; top: 12px;
+    width: 236px; padding: 9px 11px;
+    background: #10141a; border: 1px solid #3a424d; border-radius: 8px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.45);
+    color: #c9ced4; font-size: 11.5px; line-height: 1.45; z-index: 2;
+  }
+  .tooltip .t1 { color: #f3d79a; font-weight: 600; margin-bottom: 3px; }
+  .tooltip .who { color: #e8eaed; }
+  .tooltip .hint { color: #6f7680; margin-top: 4px; font-size: 10.5px; }
+
+  .hover-note {
+    margin-top: 6px; padding: 6px 10px;
+    background: #10141a; border: 1px dashed #3a424d; border-radius: 7px;
+    color: #aab0b9; font-size: 11.5px;
+  }
+  .hover-note b { color: #f3d79a; font-weight: 600; }
+  .hover-note .lbl { color: #6f7680; margin-right: 6px; }
+  .legend { max-width: 820px; margin: 4px auto 0; color: #8f96a0; font-size: 12px; line-height: 1.55; }
+  .legend b { color: #d7dce1; }
+  .legend .sw { display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--review); margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>Review marker, origin line kept</h1>
+  <p>Five ways to add the <b>needs review</b> signal without taking the dependency-origin line away.
+     Same rows, same height budget where possible; only the placement of the marker and the
+     CVE vendor → product changes. <b>V3</b> is the one I’d pick.</p>
+</div>
+
+<div class="recommend">
+  <b>Recommendation: V3.</b> Keep the origin on line 2 exactly as today; add a third amber line only
+  on rows that need review, naming the vendor → product. Confirmed rows do not grow. It is the only
+  variant where both facts stay readable at the applet’s width without hovering.
+</div>
+
+<!-- V1 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V1</span><h2>Amber dot, reason on hover</h2>
+    <span class="note-inline">zero layout change · clusters need hovering</span></div>
+  <div class="widget">
+    <div class="row">
+      <div class="score">9.9</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">8.8</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → focus</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">9.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div>
+      </div>
+      <div class="fix"><span class="pill ok">fixed</span></div>
+    </div>
+  </div>
+  <div class="hover-note"><span class="lbl">On hover</span><b>Needs review</b> · only the product name matches · Fidelis Cybersecurity → Fidelis Network</div>
+</section>
+
+<!-- V2 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V2</span><h2>Dot + reason appended to line 2</h2>
+    <span class="note-inline">uniform height · long lines ellipsize</span></div>
+  <div class="widget">
+    <div class="row">
+      <div class="score">9.9</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → network</span><span class="sep">·</span><span class="suffix">name-only: Fidelis → Network</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">8.8</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → focus</span><span class="sep">·</span><span class="suffix">name-only: Mozilla → Focus for Android</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">9.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div>
+      </div>
+      <div class="fix"><span class="pill ok">fixed</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- V3 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V3</span><h2>Dot + third line on review rows</h2>
+    <span class="note-inline">both facts readable · review rows +14 px</span></div>
+  <div class="widget">
+    <div class="row">
+      <div class="score">9.9</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div>
+        <div class="line3">⚠ only the product name matches — <b>Fidelis Cybersecurity → Fidelis Network</b></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">8.8</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → focus</span></div>
+        <div class="line3">⚠ only the product name matches — <b>Mozilla → Focus for Android</b></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">9.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div>
+      </div>
+      <div class="fix"><span class="pill ok">fixed</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- V4 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V4</span><h2>“Review” chip on line 1, reason on hover</h2>
+    <span class="note-inline">no extra line · vendor hidden until hover</span></div>
+  <div class="widget">
+    <div class="row">
+      <div class="score">9.9</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span><span class="chip">review</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">8.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span><span class="chip">review</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → focus</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">9.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div>
+      </div>
+      <div class="fix"><span class="pill ok">fixed</span></div>
+    </div>
+  </div>
+  <div class="hover-note"><span class="lbl">On hover</span><b>Needs review</b> · only the product name matches · Mozilla → Focus for Android</div>
+</section>
+
+<!-- V5 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V5</span><h2>Amber rail + dot, reason on hover</h2>
+    <span class="note-inline">fastest to scan · still needs hovering for the vendor</span></div>
+  <div class="widget">
+    <div class="row rail">
+      <div class="score">9.9</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2021-35047</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row rail">
+      <div class="score">8.8</div>
+      <div class="main">
+        <div class="line1"><span class="dot"></span><span class="cve">CVE-2023-29533</span><span class="pkg">focus</span><span class="ver">1.0.3.2</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">haskell-language-server-2.13.0.0 → focus</span></div>
+      </div>
+      <div class="fix"><span class="pill">n/a</span></div>
+    </div>
+    <div class="row">
+      <div class="score">9.8</div>
+      <div class="main">
+        <div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div>
+        <div class="line2"><span class="branch">└</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div>
+      </div>
+      <div class="fix"><span class="pill ok">fixed</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="legend">
+  <b>Reading the variants:</b> V1 and V5 keep the row exactly as it is today and only add a cue, so the
+  vendor → product lives in the tooltip — fine for spotting, weak for clearing a cluster. V2 keeps a
+  uniform height but the amber suffix competes with the origin for the same line and ellipsizes first.
+  V3 pays 14 px on review rows only and is the only one that shows both the origin and the CVE identity
+  at once. V4 makes “review” loud but hides the thing that makes it actionable.
+</div>
+
+</body>
+</html>

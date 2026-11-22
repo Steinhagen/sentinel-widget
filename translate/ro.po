@@ -61,7 +61,7 @@ msgstr "Vulnerabil"
 
 #: contents/ui/components/Labels.qml
 msgid "Review"
-msgstr "Verificare"
+msgstr "De verificat"
 
 #: contents/ui/components/Labels.qml
 msgid "The first scan is running…"
@@ -624,19 +624,52 @@ msgid "%1 of %2"
 msgstr "%1 din %2"
 
 #: contents/ui/components/Labels.qml
+msgid "%1 of %2 (+ %3 false positive)"
+msgstr "%1 din %2 (+ %3 pozitiv fals)"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 of %2 (+ %3 false positives)"
+msgstr "%1 din %2 (+ %3 pozitive false)"
+
+#: contents/ui/components/Labels.qml
+msgid "Only the product name matches: %1 → %2"
+msgstr "Doar numele produsului se potrivește: %1 → %2"
+
+#: contents/ui/components/Labels.qml
+msgid "Only the product name matches; the vendor does not."
+msgstr "Doar numele produsului se potrivește; furnizorul nu."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE record does not say which product or version it affects."
+msgstr "Înregistrarea CVE nu indică produsul sau versiunea afectată."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE record has no affected version range."
+msgstr "Înregistrarea CVE nu are un interval de versiuni afectate."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE's version scheme does not compare with the installed version."
+msgstr "Schema de versiuni a CVE nu se compară cu versiunea instalată."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE is scoped to a distribution or platform, not to this package."
+msgstr "CVE-ul este limitat la o distribuție sau platformă, nu la acest pachet."
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass could not confirm that this CVE describes the installed package."
+msgstr "Trecerea de triaj nu a putut confirma că acest CVE descrie pachetul instalat."
+
+#: contents/ui/components/Labels.qml
+msgid "Right-click the row and choose “Ignore this finding” if it is a false positive."
+msgstr "Faceți clic dreapta pe rând și alegeți „Ignoră această constatare” dacă este un pozitiv fals."
+
+#: contents/ui/components/Labels.qml
 msgid "Ignore this finding (false positive)"
 msgstr "Ignoră această constatare (pozitiv fals)"
 
 #: contents/ui/components/Labels.qml
-msgid "%1 false positive hidden"
-msgid_plural "%1 false positives hidden"
-msgstr[0] "%1 pozitiv fals ascuns"
-msgstr[1] "%1 pozitive false ascunse"
-msgstr[2] "%1 de pozitive false ascunse"
-
-#: contents/ui/components/Labels.qml
-msgid "The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again."
-msgstr "Trecerea de triaj a decis că aceste constatări nu descriu pachetul instalat. Dezactivați setarea pentru a le afișa din nou."
+msgid "The parenthesised findings are hidden by the triage pass or ignored by you. Ignored findings can be restored in the settings."
+msgstr "Constatările din paranteze sunt ascunse de trecerea de triaj sau ignorate de dvs. Cele ignorate pot fi restaurate din setări."
 
 #: contents/ui/components/Labels.qml
 msgid "No vulnerabilities match your search or filters."
@@ -1026,3 +1059,12 @@ msgstr "Deschide jurnalul scanării"
 #: contents/ui/main.qml
 msgid "Open Nixpkgs Security Tracker"
 msgstr "Deschide trackerul de securitate Nixpkgs"
+
+#~ msgid "%1 false positive hidden"
+#~ msgid_plural "%1 false positives hidden"
+#~ msgstr[0] "%1 pozitiv fals ascuns"
+#~ msgstr[1] "%1 pozitive false ascunse"
+#~ msgstr[2] "%1 de pozitive false ascunse"
+
+#~ msgid "The triage pass decided these findings do not describe the installed package. Turn the setting off to show them again."
+#~ msgstr "Trecerea de triaj a decis că aceste constatări nu descriu pachetul instalat. Dezactivați setarea pentru a le afișa din nou."

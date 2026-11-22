@@ -178,8 +178,15 @@ sudo nix develop --command node tools/triage.mjs \
 
 The **Triage verdicts** setting (configure dialog, enabled by default) hides
 `suppressed` findings from the list, the summary cards, the counts and the panel
-badge. The toolbar then shows how many findings were hidden; turning the setting
-off brings them back. `confirmed` and `unverified` findings are always shown.
+badge. The toolbar count shows them as `837 of 837 (+ 95 false positives)`;
+turning the setting off brings them back. `confirmed` and `unverified` findings
+are always shown.
+
+Unverified rows carry a **REVIEW** chip after the CVE id. Hovering it explains
+why the row could not be confirmed and, for a product-name match, names the CVE's
+own vendor → product (`Fidelis Cybersecurity → Fidelis Network`). That is what
+distinguishes a name collision from a real hit; the grouped review queue uses the
+same pair for its cluster headers.
 
 The applet also accepts the verdict on the finding itself (`verdict` and
 `verdict_reasons` in `status.json`), so a backend can supply it without a

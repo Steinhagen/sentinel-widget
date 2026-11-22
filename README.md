@@ -124,7 +124,10 @@ Right-click the widget and choose **Configure…**:
   positives (enabled by default). The verdicts come from
   `/var/lib/sentinel/triage.json`, written by
   [`tools/triage.mjs`](tools/triage.mjs), or from a `verdict` field on the
-  finding itself. See [docs/triage.md](docs/triage.md).
+  finding itself. Rows the pass could not confirm carry a **REVIEW** chip;
+  hover it to see what the CVE actually names (for example
+  `Fidelis Cybersecurity → Fidelis Network`). The toolbar count shows hidden
+  entries as `(+ N false positives)`. See [docs/triage.md](docs/triage.md).
 - **Ignored findings:** right-click a row and choose **Ignore this finding
   (false positive)** to hide a finding the scanners matched to the wrong
   package. The list is kept in the applet configuration; the same settings

@@ -159,24 +159,23 @@ RowLayout {
     }
 
     PlasmaComponents3.Label {
-        text: root.labels ? root.labels.countLabel(root.visibleCount, root.totalCount) : ""
-        opacity: 0.7
-        font.family: Kirigami.Theme.smallFont.family
-        font.pointSize: Kirigami.Theme.smallFont.pointSize
-    }
+        id: countLabelItem
 
-    PlasmaComponents3.Label {
-        visible: root.hiddenCount > 0
-        text: root.labels ? root.labels.triageHiddenLabel(root.hiddenCount) : ""
+        text: root.labels
+            ? root.labels.countLabel(root.visibleCount, root.totalCount, root.hiddenCount)
+            : ""
         opacity: 0.7
         font.family: Kirigami.Theme.smallFont.family
         font.pointSize: Kirigami.Theme.smallFont.pointSize
 
-        QQC2.ToolTip.text: root.labels ? root.labels.triageHiddenTooltip() : ""
-        QQC2.ToolTip.visible: hiddenCountArea.containsMouse
+        QQC2.ToolTip.text: root.hiddenCount > 0 && root.labels
+            ? root.labels.triageHiddenTooltip()
+            : ""
+        QQC2.ToolTip.visible: countHover.containsMouse
+            && QQC2.ToolTip.text.length > 0
 
         MouseArea {
-            id: hiddenCountArea
+            id: countHover
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.NoButton

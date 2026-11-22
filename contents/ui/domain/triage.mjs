@@ -70,7 +70,9 @@ export function parseTriageText(text) {
         }
         byKey[keyOf(entry)] = {
             verdict: verdict,
-            reasons: arrayOf(entry.reasons).map(String)
+            reasons: arrayOf(entry.reasons).map(String),
+            vendor: stringOf(entry.vendor),
+            product: stringOf(entry.product)
         };
         counts[verdict] += 1;
     }
@@ -96,6 +98,36 @@ export function verdictOf(finding, triage) {
     }
     const entry = triage.byKey[keyOf(finding)];
     return entry && isVerdict(entry.verdict) ? entry.verdict : "";
+}
+
+/** Verdict, reasons and the CVE's identity for one finding. */
+export function detailsOf(finding, triage) {
+    const empty = { verdict: "", reasons: [], vendor: "", product: "" };
+    if (!finding || typeof finding !== "object") {
+        return empty;
+    }
+    const embedded = stringOf(finding.verdict);
+    if (isVerdict(embedded)) {
+        return {
+            verdict: embedded,
+            reasons: arrayOf(finding.verdict_reasons).map(String),
+            vendor: "",
+            product: ""
+        };
+    }
+    if (!triage || !triage.byKey) {
+        return empty;
+    }
+    const entry = triage.byKey[keyOf(finding)];
+    if (!entry) {
+        return empty;
+    }
+    return {
+        verdict: entry.verdict,
+        reasons: entry.reasons || [],
+        vendor: entry.vendor || "",
+        product: entry.product || ""
+    };
 }
 
 /** The reasons behind a finding's verdict, if any. */

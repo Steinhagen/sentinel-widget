@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+    detailsOf,
     isIgnored,
     isVerdict,
     keyOf,
@@ -148,4 +149,48 @@ test("ignored pairs and report verdicts hide together", () => {
     ]);
     assert.equal(suppressedCount(findings, parsed, true, pairs), 2);
     assert.equal(visibleFindings(findings, parsed, true, pairs).length, 2);
+});
+
+test("parseTriageText keeps the CVE identity for the tooltip", () => {
+    const parsed = parseTriageText(JSON.stringify({
+        findings: [{
+            id: "CVE-2021-24028",
+            package: "thrift",
+            version: "0.25.0",
+            verdict: "unverified",
+            reasons: ["product-only-match"],
+            vendor: "Facebook",
+            product: "Facebook Thrift",
+        }],
+    }));
+    const details = detailsOf(
+        { id: "CVE-2021-24028", package: "thrift", version: "0.25.0" }, parsed);
+    assert.deepEqual(details, {
+        verdict: "unverified",
+        reasons: ["product-only-match"],
+        vendor: "Facebook",
+        product: "Facebook Thrift",
+    });
+    assert.deepEqual(detailsOf({ id: "CVE-2021-24028", package: "other" }, parsed), {
+        verdict: "",
+        reasons: [],
+        vendor: "",
+        product: "",
+    });
+});
+
+test("detailsOf falls back to an embedded verdict", () => {
+    const details = detailsOf({
+        id: "CVE-2026-1",
+        package: "ffmpeg",
+        version: "9.0.2",
+        verdict: "unverified",
+        verdict_reasons: ["no-version-range"],
+    }, null);
+    assert.deepEqual(details, {
+        verdict: "unverified",
+        reasons: ["no-version-range"],
+        vendor: "",
+        product: "",
+    });
 });

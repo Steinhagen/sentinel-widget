@@ -216,6 +216,12 @@ QtObject {
             row.viaLabel = vm.labels && vm.labels.viaLabel
                 ? vm.labels.viaLabel(row)
                 : (row.scanners.join(", ") + " " + row.confidence);
+            const triageInfo = Triage.detailsOf(row, vm.triage);
+            row.triageVerdict = triageInfo.verdict;
+            row.triageReasons = triageInfo.reasons;
+            row.triageVendor = triageInfo.vendor;
+            row.triageProduct = triageInfo.product;
+            row.needsReview = triageInfo.verdict === "unverified";
             row.searchText = row.searchText
                 + " " + String(fixText).toLowerCase()
                 + " " + String(row.viaLabel).toLowerCase();

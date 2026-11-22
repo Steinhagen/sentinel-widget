@@ -38,6 +38,13 @@ QtObject {
     readonly property color fixesSurface: darkMode
         ? Qt.rgba(0.05, 0.72, 0.50, 0.22)
         : Qt.rgba(0.05, 0.72, 0.50, 0.10)
+    readonly property color reviewColor: darkMode ? "#f3d79a" : "#8a5a00"
+    readonly property color reviewSurface: darkMode
+        ? Qt.rgba(0.98, 0.75, 0.28, 0.16)
+        : Qt.rgba(0.98, 0.75, 0.28, 0.22)
+    readonly property color reviewBorder: darkMode
+        ? Qt.rgba(0.98, 0.75, 0.28, 0.45)
+        : Qt.rgba(0.55, 0.38, 0.05, 0.35)
 
     function severityBandColor(band) {
         switch (band) {
