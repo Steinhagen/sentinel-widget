@@ -9,13 +9,14 @@ into a compact security dashboard.
 
 ## Features
 
-- Four dashboard cards: highest CVSS score, severity mix, available fixes and
-  the top package that introduces findings.
-- Sortable and filterable table with CVE, package, version, fix state, scanner
-  and dependency-origin columns.
-- Per-column filters, text search and severity chips.
-- Resizable columns with persisted widths.
-- Table scrolls independently; the header, filters and column headers stay fixed.
+- Three dashboard cards: highest CVSS score, severity mix and available fixes.
+  Dependency origins are shown in the findings list and group-by-origin mode.
+- Two-line findings list: CVSS score, CVE, package + version, fix status, and
+  the full dependency-origin chain underneath.
+- Flat list by default, with an optional **Group by origin** mode that turns
+  each origin into a section header.
+- Search plus a compact **Filters** menu for severity and fix state.
+- Table scrolls independently.
 - A single scan timestamp in the header: relative time, with the exact time on
   hover.
 - Light and dark themes follow the system color scheme automatically.
@@ -107,8 +108,10 @@ Right-click the widget and choose **Configure…**:
 - **Panel badge:** finding count, dot, or hidden.
 - **Tracker API token:** used for authenticated Nixpkgs security tracker lookups.
 
-Column widths are saved automatically. Use the context menu's **Reset Column
-Widths** action to restore the defaults.
+Use the list's **Filters** menu for severity and fix state, and the
+**Group by origin** toggle to switch between the flat list and origin sections.
+The CSV report and scan log are in the widget's context menu; hover the summary
+line under the title for the About/help text.
 
 ## Development
 
@@ -118,7 +121,7 @@ kpackagetool6 --type Plasma/Applet --install .
 ```
 
 The QML uses `Kirigami.Theme`; test both light and dark system color schemes.
-The table and summary cards are designed for a minimum width of 50 grid units.
+The table and summary cards are designed for a minimum width of 36 grid units.
 
 ## License
 

@@ -93,9 +93,6 @@ PlasmoidItem {
     readonly property color fixesSurface: root.darkMode
         ? Qt.rgba(0.05, 0.72, 0.50, 0.22)
         : Qt.rgba(0.05, 0.72, 0.50, 0.10)
-    readonly property color originSurface: root.darkMode
-        ? Qt.rgba(0.98, 0.57, 0.24, 0.22)
-        : Qt.rgba(0.98, 0.57, 0.24, 0.10)
 
     readonly property string postureLabel: {
         switch (root.state) {
@@ -106,26 +103,6 @@ PlasmoidItem {
         }
     }
     readonly property int fixedCount: root.filterBandCount(root.masterFilterBands, "fixed")
-    readonly property var topOrigin: {
-        var counts = {};
-        for (var i = 0; i < root.vulnerabilities.length; ++i) {
-            var name = root.originName(root.vulnerabilities[i]);
-            if (name.length > 0) {
-                counts[name] = (counts[name] || 0) + 1;
-            }
-        }
-        var best = "";
-        var bestCount = 0;
-        for (var key in counts) {
-            if (counts[key] > bestCount) {
-                best = key;
-                bestCount = counts[key];
-            }
-        }
-        return { name: best, count: bestCount };
-    }
-    readonly property string topOriginName: root.topOrigin.name
-    readonly property int topOriginCount: root.topOrigin.count
     readonly property int trackedCves: root.trackerSummary && root.trackerSummary.cves ? Number(root.trackerSummary.cves) : 0
 
     readonly property int affectedPackages: {
@@ -506,11 +483,10 @@ PlasmoidItem {
         if (root.trackerSummaryText.length > 0) {
             parts.push(root.trackerSummaryText);
         }
-        parts.push(i18n("Scores and versions come from the scanned system; NixOS may already carry a backported fix. “Detected by” lists the scan engines and the confidence of the match."));
-        parts.push(i18n("“Origin” names the top-level package that pulls in the vulnerable component (for example a compatibility layer bundling an older library). Click an Origin value to filter to that package. Origin data is written by the scan service; if the column is empty, run “Scan now”."));
-        parts.push(i18n("Drag the right edge of a column header to resize it; the widths are saved with the applet. The context menu has “Reset Column Widths”."));
-        parts.push(root.confidenceHelpText);
+        parts.push(i18n("Scores and versions come from the scanned system; NixOS may already carry a backported fix."));
+        parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use “Group by origin” to group the list by the package that pulled each finding in. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
         parts.push(root.masterHelpText);
+        parts.push(i18n("The CSV report and scan log are available from the widget's context menu."));
         return parts.join("\n\n");
     }
 
@@ -642,6 +618,9 @@ PlasmoidItem {
     property string filterMasterState: ""
     property string filterTracker: ""
     property string severityBand: ""
+    // 02 (flat two-line rows) is the default; 04 groups by the package that
+    // introduced each finding.
+    property bool groupByOrigin: false
 
     // Column widths are stored in grid units so they survive theme/DPI
     // changes. The header drag handles write columnWidths; columnPixels turns
@@ -685,6 +664,27 @@ PlasmoidItem {
     readonly property real masterColumnWidth: root.columnPixels["master"] || 0
     readonly property real viaColumnWidth: root.columnPixels["via"] || 0
     readonly property real actionColumnWidth: Kirigami.Units.gridUnit * 1.6
+
+    // All fix pills share one width. Measure the longest label the current
+    // locale can produce and centre the text inside that width.
+    TextMetrics { id: fixMetricFixed; font: Kirigami.Theme.smallFont; text: i18n("fixed") }
+    TextMetrics { id: fixMetricStaging; font: Kirigami.Theme.smallFont; text: i18n("staging") }
+    TextMetrics { id: fixMetricMaster; font: Kirigami.Theme.smallFont; text: i18n("master") }
+    TextMetrics { id: fixMetricIssue; font: Kirigami.Theme.smallFont; text: i18n("issue") }
+    TextMetrics { id: fixMetricNoFix; font: Kirigami.Theme.smallFont; text: i18n("no fix") }
+    TextMetrics { id: fixMetricUnknown; font: Kirigami.Theme.smallFont; text: i18n("unknown") }
+    TextMetrics { id: fixMetricNa; font: Kirigami.Theme.smallFont; text: i18n("n/a") }
+    TextMetrics { id: fixMetricUnstable; font: Kirigami.Theme.smallFont; text: i18n("unstable") }
+
+    readonly property real fixPillWidth: Math.max(
+        fixMetricFixed.width,
+        fixMetricStaging.width,
+        fixMetricMaster.width,
+        fixMetricIssue.width,
+        fixMetricNoFix.width,
+        fixMetricUnknown.width,
+        fixMetricNa.width,
+        fixMetricUnstable.width) + Kirigami.Units.smallSpacing * 2.2
 
     Component.onCompleted: root.columnWidths = root.loadColumnWidths()
 
@@ -774,6 +774,71 @@ PlasmoidItem {
         });
         return result;
     }
+
+    function originGroupKey(item) {
+        var name = root.originName(item);
+        return name.length > 0 ? name : i18n("Unknown origin");
+    }
+
+    function originGroupCount(name) {
+        var count = 0;
+        for (var i = 0; i < root.filteredVulnerabilities.length; ++i) {
+            if (root.originGroupKey(root.filteredVulnerabilities[i]) === name) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    // 04: order findings by origin group, with the highest-severity group
+    // first, and by severity inside each group. ListView's section support
+    // uses the originKey added to each copy.
+    readonly property var groupedVulnerabilities: {
+        var source = root.filteredVulnerabilities;
+        var groups = {};
+        var order = [];
+        for (var i = 0; i < source.length; ++i) {
+            var item = source[i];
+            var key = root.originGroupKey(item);
+            if (!groups[key]) {
+                groups[key] = { items: [], maxSeverity: -1 };
+                order.push(key);
+            }
+            groups[key].items.push(item);
+            var severity = root.hasSeverityScore(item.severity) ? Number(item.severity) : -1;
+            if (severity > groups[key].maxSeverity) {
+                groups[key].maxSeverity = severity;
+            }
+        }
+        order.sort(function (a, b) {
+            if (groups[a].maxSeverity !== groups[b].maxSeverity) {
+                return groups[b].maxSeverity - groups[a].maxSeverity;
+            }
+            if (groups[a].items.length !== groups[b].items.length) {
+                return groups[b].items.length - groups[a].items.length;
+            }
+            return a.localeCompare(b);
+        });
+        var result = [];
+        for (var g = 0; g < order.length; ++g) {
+            var name = order[g];
+            var group = groups[name];
+            for (var j = 0; j < group.items.length; ++j) {
+                var copy = {};
+                for (var prop in group.items[j]) {
+                    copy[prop] = group.items[j][prop];
+                }
+                copy.originKey = name;
+                copy.originCount = group.items.length;
+                result.push(copy);
+            }
+        }
+        return result;
+    }
+
+    readonly property var displayedVulnerabilities: root.groupByOrigin
+        ? root.groupedVulnerabilities
+        : root.filteredVulnerabilities
 
     readonly property bool anyFilterActive: root.searchText.length > 0
         || root.severityBand.length > 0
@@ -1006,7 +1071,7 @@ PlasmoidItem {
         return (scanners && scanners.length) ? scanners.join(", ") : "—";
     }
 
-    readonly property string masterHelpText: i18n("The Fix column names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n\n• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n• 26.05 — fixed on another line; it is not on the way to this system's channel.\n• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n• no fix — still affected in every branch that was checked.\n• unknown / n/a / — — no verdict, no coverage, or no data.\n\nHover a row for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs.")
+    readonly property string masterHelpText: i18n("The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n\n• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n• 26.05 — fixed on another line; it is not on the way to this system's channel.\n• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n• no fix — still affected in every branch that was checked.\n• unknown / n/a / — — no verdict, no coverage, or no data.\n\nHover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs.")
 
     readonly property string confidenceHelpText: i18n("“Detected by” lists the scan engines that reported the finding and how closely each matched it to the installed package:\n\n• exact — the package and version/derivation match the vulnerability record exactly.\n• expanded — the component was found by expanding an SBOM or bundled component, so the match is indirect.\n• mixed — some scanners matched exactly and some by expansion.\n• version only — only the package name and version were matched; the exact derivation was not confirmed.\n\nvulnix scans Nix derivations; grype scans the SBOM and its components.")
 
@@ -1073,7 +1138,36 @@ PlasmoidItem {
     function originChainText(item) {
         var origins = item ? item.origins : null;
         var chain = origins ? origins.chain : null;
-        return (chain && chain.length) ? chain.join(" → ") : "";
+        if (!chain || !chain.length) {
+            return "";
+        }
+        // The backend can repeat a node (e.g. the top-level package appears
+        // twice); collapse consecutive duplicates so the path stays readable.
+        var parts = [];
+        for (var i = 0; i < chain.length; ++i) {
+            var node = String(chain[i] || "");
+            if (node.length === 0 || (parts.length > 0 && parts[parts.length - 1] === node)) {
+                continue;
+            }
+            parts.push(node);
+        }
+        // The last node is the vulnerable package itself; the row already
+        // shows its version, so drop a trailing version/output suffix.
+        if (item && item.package && item.version && parts.length > 0) {
+            var last = parts[parts.length - 1];
+            if (last.indexOf(item.package + "-") === 0 && last.indexOf(item.version) >= 0) {
+                parts[parts.length - 1] = item.package;
+            }
+        }
+        if (parts.length > 1 && parts[parts.length - 1] === parts[parts.length - 2]) {
+            parts.pop();
+        }
+        // A chain that only names the vulnerable package adds nothing to the
+        // package cell above it.
+        if (parts.length === 1 && item && parts[0] === item.package) {
+            return "";
+        }
+        return parts.join(" → ");
     }
 
     function originTooltip(item) {
@@ -1442,6 +1536,13 @@ PlasmoidItem {
         }
     }
 
+    // The row pill always gets a readable status; "—" means the backend did
+    // not provide a fix verdict, so say that instead of hiding the column.
+    function fixStatusText(item) {
+        var text = root.masterText(item);
+        return (text.length === 0 || text === "—") ? i18n("unknown") : text;
+    }
+
     function masterColor(item) {
         switch (root.fixBucket(item)) {
         case "fixed":
@@ -1716,6 +1817,11 @@ PlasmoidItem {
         root.scrollToTopRequest += 1;
     }
 
+    function setMasterStateFilter(state) {
+        root.filterMasterState = state;
+        root.scrollToTopRequest += 1;
+    }
+
     function copyToClipboard(value) {
         if (!value) {
             return;
@@ -1895,11 +2001,6 @@ PlasmoidItem {
             text: i18n("Open Nixpkgs Security Tracker")
             icon.name: "internet-services"
             onTriggered: Qt.openUrlExternally(root.trackerBase)
-        },
-        PlasmaCore.Action {
-            text: i18n("Reset Column Widths")
-            icon.name: "edit-reset"
-            onTriggered: root.resetColumnWidths()
         }
     ]
 
@@ -2094,6 +2195,7 @@ PlasmoidItem {
             root.filterOrigin = "";
             root.filterVersion = "";
             root.filterVia = "";
+            root.filterMaster = "";
             root.filterMasterState = "";
             root.filterTracker = "";
             root.severityBand = "";
@@ -2128,8 +2230,7 @@ PlasmoidItem {
 
         function showFixes() {
             clearFilters();
-            root.filterRowVisible = true;
-            root.filterMaster = "fixed";
+            root.filterMasterState = "fixed";
             root.scrollToTopRequest += 1;
         }
 
@@ -2138,14 +2239,20 @@ PlasmoidItem {
             root.scrollToTopRequest += 1;
         }
 
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 50
-        Layout.preferredWidth: Kirigami.Units.gridUnit * 50
+        Layout.minimumWidth: Kirigami.Units.gridUnit * 36
+        Layout.preferredWidth: Kirigami.Units.gridUnit * 36
         Layout.minimumHeight: Kirigami.Units.gridUnit * 18
         // Tall, stable popup while findings exist so the list gets the
         // remaining space; content-driven otherwise.
         Layout.preferredHeight: root.hasFindings
             ? Kirigami.Units.gridUnit * 46
             : Kirigami.Units.gridUnit * 30
+
+        // The summary cards need vertical room; below this threshold they
+        // would overlap the table. Hide them (and the optional filter row) so
+        // the header summary and the findings list stay usable when the popup
+        // is resized very small.
+        readonly property bool compactLayout: height < Kirigami.Units.gridUnit * 22
 
         header: PlasmaExtras.PlasmoidHeading {
             contentItem: RowLayout {
@@ -2211,12 +2318,18 @@ PlasmoidItem {
                             id: detailHover
                         }
 
-                        // Error detail only; the scan timestamp lives in the
-                        // label next to "Scan now" so it is not repeated here.
-                        QQC2.ToolTip.text: root.state === "unknown" ? (root.status.error || "") : ""
+                        // The header buttons were removed; the help that used to
+                        // live behind the About icon is available on this
+                        // summary line. An error takes precedence.
+                        QQC2.ToolTip.text: {
+                            var parts = [];
+                            if (root.state === "unknown" && root.status.error) {
+                                parts.push(root.status.error);
+                            }
+                            parts.push(root.resultInfoText);
+                            return parts.join("\n\n");
+                        }
                         QQC2.ToolTip.visible: detailHover.hovered
-                            && root.state === "unknown"
-                            && (root.status.error || "").length > 0
                     }
                 }
 
@@ -2234,6 +2347,71 @@ PlasmoidItem {
                     QQC2.ToolTip.text: root.lastScanTooltip
                     QQC2.ToolTip.visible: lastScanHover.hovered
                         && root.lastScanTooltip.length > 0
+                }
+
+                // Post-scan tracker work is reported here instead of taking a
+                // full row at the bottom of the popup. Use a spinner while the
+                // phase has no total, then a compact determinate bar.
+                PlasmaComponents3.BusyIndicator {
+                    visible: root.trackerBusy && root.trackerProgressTotal <= 0
+                    running: visible
+                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
+
+                    HoverHandler {
+                        id: trackerSpinnerHover
+                    }
+
+                    QQC2.ToolTip.text: root.trackerProgressText
+                    QQC2.ToolTip.visible: trackerSpinnerHover.hovered
+                        && root.trackerProgressText.length > 0
+                }
+
+                Item {
+                    visible: root.trackerBusy && root.trackerProgressTotal > 0
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 4
+                    Layout.minimumWidth: Kirigami.Units.gridUnit * 4
+                    Layout.maximumWidth: Kirigami.Units.gridUnit * 4
+                    Layout.preferredHeight: Math.max(5,
+                        Math.round(Kirigami.Units.gridUnit * 0.4))
+
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: height / 2
+                        color: root.hairline
+                    }
+
+                    Rectangle {
+                        width: parent.width * Math.min(1,
+                            root.trackerProgressDone / Math.max(1, root.trackerProgressTotal))
+                        height: parent.height
+                        radius: height / 2
+                        color: root.primaryColor
+                    }
+
+                    HoverHandler {
+                        id: trackerProgressHover
+                    }
+
+                    QQC2.ToolTip.text: root.trackerProgressText
+                    QQC2.ToolTip.visible: trackerProgressHover.hovered
+                        && root.trackerProgressText.length > 0
+                }
+
+                Kirigami.Icon {
+                    visible: !root.trackerBusy && root.trackerProgressText.length > 0
+                    source: "dialog-warning"
+                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
+                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
+                    color: Kirigami.Theme.neutralTextColor
+
+                    HoverHandler {
+                        id: trackerWarningHover
+                    }
+
+                    QQC2.ToolTip.text: root.trackerProgressText
+                    QQC2.ToolTip.visible: trackerWarningHover.hovered
+                        && root.trackerProgressText.length > 0
                 }
 
                 QQC2.Button {
@@ -2273,35 +2451,6 @@ PlasmoidItem {
                 }
 
                 PlasmaComponents3.ToolButton {
-                    icon.name: "document-open"
-                    text: i18n("Open report")
-                    display: QQC2.AbstractButton.IconOnly
-                    visible: root.haveStatus
-                    onClicked: root.openReport()
-
-                    QQC2.ToolTip.text: i18n("Open the CSV report in a spreadsheet or text editor")
-                    QQC2.ToolTip.visible: hovered
-                }
-
-                PlasmaComponents3.ToolButton {
-                    icon.name: "text-x-generic"
-                    text: i18n("Open scan log")
-                    display: QQC2.AbstractButton.IconOnly
-                    onClicked: root.openLog()
-
-                    QQC2.ToolTip.text: i18n("Open the log of the last scan")
-                    QQC2.ToolTip.visible: hovered
-                }
-
-                PlasmaComponents3.ToolButton {
-                    icon.name: "help-about"
-                    text: i18n("About these results")
-                    display: QQC2.AbstractButton.IconOnly
-                    QQC2.ToolTip.text: root.resultInfoText
-                    QQC2.ToolTip.visible: hovered
-                }
-
-                PlasmaComponents3.ToolButton {
                     icon.name: "configure"
                     text: i18n("Settings")
                     display: QQC2.AbstractButton.IconOnly
@@ -2329,14 +2478,19 @@ PlasmoidItem {
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.preferredHeight: Kirigami.Units.gridUnit * 6.2
+                    Layout.maximumHeight: Kirigami.Units.gridUnit * 6.2
                     spacing: Kirigami.Units.gridUnit * 0.55
-                    visible: root.hasFindings
+                    visible: root.hasFindings && !fullRoot.compactLayout
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     // Risk
                     Rectangle {
-                        Layout.fillWidth: true
+                        Layout.fillWidth: false
                         Layout.fillHeight: true
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 16.0
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 15.5
                         radius: 16
                         color: root.cardColor
                         border.width: 1
@@ -2450,39 +2604,13 @@ PlasmoidItem {
                                         font.pointSize: Kirigami.Theme.smallFont.pointSize
                                     }
                                 }
-
-                                Item {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: Kirigami.Units.smallSpacing
-                                }
-
-                                Item {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: Math.max(14, Kirigami.Theme.smallFont.pointSize + 6)
-
-                                    PlasmaComponents3.Label {
-                                        anchors.left: parent.left
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: i18n("Review fixes →")
-                                        color: root.primaryColor
-                                        font.bold: true
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: showFixes()
-                                    }
-                                }
                             }
                         }
                     }
 
                     // Severity
                     Rectangle {
-                        Layout.fillWidth: true
+                        Layout.fillWidth: false
                         Layout.fillHeight: true
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 9.0
                         radius: 16
@@ -2581,7 +2709,7 @@ PlasmoidItem {
 
                     // Fixes
                     Rectangle {
-                        Layout.fillWidth: true
+                        Layout.fillWidth: false
                         Layout.fillHeight: true
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 9.0
                         radius: 16
@@ -2628,9 +2756,7 @@ PlasmoidItem {
                                 PlasmaComponents3.Label {
                                     anchors.left: parent.left
                                     anchors.verticalCenter: parent.verticalCenter
-                                    text: root.topOriginCount > 0
-                                        ? i18n("%1 from %2 →", root.topOriginCount, root.topOriginName)
-                                        : i18n("Review fixes →")
+                                    text: i18n("Review fixes →")
                                     color: Kirigami.Theme.positiveTextColor
                                     font.bold: true
                                     font.family: Kirigami.Theme.smallFont.family
@@ -2647,92 +2773,14 @@ PlasmoidItem {
                         }
                     }
 
-                    // Origin
-                    Rectangle {
+                    Item {
                         Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 9.0
-                        radius: 16
-                        color: root.originSurface
-                        border.width: 1
-                        border.color: root.cardBorder
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: Kirigami.Units.gridUnit * 0.4
-                            spacing: 2
-
-                            PlasmaComponents3.Label {
-                                text: i18n("TOP ORIGIN")
-                                color: root.mutedText
-                                font.bold: true
-                                font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                                font.letterSpacing: 0.6
-                            }
-
-                            PlasmaComponents3.Label {
-                                Layout.fillWidth: true
-                                text: root.topOriginName.length > 0 ? root.topOriginName : "—"
-                                color: Kirigami.Theme.textColor
-                                font.bold: true
-                                font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.0)
-                                elide: Text.ElideRight
-                            }
-
-                            RowLayout {
-                                spacing: 4
-
-                                PlasmaComponents3.Label {
-                                    text: root.topOriginCount
-                                    color: root.highColor
-                                    font.bold: true
-                                    font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.35)
-                                }
-
-                                PlasmaComponents3.Label {
-                                    text: i18n("findings")
-                                    color: root.mutedText
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                }
-                            }
-
-                            Item {
-                                Layout.fillHeight: true
-                            }
-
-                            Rectangle {
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 5
-                                radius: 99
-                                color: root.hairline
-
-                                Rectangle {
-                                    width: parent.width * Math.min(1, root.topOriginCount / Math.max(1, root.findings))
-                                    height: parent.height
-                                    radius: 99
-                                    color: root.highColor
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: root.topOriginName.length > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            onClicked: {
-                                if (root.topOriginName.length > 0) {
-                                    showOrigin(root.topOriginName);
-                                }
-                            }
-
-                            QQC2.ToolTip.text: root.topOriginName
-                            QQC2.ToolTip.visible: containsMouse && root.topOriginName.length > 0
-                        }
                     }
                 }
 
-                // One toolbar: search plus the three quick filters.
+                // One compact toolbar: search, filters and origin grouping.
+                // The old column header/filter rows duplicated information and
+                // are gone; severity is conveyed by the row colour.
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
@@ -2764,61 +2812,126 @@ PlasmoidItem {
                     }
 
                     PlasmaComponents3.ToolButton {
-                        icon.name: "search"
-                        text: i18n("Search")
-                        display: QQC2.AbstractButton.IconOnly
-                        onClicked: {
-                            root.scrollToTopRequest += 1;
-                            searchField.focus = false;
-                        }
+                        id: filtersButton
 
-                        QQC2.ToolTip.text: i18n("Run the search (Enter)")
+                        text: i18n("Filters")
+                        icon.name: "view-filter"
+                        display: QQC2.AbstractButton.TextBesideIcon
+                        onClicked: filtersMenu.popup(filtersButton, 0, filtersButton.height)
+
+                        QQC2.ToolTip.text: i18n("Filter by severity or fix state")
                         QQC2.ToolTip.visible: hovered
                     }
 
-                    RowLayout {
-                        spacing: Kirigami.Units.smallSpacing / 2
+                    QQC2.Menu {
+                        id: filtersMenu
 
-                        Repeater {
-                            model: root.severityBands.slice(0, 5)
+                        QQC2.MenuItem {
+                            text: i18n("All severities")
+                            checkable: true
+                            checked: root.severityBand === ""
+                            onTriggered: root.setSeverityBand("")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Critical")
+                            checkable: true
+                            checked: root.severityBand === "critical"
+                            onTriggered: root.setSeverityBand("critical")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("High")
+                            checkable: true
+                            checked: root.severityBand === "high"
+                            onTriggered: root.setSeverityBand("high")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Medium")
+                            checkable: true
+                            checked: root.severityBand === "medium"
+                            onTriggered: root.setSeverityBand("medium")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Low")
+                            checkable: true
+                            checked: root.severityBand === "low"
+                            onTriggered: root.setSeverityBand("low")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Unknown severity")
+                            checkable: true
+                            checked: root.severityBand === "unknown"
+                            onTriggered: root.setSeverityBand("unknown")
+                        }
 
-                            delegate: Rectangle {
-                                Layout.preferredHeight: Math.round(Kirigami.Units.gridUnit * 1.35)
-                                Layout.preferredWidth: chipLabel.implicitWidth + Kirigami.Units.smallSpacing * 2
-                                radius: 99
-                                color: root.severityBand === modelData.key ? root.primaryColor : "transparent"
-                                border.width: 1
-                                border.color: root.severityBand === modelData.key ? root.primaryColor : root.cardBorder
+                        QQC2.MenuSeparator {}
 
-                                PlasmaComponents3.Label {
-                                    id: chipLabel
+                        QQC2.MenuItem {
+                            text: i18n("All fix states")
+                            checkable: true
+                            checked: root.filterMasterState === ""
+                            onTriggered: root.setMasterStateFilter("")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Fix available")
+                            checkable: true
+                            checked: root.filterMasterState === "fixed"
+                            onTriggered: root.setMasterStateFilter("fixed")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Fix pending")
+                            checkable: true
+                            checked: root.filterMasterState === "progress"
+                            onTriggered: root.setMasterStateFilter("progress")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("No fix")
+                            checkable: true
+                            checked: root.filterMasterState === "none"
+                            onTriggered: root.setMasterStateFilter("none")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("Unknown fix state")
+                            checkable: true
+                            checked: root.filterMasterState === "unknown"
+                            onTriggered: root.setMasterStateFilter("unknown")
+                        }
+                        QQC2.MenuItem {
+                            text: i18n("n/a")
+                            checkable: true
+                            checked: root.filterMasterState === "n/a"
+                            onTriggered: root.setMasterStateFilter("n/a")
+                        }
 
-                                    anchors.centerIn: parent
-                                    text: i18n("%1 %2", modelData.label, modelData.count)
-                                    color: root.severityBand === modelData.key ? root.primaryText : root.mutedText
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                    font.bold: root.severityBand === modelData.key
-                                }
+                        QQC2.MenuSeparator {}
 
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: setSeverity(modelData.key)
-                                }
-                            }
+                        QQC2.MenuItem {
+                            text: i18n("Clear filters")
+                            icon.name: "edit-clear-all"
+                            enabled: root.anyFilterActive
+                            onTriggered: clearFilters()
                         }
                     }
 
                     PlasmaComponents3.ToolButton {
-                        icon.name: "view-filter"
-                        text: i18n("More filters")
-                        display: QQC2.AbstractButton.IconOnly
-                        checkable: true
-                        checked: root.filterRowVisible
-                        onToggled: root.filterRowVisible = checked
+                        id: groupByButton
 
-                        QQC2.ToolTip.text: i18n("More filters: one field per column")
+                        // The icon shows the current view: the list icon in
+                        // flat mode, the grouped/tree icon in origin mode.
+                        icon.name: root.groupByOrigin
+                            ? "view-list-tree"
+                            : "view-list-details"
+                        text: root.groupByOrigin
+                            ? i18n("Show flat list")
+                            : i18n("Group by origin")
+                        display: QQC2.AbstractButton.IconOnly
+                        onClicked: {
+                            root.groupByOrigin = !root.groupByOrigin;
+                            root.scrollToTopRequest += 1;
+                        }
+
+                        QQC2.ToolTip.text: root.groupByOrigin
+                            ? i18n("Show the flat findings list")
+                            : i18n("Group findings by the package that introduced them")
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -2826,10 +2939,10 @@ PlasmoidItem {
                         icon.name: "edit-clear-all"
                         text: i18n("Clear filters")
                         display: QQC2.AbstractButton.IconOnly
-                        enabled: root.anyFilterActive
+                        visible: root.anyFilterActive
                         onClicked: clearFilters()
 
-                        QQC2.ToolTip.text: i18n("Clear the search, filters and column fields")
+                        QQC2.ToolTip.text: i18n("Clear the search and filters")
                         QQC2.ToolTip.visible: hovered
                     }
 
@@ -2841,233 +2954,14 @@ PlasmoidItem {
                     }
                 }
 
-                // Sortable column headers; click to sort, click again to reverse.
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
-                    visible: root.hasFindings
-
-                    Repeater {
-                        model: root.columns
-
-                        delegate: Item {
-                            id: headerCell
-
-                            Layout.preferredWidth: root.columnPixels[modelData.key]
-                            Layout.minimumWidth: root.columnPixels[modelData.key]
-                            Layout.maximumWidth: root.columnPixels[modelData.key]
-                            implicitHeight: headerRow.implicitHeight
-
-                            Accessible.role: Accessible.ColumnHeader
-                            Accessible.name: modelData.label
-
-                            RowLayout {
-                                id: headerRow
-
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                spacing: Kirigami.Units.smallSpacing / 2
-
-                                PlasmaComponents3.Label {
-                                    id: headerLabel
-
-                                    text: modelData.label
-                                    Layout.fillWidth: false
-                                    color: root.sortKey === modelData.key
-                                        ? Kirigami.Theme.textColor
-                                        : (root.filterFor(modelData.key).length > 0
-                                            ? root.primaryColor
-                                            : root.faintText)
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                    font.bold: root.sortKey === modelData.key
-                                    elide: Text.ElideRight
-                                }
-
-                                Kirigami.Icon {
-                                    id: viaHelpIcon
-
-                                    source: "help-about"
-                                    visible: modelData.key === "via"
-                                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                                    opacity: 0.6
-
-                                    HoverHandler {
-                                        id: viaHelpHover
-                                    }
-
-                                    QQC2.ToolTip.text: root.confidenceHelpText
-                                    QQC2.ToolTip.visible: viaHelpHover.hovered
-                                }
-
-                                Kirigami.Icon {
-                                    id: masterHelpIcon
-
-                                    source: "help-about"
-                                    visible: modelData.key === "master"
-                                    Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                                    Layout.preferredHeight: Kirigami.Units.iconSizes.small
-                                    opacity: 0.6
-
-                                    HoverHandler {
-                                        id: masterHelpHover
-                                    }
-
-                                    QQC2.ToolTip.text: root.masterHelpText
-                                    QQC2.ToolTip.visible: masterHelpHover.hovered
-                                }
-
-                                PlasmaComponents3.Label {
-                                    id: sortIndicator
-
-                                    Layout.fillWidth: false
-                                    text: root.sortArrow(modelData.key)
-                                    color: root.sortKey === modelData.key ? root.primaryColor : root.faintText
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                }
-
-                                Item {
-                                    Layout.fillWidth: true
-                                }
-                            }
-
-                            HoverHandler {
-                                id: headerHover
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.toggleSort(modelData.key)
-                            }
-
-                            // Drag the right edge of a header to resize the
-                            // column. Widths live in grid units and are saved
-                            // to the applet configuration on release.
-                            Rectangle {
-                                id: columnResizeLine
-
-                                width: 2
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.bottom: parent.bottom
-                                color: columnResizeHandle.containsMouse || columnResizeHandle.pressed
-                                    ? Kirigami.Theme.highlightColor
-                                    : "transparent"
-                            }
-
-                            MouseArea {
-                                id: columnResizeHandle
-
-                                width: 8
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.bottom: parent.bottom
-                                cursorShape: Qt.SplitHCursor
-                                preventStealing: true
-                                hoverEnabled: true
-
-                                property real pressSceneX: 0
-                                property real pressWidth: 0
-                                property string columnKey: modelData.key
-
-                                onPressed: {
-                                    pressSceneX = mapToItem(null, mouse.x, mouse.y).x;
-                                    pressWidth = root.columnWidths[columnKey]
-                                        || root.columnDefaults[columnKey]
-                                        || 4.0;
-                                }
-
-                                onPositionChanged: {
-                                    if (!pressed) {
-                                        return;
-                                    }
-                                    var sceneX = mapToItem(null, mouse.x, mouse.y).x;
-                                    var delta = (sceneX - pressSceneX) / Kirigami.Units.gridUnit;
-                                    root.setColumnWidth(columnKey, pressWidth + delta);
-                                }
-
-                                onReleased: root.saveColumnWidths()
-                                onCanceled: root.saveColumnWidths()
-                            }
-
-                            QQC2.ToolTip.text: modelData.key === "origin"
-                                ? i18n("The top-level package that depends on the vulnerable component. Click an Origin value to show all findings from that package.") + "\n\n" + i18n("Click the header to sort.")
-                                : (modelData.key === "via"
-                                    ? root.confidenceHelpText + "\n\n" + i18n("Click the header to sort.")
-                                    : (modelData.key === "master"
-                                        ? root.masterHelpText + "\n\n" + i18n("Click the header to sort.")
-                                        : (root.sortKey === modelData.key
-                                            ? (root.sortDescending
-                                                ? i18n("Sorted descending — click for ascending")
-                                                : i18n("Sorted ascending — click for descending"))
-                                            : i18n("Sort by %1", modelData.label))))
-                            QQC2.ToolTip.visible: headerHover.hovered && !columnResizeHandle.containsMouse
-                        }
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
-
-                    Item {
-                        Layout.preferredWidth: root.actionColumnWidth
-                    }
-                }
-
-                // Optional per-column filter fields.
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Kirigami.Units.smallSpacing
-                    visible: root.hasFindings && root.filterRowVisible
-
-                    Repeater {
-                        model: root.columns
-
-                        delegate: PlasmaComponents3.TextField {
-                            id: filterField
-
-                            Layout.preferredWidth: root.columnPixels[modelData.key]
-                            Layout.minimumWidth: root.columnPixels[modelData.key]
-                            Layout.maximumWidth: root.columnPixels[modelData.key]
-                            placeholderText: modelData.label
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Kirigami.Theme.smallFont.pointSize
-                            leftPadding: Kirigami.Units.smallSpacing
-                            rightPadding: Kirigami.Units.smallSpacing
-
-                            Binding on text {
-                                value: root.filterFor(modelData.key)
-                                when: !filterField.activeFocus
-                                restoreMode: Binding.RestoreNone
-                            }
-
-                            onTextChanged: {
-                                if (text !== root.filterFor(modelData.key)) {
-                                    root.setFilter(modelData.key, text);
-                                }
-                            }
-                        }
-                    }
-
-                    Item {
-                        Layout.fillWidth: true
-                    }
-
-                    Item {
-                        Layout.preferredWidth: root.actionColumnWidth
-                    }
-                }
-
                 Rectangle {
                     id: listContainer
 
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.minimumHeight: Kirigami.Units.gridUnit * 8
+                    // Let the list shrink instead of forcing the whole column
+                    // past the popup height when the window is very short.
+                    Layout.minimumHeight: 0
                     visible: root.hasFindings
                     color: root.cardColor
                     radius: 12
@@ -3101,6 +2995,55 @@ PlasmoidItem {
                         }
                     }
 
+                    Component {
+                        id: originSection
+
+                        Item {
+                            width: findingsList.width - findingsList.rightMargin
+                            height: sectionHeader.implicitHeight + Kirigami.Units.smallSpacing * 2
+
+                            Rectangle {
+                                anchors.fill: parent
+                                anchors.topMargin: Kirigami.Units.smallSpacing
+                                radius: 6
+                                color: root.inputBackground
+                            }
+
+                            RowLayout {
+                                id: sectionHeader
+
+                                anchors.fill: parent
+                                anchors.leftMargin: Kirigami.Units.smallSpacing * 2
+                                anchors.rightMargin: Kirigami.Units.smallSpacing * 2
+                                spacing: Kirigami.Units.smallSpacing
+
+                                PlasmaComponents3.Label {
+                                    text: "◈"
+                                    color: root.primaryColor
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                }
+
+                                PlasmaComponents3.Label {
+                                    Layout.fillWidth: true
+                                    text: section
+                                    color: Kirigami.Theme.textColor
+                                    font.bold: true
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                    elide: Text.ElideRight
+                                }
+
+                                PlasmaComponents3.Label {
+                                    text: i18np("%1 finding", "%1 findings", root.originGroupCount(section))
+                                    color: root.mutedText
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                }
+                            }
+                        }
+                    }
+
                     ListView {
                         id: findingsList
 
@@ -3108,11 +3051,14 @@ PlasmoidItem {
                         clip: true
                         spacing: 0
                         boundsBehavior: Flickable.StopAtBounds
-                        model: root.filteredVulnerabilities
+                        model: root.displayedVulnerabilities
+                        section.property: root.groupByOrigin ? "originKey" : ""
+                        section.criteria: ViewSection.FullString
+                        section.delegate: originSection
                         onContentYChanged: root.listContentY = contentY
 
                         // Plasma scroll bars are overlays: reserve their width
-                        // so they cannot cover the trailing action button.
+                        // so they cannot cover the fix pill.
                         rightMargin: scrollBar.visible ? scrollBar.width + Kirigami.Units.smallSpacing * 2 : 0
 
                         QQC2.ScrollBar.vertical: PlasmaComponents3.ScrollBar {
@@ -3124,8 +3070,19 @@ PlasmoidItem {
                             id: findingItem
 
                             width: ListView.view.width - ListView.view.rightMargin
-                            leftPadding: 0
-                            rightPadding: 0
+                            // Keep one-line rows (no origin chain) as tall as
+                            // two-line rows so spacing and the click target
+                            // stay consistent.
+                            height: Math.max(contentItem.implicitHeight
+                                    + topPadding + bottomPadding,
+                                Kirigami.Units.gridUnit * 2.4)
+                            // The 3 px severity strip paints over the leading
+                            // edge; include it so the score has equal space on
+                            // both sides of its column.
+                            leftPadding: Kirigami.Units.smallSpacing + 3
+                            rightPadding: Kirigami.Units.smallSpacing
+                            topPadding: Kirigami.Units.smallSpacing
+                            bottomPadding: Kirigami.Units.smallSpacing
                             hoverEnabled: true
                             onClicked: root.openVulnerability(modelData)
 
@@ -3134,11 +3091,19 @@ PlasmoidItem {
 
                                 Rectangle {
                                     anchors.left: parent.left
+                                    anchors.top: parent.top
+                                    anchors.bottom: parent.bottom
+                                    width: 3
+                                    color: root.severityColor(modelData.severity)
+                                }
+
+                                Rectangle {
+                                    anchors.left: parent.left
                                     anchors.right: parent.right
                                     anchors.bottom: parent.bottom
                                     height: 1
                                     color: root.hairline
-                                    visible: index < root.filteredVulnerabilities.length - 1
+                                    visible: index < findingsList.count - 1
                                 }
                             }
 
@@ -3146,25 +3111,23 @@ PlasmoidItem {
                                 modelData.id || i18n("unknown CVE"),
                                 modelData.package || i18n("unknown package"),
                                 root.severityText(modelData.severity))
-                            Accessible.description: root.viaLabel(modelData)
+                            Accessible.description: root.originChainText(modelData)
 
-                            contentItem: RowLayout {
-                                spacing: Kirigami.Units.smallSpacing
+                            contentItem: ColumnLayout {
+                                spacing: 1
 
-                                Item {
-                                    id: severityCell
-
-                                    Layout.preferredWidth: root.sevColumnWidth
-                                    Layout.minimumWidth: root.sevColumnWidth
-                                    Layout.maximumWidth: root.sevColumnWidth
-                                    implicitHeight: severityLabel.implicitHeight
+                                // 02 and 04 share this first line. The flat view
+                                // adds the origin chain underneath; the grouped
+                                // view gets the origin from the section header.
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: Kirigami.Units.smallSpacing
 
                                     PlasmaComponents3.Label {
-                                        id: severityLabel
-
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
+                                        Layout.preferredWidth: Kirigami.Units.gridUnit * 2
+                                        Layout.minimumWidth: Kirigami.Units.gridUnit * 2
+                                        Layout.maximumWidth: Kirigami.Units.gridUnit * 2
+                                        horizontalAlignment: Text.AlignHCenter
                                         text: root.severityText(modelData.severity)
                                         color: root.severityColor(modelData.severity)
                                         font.family: Kirigami.Theme.smallFont.family
@@ -3172,22 +3135,13 @@ PlasmoidItem {
                                         font.bold: root.hasSeverityScore(modelData.severity)
                                             && modelData.severity >= 7
                                     }
-                                }
-
-                                Item {
-                                    id: cveCell
-
-                                    Layout.preferredWidth: root.cveColumnWidth
-                                    Layout.minimumWidth: root.cveColumnWidth
-                                    Layout.maximumWidth: root.cveColumnWidth
-                                    implicitHeight: cveLabel.implicitHeight
 
                                     PlasmaComponents3.Label {
                                         id: cveLabel
 
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
+                                        Layout.preferredWidth: Kirigami.Units.gridUnit * 8.5
+                                        Layout.minimumWidth: Kirigami.Units.gridUnit * 8.5
+                                        Layout.maximumWidth: Kirigami.Units.gridUnit * 8.5
                                         text: modelData.id || "—"
                                         color: modelData.url ? Kirigami.Theme.linkColor : Kirigami.Theme.textColor
                                         font.family: Kirigami.Theme.smallFont.family
@@ -3205,306 +3159,207 @@ PlasmoidItem {
                                             : modelData.id
                                         QQC2.ToolTip.visible: cveHover.hovered
                                     }
-                                }
 
-                                Item {
-                                    id: packageCell
+                                    Item {
+                                        Layout.fillWidth: true
+                                        implicitHeight: packageRow.implicitHeight
 
-                                    Layout.preferredWidth: root.packageColumnWidth
-                                    Layout.minimumWidth: root.packageColumnWidth
-                                    Layout.maximumWidth: root.packageColumnWidth
-                                    implicitHeight: packageLabel.implicitHeight
+                                        RowLayout {
+                                            id: packageRow
 
-                                    PlasmaComponents3.Label {
-                                        id: packageLabel
+                                            anchors.fill: parent
+                                            spacing: Kirigami.Units.smallSpacing
 
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: modelData.package || "—"
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                        elide: Text.ElideRight
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: showPackage(modelData.package)
-
-                                        QQC2.ToolTip.text: {
-                                            var lines = [];
-                                            if (modelData.package) {
-                                                lines.push(i18n("Show all findings for %1", modelData.package));
+                                            PlasmaComponents3.Label {
+                                                text: modelData.package || "—"
+                                                font.family: Kirigami.Theme.smallFont.family
+                                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                                font.bold: true
+                                                elide: Text.ElideRight
                                             }
-                                            lines.push(root.viaShortText(modelData));
-                                            return lines.join("\n");
+
+                                            PlasmaComponents3.Label {
+                                                text: modelData.version || ""
+                                                visible: text.length > 0
+                                                color: root.mutedText
+                                                font.family: Kirigami.Theme.smallFont.family
+                                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                                elide: Text.ElideRight
+                                            }
+
+                                            Item {
+                                                Layout.fillWidth: true
+                                            }
                                         }
-                                        QQC2.ToolTip.visible: containsMouse
-                                    }
-                                }
 
-                                Item {
-                                    id: versionCell
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: showPackage(modelData.package)
 
-                                    Layout.preferredWidth: root.versionColumnWidth
-                                    Layout.minimumWidth: root.versionColumnWidth
-                                    Layout.maximumWidth: root.versionColumnWidth
-                                    implicitHeight: versionLabel.implicitHeight
-
-                                    PlasmaComponents3.Label {
-                                        id: versionLabel
-
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: modelData.version || "—"
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                        elide: Text.ElideRight
-                                    }
-                                }
-
-                                Item {
-                                    id: masterCell
-
-                                    Layout.preferredWidth: root.masterColumnWidth
-                                    Layout.minimumWidth: root.masterColumnWidth
-                                    Layout.maximumWidth: root.masterColumnWidth
-                                    implicitHeight: masterLabel.implicitHeight
-
-                                    RowLayout {
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        spacing: Kirigami.Units.smallSpacing
-
-                                        Kirigami.Icon {
-                                            Layout.preferredWidth: Kirigami.Units.iconSizes.small
-                                            Layout.preferredHeight: Layout.preferredWidth
-                                            source: root.masterIconSource(modelData)
-                                            color: root.masterColor(modelData)
-                                            visible: source !== ""
+                                            QQC2.ToolTip.text: modelData.package
+                                                ? i18n("Show all findings for %1", modelData.package)
+                                                : ""
+                                            QQC2.ToolTip.visible: containsMouse
+                                                && (modelData.package || "").length > 0
                                         }
+                                    }
+
+                                    Rectangle {
+                                        id: fixPill
+
+                                        readonly property color tone: root.masterColor(modelData)
+
+                                        visible: fixPillLabel.text.length > 0
+                                        Layout.preferredHeight: fixPillLabel.implicitHeight
+                                            + Kirigami.Units.smallSpacing
+                                        Layout.preferredWidth: root.fixPillWidth
+                                        Layout.minimumWidth: root.fixPillWidth
+                                        Layout.maximumWidth: root.fixPillWidth
+                                        radius: 99
+                                        color: Qt.rgba(tone.r, tone.g, tone.b,
+                                            root.darkMode ? 0.18 : 0.10)
+                                        border.width: 1
+                                        border.color: Qt.rgba(tone.r, tone.g, tone.b,
+                                            root.darkMode ? 0.55 : 0.45)
 
                                         PlasmaComponents3.Label {
-                                            id: masterLabel
+                                            id: fixPillLabel
 
-                                            Layout.fillWidth: true
-                                            text: root.masterText(modelData)
-                                            color: root.masterColor(modelData)
+                                            anchors.centerIn: parent
+                                            text: root.fixStatusText(modelData)
+                                            color: fixPill.tone
                                             font.family: Kirigami.Theme.smallFont.family
                                             font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                            font.underline: masterHover.hovered
-                                                && root.masterFixUrl(modelData) !== ""
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: root.masterFixUrl(modelData)
+                                                ? Qt.PointingHandCursor
+                                                : Qt.ArrowCursor
+                                            onClicked: root.openMasterFix(modelData)
+
+                                            QQC2.ToolTip.text: root.fixTooltipText(modelData)
+                                            QQC2.ToolTip.visible: containsMouse
+                                                && QQC2.ToolTip.text.length > 0
+                                        }
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    Layout.leftMargin: Kirigami.Units.gridUnit * 2
+                                        + Kirigami.Units.smallSpacing
+                                    spacing: Kirigami.Units.smallSpacing
+                                    visible: !root.groupByOrigin
+                                        && root.originChainText(modelData).length > 0
+
+                                    PlasmaComponents3.Label {
+                                        text: "↳"
+                                        color: root.faintText
+                                        font.family: Kirigami.Theme.smallFont.family
+                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                    }
+
+                                    Item {
+                                        Layout.fillWidth: true
+                                        implicitHeight: chainLabel.implicitHeight
+
+                                        PlasmaComponents3.Label {
+                                            id: chainLabel
+
+                                            anchors.left: parent.left
+                                            anchors.right: parent.right
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            text: root.originChainText(modelData)
+                                            color: root.mutedText
+                                            font.family: Kirigami.Theme.smallFont.family
+                                            font.pointSize: Kirigami.Theme.smallFont.pointSize
                                             elide: Text.ElideRight
                                         }
-                                    }
-
-                                    HoverHandler {
-                                        id: masterHover
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: root.masterFixUrl(modelData)
-                                            ? Qt.PointingHandCursor
-                                            : Qt.ArrowCursor
-                                        onClicked: root.openMasterFix(modelData)
-
-                                        onContainsMouseChanged: {
-                                            // Only ever show or move the
-                                            // tooltip here. Hiding on exit is
-                                            // what made it blink: a rebuild
-                                            // destroys the delegate, and the
-                                            // replacement may not report hover
-                                            // again until the pointer moves.
-                                            if (containsMouse) {
-                                                var corner = masterCell.mapToItem(null, 0, 0);
-                                                root.fixTipX = corner.x;
-                                                root.fixTipYBelow = corner.y + masterCell.height + 4;
-                                                root.fixTipYAbove = corner.y;
-                                                root.fixTipItem = modelData;
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Item {
-                                    id: viaCell
-
-                                    Layout.preferredWidth: root.viaColumnWidth
-                                    Layout.minimumWidth: root.viaColumnWidth
-                                    Layout.maximumWidth: root.viaColumnWidth
-                                    implicitHeight: viaLabel.implicitHeight
-
-                                    PlasmaComponents3.Label {
-                                        id: viaLabel
-
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: root.viaLabel(modelData)
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                        elide: Text.ElideRight
 
                                         HoverHandler {
-                                            id: viaHover
+                                            id: chainHover
+                                            cursorShape: Qt.PointingHandCursor
                                         }
-
-                                        QQC2.ToolTip.text: root.viaShortText(modelData)
-                                        QQC2.ToolTip.visible: viaHover.hovered
-                                    }
-                                }
-
-                                Item {
-                                    id: originCell
-
-                                    Layout.preferredWidth: root.originColumnWidth
-                                    Layout.minimumWidth: root.originColumnWidth
-                                    Layout.maximumWidth: root.originColumnWidth
-                                    implicitHeight: originLabel.implicitHeight
-
-                                    PlasmaComponents3.Label {
-                                        id: originLabel
-
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        text: root.originCellText(modelData)
-                                        color: root.originNames(modelData).length > 0
-                                            ? Kirigami.Theme.linkColor
-                                            : Kirigami.Theme.disabledTextColor
-                                        font.family: Kirigami.Theme.smallFont.family
-                                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                                        elide: Text.ElideRight
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        hoverEnabled: true
-                                        cursorShape: root.originNames(modelData).length > 0
-                                            ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                        onClicked: showOrigin(root.originName(modelData))
 
                                         QQC2.ToolTip.text: root.originTooltip(modelData)
-                                        QQC2.ToolTip.visible: containsMouse
-                                            && root.originTooltip(modelData).length > 0
+                                        QQC2.ToolTip.visible: chainHover.hovered
+                                            && QQC2.ToolTip.text.length > 0
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onClicked: showOrigin(root.originName(modelData))
+                                        }
                                     }
                                 }
+                            }
 
-                                Item {
-                                    Layout.fillWidth: true
+                            TapHandler {
+                                acceptedButtons: Qt.RightButton
+                                onTapped: rowMenu.popup()
+                            }
+
+                            QQC2.Menu {
+                                id: rowMenu
+
+                                QQC2.MenuItem {
+                                    text: i18n("Show all findings for %1", modelData.package || "")
+                                    icon.name: "view-filter"
+                                    enabled: !!modelData.package
+                                    onTriggered: showPackage(modelData.package)
                                 }
-
-                                PlasmaComponents3.ToolButton {
-                                    id: trackerButton
-
-                                    visible: root.trackerState(modelData) !== "none"
-                                    onClicked: root.openTracker(modelData)
-
-                                    contentItem: Item {
-                                        implicitWidth: Kirigami.Units.iconSizes.smallMedium
-                                        implicitHeight: Kirigami.Units.iconSizes.smallMedium
-
-                                        Kirigami.Icon {
-                                            anchors.centerIn: parent
-                                            width: Kirigami.Units.iconSizes.smallMedium
-                                            height: width
-                                            source: "internet-services"
-                                            active: trackerButton.hovered
-                                            visible: root.trackerState(modelData) !== "missing"
-                                        }
-
-                                        // Findings without a tracker entry get a
-                                        // quiet monochrome exclamation instead of
-                                        // a red warning badge.
-                                        PlasmaComponents3.Label {
-                                            anchors.centerIn: parent
-                                            text: "!"
-                                            color: Kirigami.Theme.textColor
-                                            font.bold: true
-                                            font.pixelSize: Math.round(
-                                                Kirigami.Units.iconSizes.smallMedium * 0.85)
-                                            visible: root.trackerState(modelData) === "missing"
-                                        }
-                                    }
-
-                                    Accessible.name: root.trackerState(modelData) === "missing"
-                                        ? i18n("No Nixpkgs security tracker entry for %1", modelData.id || "")
-                                        : i18n("Open %1 in the Nixpkgs security tracker", modelData.id || i18n("this finding"))
-                                    QQC2.ToolTip.text: root.trackerTooltip(modelData)
-                                    QQC2.ToolTip.visible: hovered
-
-                                    // Small status dot: green = published/accepted,
-                                    // amber = pending review, grey = match rejected.
-                                    Rectangle {
-                                        width: Kirigami.Units.smallSpacing
-                                        height: width
-                                        radius: width / 2
-                                        visible: modelData.tracker !== undefined && !!modelData.tracker.status
-                                        color: visible ? root.trackerStatusColor(modelData.tracker.status) : "transparent"
-                                        anchors.right: parent.right
-                                        anchors.top: parent.top
-                                        anchors.rightMargin: 2
-                                        anchors.topMargin: 2
-                                    }
+                                QQC2.MenuItem {
+                                    text: i18n("Filter by origin")
+                                    icon.name: "view-filter"
+                                    enabled: root.originNames(modelData).length > 0
+                                    onTriggered: showOrigin(root.originName(modelData))
                                 }
-
-                                PlasmaComponents3.ToolButton {
-                                    id: packageMenuButton
-
-                                    icon.name: "overflow-menu"
-                                    onClicked: packageMenu.popup(packageMenuButton, 0, packageMenuButton.height)
-
-                                    Accessible.name: i18n("Actions for %1", modelData.package || i18n("this package"))
-                                    QQC2.ToolTip.text: i18n("Actions for %1", modelData.package || i18n("this package"))
-                                    QQC2.ToolTip.visible: hovered
-
-                                    QQC2.Menu {
-                                        id: packageMenu
-
-                                        QQC2.MenuItem {
-                                            text: i18n("Show all findings for %1", modelData.package || "")
-                                            icon.name: "view-filter"
-                                            enabled: !!modelData.package
-                                            onTriggered: showPackage(modelData.package)
-                                        }
-                                        QQC2.MenuItem {
-                                            text: i18n("Search nixpkgs unstable for %1", modelData.package || "")
-                                            icon.name: "edit-find"
-                                            enabled: !!modelData.package
-                                            onTriggered: Qt.openUrlExternally("https://search.nixos.org/packages?channel=unstable&query=" + encodeURIComponent(modelData.package || ""))
-                                        }
-                                        QQC2.MenuItem {
-                                            text: i18n("Copy package name")
-                                            icon.name: "edit-copy"
-                                            enabled: !!modelData.package
-                                            onTriggered: root.copyToClipboard(modelData.package || "")
-                                        }
-                                        QQC2.MenuSeparator {}
-                                        QQC2.MenuItem {
-                                            text: i18n("Open master fix/bump")
-                                            icon.name: "internet-services"
-                                            enabled: root.masterFixUrl(modelData) !== ""
-                                            onTriggered: root.openMasterFix(modelData)
-                                        }
-                                        QQC2.MenuItem {
-                                            text: i18n("Open nixpkgs master source")
-                                            icon.name: "document-open"
-                                            enabled: !!(modelData.tracker && modelData.tracker.master_url)
-                                            onTriggered: Qt.openUrlExternally(modelData.tracker.master_url)
-                                        }
-                                        QQC2.MenuItem {
-                                            text: i18n("Copy fix/bump URL")
-                                            icon.name: "edit-copy"
-                                            enabled: root.masterFixUrl(modelData) !== ""
-                                            onTriggered: root.copyToClipboard(root.masterFixUrl(modelData))
-                                        }
-                                    }
+                                QQC2.MenuItem {
+                                    text: i18n("Open in Nixpkgs security tracker")
+                                    icon.name: "internet-services"
+                                    enabled: root.trackerState(modelData) !== "none"
+                                    onTriggered: root.openTracker(modelData)
+                                }
+                                QQC2.MenuItem {
+                                    text: i18n("Open master fix/bump")
+                                    icon.name: "internet-services"
+                                    enabled: root.masterFixUrl(modelData) !== ""
+                                    onTriggered: root.openMasterFix(modelData)
+                                }
+                                QQC2.MenuItem {
+                                    text: i18n("Open nixpkgs master source")
+                                    icon.name: "document-open"
+                                    enabled: !!(modelData.tracker && modelData.tracker.master_url)
+                                    onTriggered: Qt.openUrlExternally(modelData.tracker.master_url)
+                                }
+                                QQC2.MenuSeparator {}
+                                QQC2.MenuItem {
+                                    text: i18n("Copy CVE ID")
+                                    icon.name: "edit-copy"
+                                    enabled: !!modelData.id
+                                    onTriggered: root.copyToClipboard(modelData.id || "")
+                                }
+                                QQC2.MenuItem {
+                                    text: i18n("Copy package name")
+                                    icon.name: "edit-copy"
+                                    enabled: !!modelData.package
+                                    onTriggered: root.copyToClipboard(modelData.package || "")
+                                }
+                                QQC2.MenuItem {
+                                    text: i18n("Copy fix/bump URL")
+                                    icon.name: "edit-copy"
+                                    enabled: root.masterFixUrl(modelData) !== ""
+                                    onTriggered: root.copyToClipboard(root.masterFixUrl(modelData))
+                                }
+                                QQC2.MenuItem {
+                                    text: i18n("Search nixpkgs unstable for %1", modelData.package || "")
+                                    icon.name: "edit-find"
+                                    enabled: !!modelData.package
+                                    onTriggered: Qt.openUrlExternally("https://search.nixos.org/packages?channel=unstable&query=" + encodeURIComponent(modelData.package || ""))
                                 }
                             }
                         }
@@ -3514,7 +3369,7 @@ PlasmoidItem {
                             width: parent.width - Kirigami.Units.gridUnit * 2
                             horizontalAlignment: Text.AlignHCenter
                             wrapMode: Text.WordWrap
-                            visible: findingsList.count === 0
+                            visible: root.filteredVulnerabilities.length === 0
                             text: i18n("No vulnerabilities match your search or filters.")
                             opacity: 0.7
                             font.family: Kirigami.Theme.smallFont.family
@@ -3526,7 +3381,7 @@ PlasmoidItem {
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    Layout.minimumHeight: Kirigami.Units.gridUnit * 10
+                    Layout.minimumHeight: 0
                     visible: !root.hasFindings
 
                     PlasmaExtras.PlaceholderMessage {
@@ -3547,27 +3402,6 @@ PlasmoidItem {
                     wrapMode: Text.WordWrap
                     font.family: Kirigami.Theme.smallFont.family
                     font.pointSize: Kirigami.Theme.smallFont.pointSize
-                }
-
-                PlasmaComponents3.Label {
-                    Layout.fillWidth: true
-                    visible: root.trackerProgressText.length > 0
-                    text: root.trackerProgressText
-                    color: (root.trackerProgress && (root.trackerProgress.throttled || root.trackerProgress.auth_failed))
-                        ? Kirigami.Theme.neutralTextColor
-                        : Kirigami.Theme.textColor
-                    wrapMode: Text.WordWrap
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                }
-
-                QQC2.ProgressBar {
-                    Layout.fillWidth: true
-                    visible: root.trackerBusy
-                    from: 0
-                    to: Math.max(1, root.trackerProgressTotal)
-                    value: root.trackerProgressDone
-                    indeterminate: root.trackerProgressTotal <= 0
                 }
 
             }

@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel table — 10 design directions</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --panel: #20242b;
+    --panel2: #262b33;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #2b3038;
+    --accent: #3daee9;
+    --cve: #7cc7f0;
+    --critical: #fb7185;
+    --high: #fbbf24;
+    --medium: #facc15;
+    --low: #4ade80;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0f1115;
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .page-head { max-width: 892px; margin: 0 auto 26px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 23px; letter-spacing: -.2px; }
+  .page-head p { margin: 0; color: #aab0b9; line-height: 1.55; }
+  .page-head .key { color: var(--text); }
+  .recommend {
+    max-width: 892px;
+    margin: 0 auto 28px;
+    padding: 12px 14px;
+    border: 1px solid #2f4a5c;
+    border-left: 3px solid var(--accent);
+    background: #18232b;
+    border-radius: 8px;
+    color: #b9c1c9;
+  }
+  .recommend b { color: #8fd3f5; }
+
+  .design { max-width: 892px; margin: 0 auto 30px; }
+  .design-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 8px; }
+  .num { color: #59616c; font: 12px "DejaVu Sans Mono", monospace; }
+  .design h2 { margin: 0; font-size: 15px; letter-spacing: -.1px; }
+  .tagline { margin-left: auto; color: #8f96a0; font-size: 11.5px; }
+
+  .frame {
+    width: 892px;
+    max-width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .notes { margin-top: 6px; color: #8f96a0; font-size: 11.5px; }
+  .notes b { color: #c9ced5; font-weight: 600; }
+  .notes .sep { color: #4b525c; margin: 0 5px; }
+
+  .toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .search {
+    flex: 1;
+    height: 30px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #8f96a0;
+    background: #242830;
+    border: 1px solid #333945;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+  .search .ico { color: #6f7680; font-size: 15px; line-height: 1; }
+  .chip {
+    height: 26px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #aab0b9;
+    border: 1px solid #343a44;
+    border-radius: 99px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .chip.active { color: #dceffb; border-color: #3b6f8f; background: #1d3442; }
+  .count { margin-left: auto; color: #8f96a0; font-size: 11px; white-space: nowrap; }
+
+  .critical { --band: var(--critical); --bandbg: rgba(251,113,133,.10); }
+  .high { --band: var(--high); --bandbg: rgba(251,191,36,.10); }
+  .medium { --band: var(--medium); --bandbg: rgba(250,204,21,.10); }
+  .low { --band: var(--low); --bandbg: rgba(74,222,128,.10); }
+
+  .score { color: var(--band); font-weight: 700; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .cve { color: var(--cve); font-family: "DejaVu Sans Mono", monospace; font-size: 11.5px; text-decoration: none; }
+  .pkg b { color: var(--text); font-weight: 600; }
+  .ver { margin-left: 5px; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 11px; }
+  .origin { color: #aeb4bd; }
+  .origin .arrow { color: var(--accent); margin-right: 4px; }
+  .meta { color: var(--faint); font-size: 10.5px; }
+  .fixpill {
+    padding: 2px 7px;
+    color: #8f96a0;
+    border: 1px solid #343a44;
+    border-radius: 99px;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .kebab { color: var(--faint); font-size: 15px; text-align: right; }
+  .chev { color: var(--faint); }
+
+  /* 01 — essential three */
+  .d1-row {
+    display: grid;
+    grid-template-columns: 48px 158px 1fr 1.18fr 18px;
+    gap: 12px;
+    align-items: center;
+    padding: 8px 8px;
+    border-bottom: 1px solid #272b33;
+    border-left: 3px solid var(--band);
+  }
+  .d1-row:last-child { border-bottom: none; }
+  .sevbox { display: flex; flex-direction: column; line-height: 1.05; }
+  .sevbox small { font-size: 8px; letter-spacing: .55px; color: var(--band); }
+  .d1-row .pkg, .d1-row .origin { font-size: 12px; }
+
+  /* 02 — same first-line grid as 04, with the origin chain underneath */
+  .d2-row {
+    padding: 6px 10px;
+    border-bottom: 1px solid #272b33;
+    border-left: 3px solid var(--band);
+  }
+  .d2-row:last-child { border-bottom: none; }
+  .d2-main {
+    display: grid;
+    grid-template-columns: 36px 150px 1fr auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .d2-chain { margin: 3px 0 0 46px; display: flex; align-items: center; gap: 4px; color: #8f96a0; font-size: 11px; }
+  .d2-chain .chainmark { color: #59616c; }
+  .d2-chain .chainarrow { color: var(--accent); margin: 0 3px; }
+
+  /* 03 — severity sections */
+  .d3-group { margin-bottom: 8px; }
+  .d3-group:last-child { margin-bottom: 0; }
+  .d3-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 2px 5px;
+    color: var(--band);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+  .d3-head .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--band); }
+  .d3-head .n { color: #8f96a0; font-weight: 400; letter-spacing: 0; }
+  .d3-head .rule { flex: 1; height: 1px; background: #2b3038; }
+  .d3-head .hint { color: #6f7680; font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 10px; }
+  .d3-row {
+    display: grid;
+    grid-template-columns: 38px 150px 1fr 1.2fr;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 8px;
+    border-bottom: 1px solid #272b33;
+  }
+  .d3-row:last-child { border-bottom: none; }
+  .d3-row .pkg, .d3-row .origin { font-size: 11.5px; }
+
+  /* 04 — origin sections */
+  .d4-group { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; margin-bottom: 8px; }
+  .d4-group:last-child { margin-bottom: 0; }
+  .d4-head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--panel); }
+  .d4-head .glyph { color: var(--accent); font-size: 12px; }
+  .d4-head b { font-size: 12px; }
+  .d4-head .n { color: #8f96a0; font-size: 10.5px; }
+  .d4-head .chev { margin-left: auto; }
+  .d4-row {
+    display: grid;
+    grid-template-columns: 36px 150px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    border-top: 1px solid #272b33;
+    border-left: 3px solid var(--band);
+  }
+  .d4-row .pkg { font-size: 11.5px; }
+
+  /* 05 — package sections */
+  .d5-group { border: 1px solid var(--line); border-radius: 9px; overflow: hidden; margin-bottom: 8px; }
+  .d5-group:last-child { margin-bottom: 0; }
+  .d5-head { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--panel); }
+  .d5-head b { font-size: 13px; }
+  .d5-head .n { color: #8f96a0; font-size: 10.5px; }
+  .d5-head .fixpill { margin-left: auto; }
+  .d5-head .chev { margin-left: 2px; }
+  .d5-row {
+    display: grid;
+    grid-template-columns: 36px 150px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    border-top: 1px solid #272b33;
+    border-left: 3px solid var(--band);
+  }
+  .d5-row .origin { font-size: 11.5px; }
+
+  /* 06 — ticket cards */
+  .d6-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .d6-card { background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--band); border-radius: 8px; padding: 9px 10px; }
+  .d6-top { display: flex; align-items: center; gap: 7px; }
+  .d6-top .bandname { color: var(--band); font-size: 8.5px; letter-spacing: .55px; }
+  .d6-top .fixpill { margin-left: auto; }
+  .d6-cve { margin: 6px 0 4px; }
+  .d6-pkg { font-size: 13px; }
+  .d6-origin { margin-top: 7px; color: #8f96a0; font-size: 10.5px; }
+  .d6-origin .chip { height: 20px; padding: 0 7px; font-size: 10px; display: inline-flex; vertical-align: middle; }
+
+  /* 07 — master / detail */
+  .d7 { display: grid; grid-template-columns: 1fr 1.02fr; gap: 8px; }
+  .d7-list { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .d7-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-bottom: 1px solid #272b33; border-left: 3px solid var(--band); }
+  .d7-item:last-child { border-bottom: none; }
+  .d7-item.active { background: var(--panel2); }
+  .d7-item .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--band); flex: none; }
+  .d7-item .rowmeta { line-height: 1.3; }
+  .d7-item .rowmeta small { display: block; color: #8f96a0; font-family: "DejaVu Sans Mono", monospace; font-size: 10.5px; }
+  .d7-item .score { margin-left: auto; }
+  .d7-detail { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  .d7-detail .bigscore { color: var(--band); font-size: 26px; font-weight: 700; line-height: 1; }
+  .d7-detail .bigscore span { font-size: 9px; letter-spacing: .6px; margin-left: 4px; }
+  .d7-detail h3 { margin: 4px 0 2px; font: 13px "DejaVu Sans Mono", monospace; color: var(--cve); }
+  .d7-detail .pkg { font-size: 13px; }
+  .d7-label { margin-top: 10px; color: #6f7680; font-size: 10px; text-transform: uppercase; letter-spacing: .5px; }
+  .d7-detail .origin { margin-top: 2px; color: #d4d8dd; }
+  .d7-detail .sub { margin-top: 7px; color: #8f96a0; font-size: 10.5px; }
+
+  /* 08 — dense console */
+  .d8-table { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .d8-head {
+    display: grid;
+    grid-template-columns: 46px 1fr 1.05fr;
+    gap: 10px;
+    padding: 6px 10px;
+    background: var(--panel);
+    color: #8f96a0;
+    font-size: 9px;
+    letter-spacing: .7px;
+  }
+  .d8-row {
+    display: grid;
+    grid-template-columns: 46px 1fr 1.05fr;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+    border-top: 1px solid #272b33;
+    border-left: 3px solid var(--band);
+  }
+  .d8-row .finding { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .d8-row .origin { font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .d8-row .origin .det { color: #6f7680; font-size: 10px; }
+  .d8-row .cve, .d8-row .ver { white-space: nowrap; }
+
+  /* 09 — severity kanban */
+  .d9 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .d9-col { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+  .d9-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; padding-bottom: 6px; border-bottom: 1px solid var(--line); color: var(--band); font-size: 9.5px; letter-spacing: .6px; font-weight: 700; }
+  .d9-h b { color: #8f96a0; font-weight: 400; }
+  .d9-card { background: var(--panel2); border-left: 2px solid var(--band); border-radius: 6px; padding: 7px 8px; margin-bottom: 6px; }
+  .d9-card:last-child { margin-bottom: 0; }
+  .d9-card .score { font-size: 13px; }
+  .d9-card .cve { display: block; margin: 2px 0 4px; }
+  .d9-pkg { font-size: 11.5px; }
+  .d9-origin { margin-top: 3px; color: #8f96a0; font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* 10 — expandable rows */
+  .d10 { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .d10-row { border-bottom: 1px solid #272b33; border-left: 3px solid var(--band); }
+  .d10-row:last-child { border-bottom: none; }
+  .d10-sum { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+  .d10-sum .chev { width: 9px; font-size: 12px; }
+  .d10-sum .pkg { flex: 1; }
+  .d10-sum .cve { margin-left: auto; }
+  .d10-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; padding: 0 10px 9px 31px; color: #aab0b9; font-size: 11px; }
+  .d10-detail .label { display: inline-block; width: 76px; color: #6f7680; }
+
+  body.single { padding: 20px; }
+  body.single .page-head, body.single .recommend, body.single .design { display: none; }
+  body.single .design:target { display: block; margin: 0; }
+  body.single .design:target .notes { display: none; }
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>Sentinel table — 10 design directions</h1>
+    <p>Same findings, same dark Plasma look. The shared premise: <span class="key">drop the per-column filter row and the severity chips</span> (they duplicate the cards) and keep the three answers visible — <span class="key">how bad</span> (score + band colour), <span class="key">what is vulnerable</span> (package + version), and <span class="key">what introduced it</span> (origin). Detector, confidence, tracker and fix detail move to hover or expand.</p>
+  </div>
+
+  <div class="recommend"><b>Recommendation:</b> implement <b>02 (two-line rows)</b> as the default, offer <b>04 (group by origin)</b> as an optional switch, and use <b>10</b>'s expansion for the detail. Replace the header/filter row with one search field plus a single “Filters” popover. The score + colour is enough for “how bad” once the chips are gone.</div>
+
+  <section class="design" id="d1">
+    <div class="design-head"><span class="num">01</span><h2>Essential three</h2><span class="tagline">one line per finding, no chrome</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Filters</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d1-row critical"><div class="sevbox"><span class="score">9.9</span><small>CRIT</small></div><a class="cve">CVE-2021-35049</a><div class="pkg"><b>network</b><span class="ver">3.2.8.0</span></div><div class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</div><div class="kebab">⋮</div></div>
+      <div class="d1-row critical"><div class="sevbox"><span class="score">9.9</span><small>CRIT</small></div><a class="cve">CVE-2021-35047</a><div class="pkg"><b>network</b><span class="ver">3.2.8.0</span></div><div class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</div><div class="kebab">⋮</div></div>
+      <div class="d1-row critical"><div class="sevbox"><span class="score">9.8</span><small>CRIT</small></div><a class="cve">CVE-2018-7263</a><div class="pkg"><b>libmad</b><span class="ver">0.15.1b</span></div><div class="origin"><span class="arrow">←</span>crossover-26.3.0</div><div class="kebab">⋮</div></div>
+      <div class="d1-row critical"><div class="sevbox"><span class="score">9.8</span><small>CRIT</small></div><a class="cve">CVE-2019-1010022</a><div class="pkg"><b>glibc</b><span class="ver">2.44-57</span></div><div class="origin"><span class="arrow">←</span>crossover-26.3.0</div><div class="kebab">⋮</div></div>
+      <div class="d1-row critical"><div class="sevbox"><span class="score">9.8</span><small>CRIT</small></div><a class="cve">CVE-2021-28794</a><div class="pkg"><b>shellcheck</b><span class="ver">0.11.0</span></div><div class="origin"><span class="arrow">←</span>bash-language-server-5.8.1</div><div class="kebab">⋮</div></div>
+    </div>
+    <div class="notes"><b>Shows</b> score/band, CVE, package+version, origin. <b>Removes</b> headers, filter row, severity chips. <span class="sep">|</span> <b>Best for</b> fast scanning; detail on hover.</div>
+  </section>
+
+  <section class="design" id="d2">
+    <div class="design-head"><span class="num">02</span><h2>Two-line rows</h2><span class="tagline">essentials first, context underneath</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Filters</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d2-row critical">
+        <div class="d2-main"><span class="score">9.9</span><a class="cve">CVE-2021-35049</a><span class="pkg"><b>network</b><span class="ver">3.2.8.0</span></span><span class="fixpill">no fix</span></div>
+        <div class="d2-chain"><span class="chainmark">↳</span>haskell-language-server-2.13.0.0<span class="chainarrow">→</span>network</div>
+      </div>
+      <div class="d2-row critical">
+        <div class="d2-main"><span class="score">9.9</span><a class="cve">CVE-2021-35047</a><span class="pkg"><b>network</b><span class="ver">3.2.8.0</span></span><span class="fixpill">no fix</span></div>
+        <div class="d2-chain"><span class="chainmark">↳</span>haskell-language-server-2.13.0.0<span class="chainarrow">→</span>network</div>
+      </div>
+      <div class="d2-row critical">
+        <div class="d2-main"><span class="score">9.8</span><a class="cve">CVE-2018-7263</a><span class="pkg"><b>libmad</b><span class="ver">0.15.1b</span></span><span class="fixpill">no fix</span></div>
+        <div class="d2-chain"><span class="chainmark">↳</span>crossover-26.3.0<span class="chainarrow">→</span>libmad</div>
+      </div>
+      <div class="d2-row critical">
+        <div class="d2-main"><span class="score">9.8</span><a class="cve">CVE-2021-28794</a><span class="pkg"><b>shellcheck</b><span class="ver">0.11.0</span></span><span class="fixpill">no fix</span></div>
+        <div class="d2-chain"><span class="chainmark">↳</span>bash-language-server-5.8.1<span class="chainarrow">→</span>shellcheck</div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> the same row grid as 04 (score, CVE, package+version, fix), with the full origin chain underneath. <b>Removes</b> detector/confidence, headers, filter row, chips. <span class="sep">|</span> <b>Best</b> balance of density and context.</div>
+  </section>
+
+  <section class="design" id="d3">
+    <div class="design-head"><span class="num">03</span><h2>Severity sections</h2><span class="tagline">the groups replace the chips</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Group: severity</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d3-group critical">
+        <div class="d3-head"><span class="dot"></span><span>Critical</span><span class="n">34</span><span class="rule"></span><span class="hint">click to filter</span></div>
+        <div class="d3-row"><span class="score">9.9</span><a class="cve">CVE-2021-35049</a><span class="pkg"><b>network</b><span class="ver">3.2.8.0</span></span><span class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</span></div>
+        <div class="d3-row"><span class="score">9.8</span><a class="cve">CVE-2018-7263</a><span class="pkg"><b>libmad</b><span class="ver">0.15.1b</span></span><span class="origin"><span class="arrow">←</span>crossover-26.3.0</span></div>
+      </div>
+      <div class="d3-group high">
+        <div class="d3-head"><span class="dot"></span><span>High</span><span class="n">252</span><span class="rule"></span><span class="hint">click to filter</span></div>
+        <div class="d3-row"><span class="score">8.9</span><a class="cve">CVE-2021-37600</a><span class="pkg"><b>util-linux</b><span class="ver">2.39.2</span></span><span class="origin"><span class="arrow">←</span>systemd</span></div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> severity as structure, not another filter control. <b>Removes</b> chips, column headers, filter row. <span class="sep">|</span> <b>Best</b> for triaging top-down.</div>
+  </section>
+
+  <section class="design" id="d4">
+    <div class="design-head"><span class="num">04</span><h2>Group by origin</h2><span class="tagline">what put it into the system is the header</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip active">Group: origin</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d4-group">
+        <div class="d4-head"><span class="glyph">◈</span><b>haskell-language-server-2.13.0.0</b><span class="n">2 findings</span><span class="chev">⌄</span></div>
+        <div class="d4-row critical"><span class="score">9.9</span><a class="cve">CVE-2021-35049</a><span class="pkg"><b>network</b><span class="ver">3.2.8.0</span></span><span class="fixpill">no fix</span></div>
+        <div class="d4-row critical"><span class="score">9.9</span><a class="cve">CVE-2021-35047</a><span class="pkg"><b>network</b><span class="ver">3.2.8.0</span></span><span class="fixpill">no fix</span></div>
+      </div>
+      <div class="d4-group">
+        <div class="d4-head"><span class="glyph">◈</span><b>crossover-26.3.0</b><span class="n">2 findings</span><span class="chev">⌄</span></div>
+        <div class="d4-row critical"><span class="score">9.8</span><a class="cve">CVE-2018-7263</a><span class="pkg"><b>libmad</b><span class="ver">0.15.1b</span></span><span class="fixpill">no fix</span></div>
+        <div class="d4-row critical"><span class="score">9.8</span><a class="cve">CVE-2019-1010022</a><span class="pkg"><b>glibc</b><span class="ver">2.44-57</span></span><span class="fixpill">no fix</span></div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> the origin first and the fix state as the last column on each row. <b>Removes</b> detector, headers, filters, chips. <span class="sep">|</span> <b>Best</b> for overlays and bundled runtimes.</div>
+  </section>
+
+  <section class="design" id="d5">
+    <div class="design-head"><span class="num">05</span><h2>Group by package</h2><span class="tagline">one package, all its CVEs</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip active">Group: package</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d5-group">
+        <div class="d5-head"><b>network</b><span class="ver">3.2.8.0</span><span class="n">2 CVEs</span><span class="fixpill">no fix</span><span class="chev">⌄</span></div>
+        <div class="d5-row critical"><span class="score">9.9</span><a class="cve">CVE-2021-35049</a><span class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</span><span class="meta">vulnix · expanded</span></div>
+        <div class="d5-row critical"><span class="score">9.9</span><a class="cve">CVE-2021-35047</a><span class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</span><span class="meta">vulnix · expanded</span></div>
+      </div>
+      <div class="d5-group">
+        <div class="d5-head"><b>glibc</b><span class="ver">2.44-57</span><span class="n">1 CVE</span><span class="fixpill">no fix</span><span class="chev">⌄</span></div>
+        <div class="d5-row critical"><span class="score">9.8</span><a class="cve">CVE-2019-1010022</a><span class="origin"><span class="arrow">←</span>crossover-26.3.0</span><span class="meta">grype · expanded</span></div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> package+version as the section; CVEs and origins inside. <b>Removes</b> headers, filters, chips. <span class="sep">|</span> <b>Best</b> for patch planning.</div>
+  </section>
+
+  <section class="design" id="d6">
+    <div class="design-head"><span class="num">06</span><h2>Ticket cards</h2><span class="tagline">one finding per card, less table</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Critical</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d6-grid">
+        <div class="d6-card critical">
+          <div class="d6-top"><span class="score">9.9</span><span class="bandname">CRITICAL</span><span class="fixpill">no fix</span></div>
+          <div class="d6-cve"><a class="cve">CVE-2021-35049</a></div>
+          <div class="d6-pkg"><b>network</b><span class="ver">3.2.8.0</span></div>
+          <div class="d6-origin">via <span class="chip">haskell-language-server-2.13.0.0</span></div>
+        </div>
+        <div class="d6-card critical">
+          <div class="d6-top"><span class="score">9.8</span><span class="bandname">CRITICAL</span><span class="fixpill">no fix</span></div>
+          <div class="d6-cve"><a class="cve">CVE-2018-7263</a></div>
+          <div class="d6-pkg"><b>libmad</b><span class="ver">0.15.1b</span></div>
+          <div class="d6-origin">via <span class="chip">crossover-26.3.0</span></div>
+        </div>
+        <div class="d6-card high">
+          <div class="d6-top"><span class="score">8.9</span><span class="bandname">HIGH</span><span class="fixpill">fix ready</span></div>
+          <div class="d6-cve"><a class="cve">CVE-2021-37600</a></div>
+          <div class="d6-pkg"><b>util-linux</b><span class="ver">2.39.2</span></div>
+          <div class="d6-origin">via <span class="chip">systemd</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> the three facts as a compact card. <b>Removes</b> the table entirely. <span class="sep">|</span> <b>Best</b> for touch/low density; fewer rows per screen.</div>
+  </section>
+
+  <section class="design" id="d7">
+    <div class="design-head"><span class="num">07</span><h2>Master–detail</h2><span class="tagline">dense list, one investigation panel</span></div>
+    <div class="frame">
+      <div class="d7">
+        <div class="d7-list">
+          <div class="d7-item active critical"><span class="dot"></span><div class="rowmeta"><b>network</b> <span class="ver">3.2.8.0</span><small>CVE-2021-35049</small></div><span class="score">9.9</span></div>
+          <div class="d7-item critical"><span class="dot"></span><div class="rowmeta"><b>network</b> <span class="ver">3.2.8.0</span><small>CVE-2021-35047</small></div><span class="score">9.9</span></div>
+          <div class="d7-item critical"><span class="dot"></span><div class="rowmeta"><b>libmad</b> <span class="ver">0.15.1b</span><small>CVE-2018-7263</small></div><span class="score">9.8</span></div>
+          <div class="d7-item critical"><span class="dot"></span><div class="rowmeta"><b>glibc</b> <span class="ver">2.44-57</span><small>CVE-2019-1010022</small></div><span class="score">9.8</span></div>
+        </div>
+        <div class="d7-detail critical">
+          <div class="bigscore">9.9 <span>CRITICAL</span></div>
+          <h3>CVE-2021-35049</h3>
+          <div class="pkg"><b>network</b><span class="ver">3.2.8.0</span></div>
+          <div class="d7-label">Introduced by</div>
+          <div class="origin">haskell-language-server-2.13.0.0</div>
+          <div class="sub">vulnix · expanded · no fix available</div>
+        </div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> three facts in the list; the detail pane exposes detector, fix and origin chain. <b>Removes</b> wide columns. <span class="sep">|</span> <b>Best</b> for investigating one finding at a time.</div>
+  </section>
+
+  <section class="design" id="d8">
+    <div class="design-head"><span class="num">08</span><h2>Dense console</h2><span class="tagline">maximum rows, three columns</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Filters</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d8-table">
+        <div class="d8-head"><span>SEV</span><span>FINDING</span><span>ORIGIN</span></div>
+        <div class="d8-row critical"><span class="score">9.9</span><span class="finding"><a class="cve">CVE-2021-35049</a><b>network</b><span class="ver">3.2.8.0</span></span><span class="origin">haskell-language-server-2.13.0.0 <span class="det">vulnix</span></span></div>
+        <div class="d8-row critical"><span class="score">9.9</span><span class="finding"><a class="cve">CVE-2021-35047</a><b>network</b><span class="ver">3.2.8.0</span></span><span class="origin">haskell-language-server-2.13.0.0 <span class="det">vulnix</span></span></div>
+        <div class="d8-row critical"><span class="score">9.8</span><span class="finding"><a class="cve">CVE-2018-7263</a><b>libmad</b><span class="ver">0.15.1b</span></span><span class="origin">crossover-26.3.0 <span class="det">grype</span></span></div>
+        <div class="d8-row critical"><span class="score">9.8</span><span class="finding"><a class="cve">CVE-2019-1010022</a><b>glibc</b><span class="ver">2.44-57</span></span><span class="origin">crossover-26.3.0 <span class="det">grype</span></span></div>
+        <div class="d8-row critical"><span class="score">9.8</span><span class="finding"><a class="cve">CVE-2021-28794</a><b>shellcheck</b><span class="ver">0.11.0</span></span><span class="origin">bash-language-server-5.8.1 <span class="det">grype, vulnix</span></span></div>
+        <div class="d8-row critical"><span class="score">9.8</span><span class="finding"><a class="cve">CVE-2022-37434</a><b>zlib</b><span class="ver">0.7.1.1</span></span><span class="origin">haskell-language-server-2.13.0.0 <span class="det">grype, vulnix</span></span></div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> only score, finding, origin; one header line. <b>Removes</b> per-column filters and chips. <span class="sep">|</span> <b>Best</b> for power users who know the columns.</div>
+  </section>
+
+  <section class="design" id="d9">
+    <div class="design-head"><span class="num">09</span><h2>Severity board</h2><span class="tagline">three columns, no severity chips</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Critical · High · Medium</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d9">
+        <div class="d9-col critical">
+          <div class="d9-h"><span>CRITICAL</span><b>34</b></div>
+          <div class="d9-card"><span class="score">9.9</span><a class="cve">CVE-2021-35049</a><div class="d9-pkg"><b>network</b><span class="ver">3.2.8.0</span></div><div class="d9-origin">← haskell-language-server-2.13.0.0</div></div>
+          <div class="d9-card"><span class="score">9.8</span><a class="cve">CVE-2018-7263</a><div class="d9-pkg"><b>libmad</b><span class="ver">0.15.1b</span></div><div class="d9-origin">← crossover-26.3.0</div></div>
+        </div>
+        <div class="d9-col high">
+          <div class="d9-h"><span>HIGH</span><b>252</b></div>
+          <div class="d9-card"><span class="score">8.9</span><a class="cve">CVE-2021-37600</a><div class="d9-pkg"><b>util-linux</b><span class="ver">2.39.2</span></div><div class="d9-origin">← systemd</div></div>
+          <div class="d9-card"><span class="score">8.1</span><a class="cve">CVE-2020-16156</a><div class="d9-pkg"><b>perl</b><span class="ver">5.38.2</span></div><div class="d9-origin">← git</div></div>
+        </div>
+        <div class="d9-col medium">
+          <div class="d9-h"><span>MEDIUM</span><b>501</b></div>
+          <div class="d9-card"><span class="score">6.5</span><a class="cve">CVE-2023-45853</a><div class="d9-pkg"><b>zlib</b><span class="ver">0.7.1.1</span></div><div class="d9-origin">← haskell-language-server</div></div>
+          <div class="d9-card"><span class="score">5.5</span><a class="cve">CVE-2020-12345</a><div class="d9-pkg"><b>openssl</b><span class="ver">3.0.1</span></div><div class="d9-origin">← curl</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> severity as the layout; origin is on every card. <b>Removes</b> chips, headers, filters. <span class="sep">|</span> <b>Best</b> for a quick triage overview; needs horizontal room.</div>
+  </section>
+
+  <section class="design" id="d10">
+    <div class="design-head"><span class="num">10</span><h2>Expandable rows</h2><span class="tagline">quiet summary, detail on demand</span></div>
+    <div class="frame">
+      <div class="toolbar">
+        <div class="search"><span class="ico">⌕</span> Search findings…</div>
+        <div class="chip">Filters</div>
+        <div class="count">932 findings</div>
+      </div>
+      <div class="d10">
+        <div class="d10-row critical">
+          <div class="d10-sum"><span class="chev">›</span><span class="score">9.9</span><b>network</b><span class="ver">3.2.8.0</span><span class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</span><a class="cve">CVE-2021-35049</a></div>
+        </div>
+        <div class="d10-row critical">
+          <div class="d10-sum"><span class="chev">⌄</span><span class="score">9.9</span><b>network</b><span class="ver">3.2.8.0</span><span class="origin"><span class="arrow">←</span>haskell-language-server-2.13.0.0</span><a class="cve">CVE-2021-35047</a></div>
+          <div class="d10-detail">
+            <div><span class="label">CVE</span>CVE-2021-35047</div>
+            <div><span class="label">Detected by</span>vulnix · expanded</div>
+            <div><span class="label">Fix</span>no fix available</div>
+            <div><span class="label">Origin chain</span>haskell-language-server → network</div>
+          </div>
+        </div>
+        <div class="d10-row critical">
+          <div class="d10-sum"><span class="chev">›</span><span class="score">9.8</span><b>libmad</b><span class="ver">0.15.1b</span><span class="origin"><span class="arrow">←</span>crossover-26.3.0</span><a class="cve">CVE-2018-7263</a></div>
+        </div>
+        <div class="d10-row critical">
+          <div class="d10-sum"><span class="chev">›</span><span class="score">9.8</span><b>shellcheck</b><span class="ver">0.11.0</span><span class="origin"><span class="arrow">←</span>bash-language-server-5.8.1</span><a class="cve">CVE-2021-28794</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="notes"><b>Shows</b> only the three facts until expanded; fixes, detector and chain are one click away. <b>Removes</b> headers, filters, chips. <span class="sep">|</span> <b>Best</b> for reducing noise.</div>
+  </section>
+
+<script>
+  function applySingle() {
+    document.body.classList.toggle('single', Boolean(location.hash));
+  }
+  applySingle();
+  window.addEventListener('hashchange', applySingle);
+</script>
+</body>
+</html>
