@@ -209,7 +209,7 @@ contents/
       FindingsToolbar.qml
       FindingsList.qml
       FindingRow.qml
-      OriginGroupHeader.qml
+      GroupHeader.qml
       RowContextMenu.qml
       EmptyState.qml
       TrackerHint.qml
@@ -417,7 +417,8 @@ QtObject {
     property string originFilter: ""
     property string sortKey: "severity"
     property bool sortDescending: true
-    property bool groupByOrigin: false
+    property string groupBy: "none"
+    property bool groupsExpanded: true
 
     readonly property var rows: ...
     readonly property var counts: ...
@@ -457,10 +458,10 @@ Responsibilities:
 | `RiskCard` | max severity, findings, packages, CVEs | none |
 | `SeverityCard` | bands, selected band, theme | `selected(band)` |
 | `FixesCard` | fix bands, total, selected state, theme | `selected(state)` |
-| `FindingsToolbar` | search text, filters, counts, group mode | `searchChanged`, `clearFilters`, `groupToggled` |
+| `FindingsToolbar` | search text, filters, counts, group mode, expanded state | `searchChanged`, `clearFilters`, `groupBySelected`, `toggleGroupsExpandedRequested` |
 | `FindingsList` | rows, grouped mode, theme, labels | `openFinding`, `filterPackage`, `filterOrigin`, `openFix`, `openTracker`, `copy`, `menuRequested` |
 | `FindingRow` | `required property var rowData`, theme, labels | row intents |
-| `OriginGroupHeader` | group name, count | none |
+| `GroupHeader` | group title/kind, count | none |
 | `RowContextMenu` | row, labels | row intents |
 | `EmptyState` | icon, title, explanation | none |
 | `TrackerHint` | text, visible | none |
@@ -553,7 +554,7 @@ last.
 | Header UI | 2299-2549 | `components/HeaderBar.qml`, `ScanProgress.qml` |
 | Summary cards | 2567-2909 | `components/SummaryCards.qml`, `RiskCard`, `SeverityCard`, `FixesCard` |
 | Search/filters/group toolbar | 2911-3088 | `components/FindingsToolbar.qml` |
-| Findings list, header, delegate, menus | 3090-3594 | `components/FindingsList.qml`, `FindingRow.qml`, `OriginGroupHeader.qml`, `RowContextMenu.qml` |
+| Findings list, header, delegate, menus | 3090-3594 | `components/FindingsList.qml`, `FindingRow.qml`, `GroupHeader.qml`, `RowContextMenu.qml` |
 | Empty state / tracker hint | 3596-3620 | `components/EmptyState.qml`, `TrackerHint.qml` |
 
 ---
@@ -957,7 +958,9 @@ export function buildRows(findings, options) {
         }
     }
     sortRows(matched, options.sortKey, options.descending);
-    return options.groupByOrigin ? flattenGroups(matched) : matched;
+    return options.groupBy === "none"
+        ? matched
+        : flattenGroups(matched, options.groupBy, options.groupsExpanded);
 }
 
 function flattenGroups(rows) {
@@ -1151,7 +1154,7 @@ TestCase {
             filters: {},
             sortKey: "severity",
             descending: true,
-            groupByOrigin: true
+            groupBy: "origin"
         });
         compare(rows[0].rowType, "group");
         compare(rows[0].count, 2);
@@ -1393,7 +1396,7 @@ make the old code delegate to it, test, then delete the old code.
 **Steps**
 
 1. Add `SentinelTheme`, `Labels`, `EmptyState`, `TrackerHint`,
-   `OriginGroupHeader`, `RowContextMenu`, `FindingRow`.
+   `GroupHeader`, `RowContextMenu`, `FindingRow`.
 2. Add `HeaderBar`, `ScanProgress`, `SummaryCards` and the three cards.
 3. Add `FindingsToolbar`, `FindingsList`, `SentinelPopup`.
 4. Add `pragma ComponentBehavior: Bound` and `required property` to every
@@ -1533,7 +1536,7 @@ Measured before the refactor:
 
 - `contents/ui/main.qml`: 130 lines, composition root only.
 - 10 domain modules, 8 services, 2 state objects and 16 components.
-- 55 Node domain tests, 33 qmltestrunner service/state tests.
+- 57 Node domain tests, 33 qmltestrunner service/state tests.
 - qmllint (Qt 6.12): 175 warnings, down from 752 unqualified accesses,
   24 missing properties and 6 unresolved types; the remaining warnings are
   mostly context properties (`Plasmoid`, `i18n`, `Qt`) and `Loader.item`

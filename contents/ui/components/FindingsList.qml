@@ -199,7 +199,7 @@ Rectangle {
     Component {
         id: groupComponent
 
-        OriginGroupHeader {
+        GroupHeader {
             theme: root.theme
             labels: root.labels
         }
@@ -258,7 +258,8 @@ Rectangle {
 
             onLoaded: {
                 if (modelData.rowType === "group") {
-                    item.groupName = modelData.key;
+                    item.groupBy = modelData.groupBy;
+                    item.groupKey = modelData.key;
                     item.groupCount = modelData.count;
                 } else {
                     item.rowData = modelData;

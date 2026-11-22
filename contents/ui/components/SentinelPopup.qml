@@ -143,13 +143,15 @@ PlasmaExtras.Representation {
                 anyFilterActive: root.vm.anyFilterActive
                 visibleCount: root.vm.visibleCount
                 totalCount: root.vm.totalCount
-                groupByOrigin: root.vm.groupByOrigin
+                groupBy: root.vm.groupBy
+                groupsExpanded: root.vm.groupsExpanded
                 labels: root.labels
                 onSearchChanged: (text) => root.vm.setSearchText(text)
                 onSeveritySelected: (band) => root.vm.setSeverityBand(band)
                 onFixStateSelected: (band) => root.vm.setFixState(band)
                 onClearFiltersRequested: root.vm.clearFilters()
-                onGroupToggled: root.vm.toggleGroupByOrigin()
+                onGroupBySelected: (mode) => root.vm.setGroupBy(mode)
+                onToggleGroupsExpandedRequested: root.vm.toggleGroupsExpanded()
             }
 
             FindingsList {

@@ -108,14 +108,48 @@ TestCase {
         compare(env.vm.sortDescending, true);
         compare(env.vm.rows[0].severityValue, 9.9);
 
-        env.vm.setGroupByOrigin(true);
+        env.vm.setGroupBy("origin");
+        compare(env.vm.groupBy, "origin");
         compare(env.vm.rows[0].rowType, "group");
+        compare(env.vm.rows[0].groupBy, "origin");
         verify(env.vm.rows[0].count > 0);
         compare(env.vm.visibleCount, 13);
+
+        env.vm.setGroupBy("priority");
+        compare(env.vm.rows[0].rowType, "group");
+        compare(env.vm.rows[0].groupBy, "priority");
+        compare(env.vm.rows[0].key, "critical");
+        compare(env.vm.visibleCount, 13);
+        const priorityHeaders = env.vm.rows.filter(row => row.rowType === "group");
+        compare(priorityHeaders[0].key, "critical");
+        verify(priorityHeaders.length > 1);
+
+        env.vm.setGroupBy("package");
+        compare(env.vm.rows[0].rowType, "group");
+        compare(env.vm.rows[0].groupBy, "package");
+        const packageHeaders = env.vm.rows.filter(row => row.rowType === "group");
+        verify(packageHeaders.length > 0);
+
         const reset = testCase.spy(env.vm, "rowsReset");
-        env.vm.setGroupByOrigin(false);
-        compare(env.vm.rows[0].rowType, "finding");
+        env.vm.toggleGroupsExpanded();
+        compare(env.vm.groupsExpanded, false);
         compare(reset.count, 1);
+        verify(env.vm.rows.length > 0);
+        verify(env.vm.rows.every(row => row.rowType === "group"));
+        let collapsedTotal = 0;
+        for (const row of env.vm.rows) {
+            collapsedTotal += row.count;
+        }
+        compare(collapsedTotal, 13);
+        compare(env.vm.visibleCount, 13);
+
+        env.vm.toggleGroupsExpanded();
+        compare(env.vm.groupsExpanded, true);
+        verify(env.vm.rows.some(row => row.rowType === "finding"));
+
+        env.vm.setGroupBy("none");
+        compare(env.vm.groupBy, "none");
+        compare(env.vm.rows[0].rowType, "finding");
 
         env.vm.destroy();
         env.store.destroy();

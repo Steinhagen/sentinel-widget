@@ -6,7 +6,8 @@ import org.kde.plasma.components as PlasmaComponents3
 Item {
     id: root
 
-    property string groupName: ""
+    property string groupBy: "origin"
+    property string groupKey: ""
     property int groupCount: 0
     property var theme
     property var labels
@@ -38,7 +39,7 @@ Item {
 
         PlasmaComponents3.Label {
             Layout.fillWidth: true
-            text: root.labels ? root.labels.groupLabel(root.groupName) : root.groupName
+            text: root.labels ? root.labels.groupTitle(root.groupBy, root.groupKey) : root.groupKey
             color: Kirigami.Theme.textColor
             font.bold: true
             font.family: Kirigami.Theme.smallFont.family

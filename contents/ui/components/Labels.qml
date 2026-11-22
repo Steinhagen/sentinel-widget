@@ -561,7 +561,7 @@ QtObject {
             parts.push(summary);
         }
         parts.push(i18n("Scores and versions come from the scanned system; NixOS may already carry a backported fix."));
-        parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use “Group by origin” to group the list by the package that pulled each finding in. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
+        parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
         parts.push(masterHelpText);
         parts.push(i18n("The CSV report and scan log are available from the widget's context menu."));
         return parts.join("\n\n");
@@ -684,6 +684,19 @@ QtObject {
         return name && name.length > 0 ? name : i18n("Unknown origin");
     }
 
+    function groupTitle(groupBy, key) {
+        switch (groupBy) {
+        case "priority":
+            return severityBandLabel(key || "unknown");
+        case "package":
+            return key && key.length > 0 ? key : i18n("Unknown package");
+        case "origin":
+            return groupLabel(key);
+        default:
+            return key || "";
+        }
+    }
+
     function groupCountText(count) {
         return i18np("%1 finding", "%1 findings", count);
     }
@@ -756,14 +769,45 @@ QtObject {
         return i18n("Clear the search and filters");
     }
 
-    function groupByText(grouped) {
-        return grouped ? i18n("Show flat list") : i18n("Group by origin");
+    function groupByButton() {
+        return i18n("Group by");
     }
 
-    function groupByTooltip(grouped) {
-        return grouped
-            ? i18n("Show the flat findings list")
-            : i18n("Group findings by the package that introduced them");
+    function groupByTooltip(groupBy) {
+        switch (groupBy) {
+        case "priority":
+            return i18n("Grouped by priority");
+        case "package":
+            return i18n("Grouped by package");
+        case "origin":
+            return i18n("Grouped by origin");
+        default:
+            return i18n("Group findings by priority, package or origin");
+        }
+    }
+
+    function groupNone() {
+        return i18n("No grouping");
+    }
+
+    function groupPriority() {
+        return i18n("Priority");
+    }
+
+    function groupPackage() {
+        return i18n("Package");
+    }
+
+    function groupOrigin() {
+        return i18n("Origin");
+    }
+
+    function expandAllGroups() {
+        return i18n("Show all findings");
+    }
+
+    function collapseAllGroups() {
+        return i18n("Hide all findings");
     }
 
     function showAllForPackage(name) {

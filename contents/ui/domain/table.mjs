@@ -143,12 +143,32 @@ export function sortRows(rows, key, descending) {
     return rows;
 }
 
-export function flattenGroups(rows) {
+const PRIORITY_ORDER = ["critical", "high", "medium", "low", "unknown"];
+
+export function rowGroupKeyOf(row, groupBy) {
+    switch (groupBy) {
+    case "priority":
+        return row.severityBand || "unknown";
+    case "package":
+        return row.package || "";
+    case "origin":
+        return row.origin && row.origin.groupKey ? row.origin.groupKey : "";
+    default:
+        return "";
+    }
+}
+
+export function flattenGroups(rows, groupBy, expanded) {
+    const mode = groupBy || "origin";
+    if (mode === "none") {
+        return rows;
+    }
+    const showRows = expanded !== false;
     const groups = {};
     const order = [];
     for (let i = 0; i < rows.length; ++i) {
         const row = rows[i];
-        const key = row.origin.groupKey || "";
+        const key = rowGroupKeyOf(row, mode);
         if (!groups[key]) {
             groups[key] = { key: key, count: 0, maxSeverity: -1, rows: [] };
             order.push(key);
@@ -161,6 +181,12 @@ export function flattenGroups(rows) {
     }
 
     order.sort(function (a, b) {
+        if (mode === "priority") {
+            const ai = PRIORITY_ORDER.indexOf(a);
+            const bi = PRIORITY_ORDER.indexOf(b);
+            return (ai < 0 ? PRIORITY_ORDER.length : ai)
+                - (bi < 0 ? PRIORITY_ORDER.length : bi);
+        }
         if (groups[a].maxSeverity !== groups[b].maxSeverity) {
             return groups[b].maxSeverity - groups[a].maxSeverity;
         }
@@ -175,12 +201,15 @@ export function flattenGroups(rows) {
         const group = groups[order[g]];
         result.push({
             rowType: "group",
+            groupBy: mode,
             key: group.key,
             count: group.count,
             maxSeverity: group.maxSeverity
         });
-        for (let i = 0; i < group.rows.length; ++i) {
-            result.push(group.rows[i]);
+        if (showRows) {
+            for (let i = 0; i < group.rows.length; ++i) {
+                result.push(group.rows[i]);
+            }
         }
     }
     return result;

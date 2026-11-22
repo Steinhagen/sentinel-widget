@@ -19,7 +19,8 @@ QtObject {
     property string originFilter: ""
     property string sortKey: "severity"
     property bool sortDescending: true
-    property bool groupByOrigin: false
+    property string groupBy: "none"
+    property bool groupsExpanded: true
 
     readonly property var reportModel: store ? store.report : null
     readonly property int checkedRevision: store ? store.checkedRevision : 0
@@ -36,13 +37,16 @@ QtObject {
     })
 
     readonly property var allRows: vm.buildAllRows()
-    readonly property var rows: vm.buildRows()
+    readonly property var filteredRows: vm.buildFilteredRows()
+    readonly property var rows: vm.groupBy === "none"
+        ? vm.filteredRows
+        : Table.flattenGroups(vm.filteredRows, vm.groupBy, vm.groupsExpanded)
     readonly property var counts: Filters.countsOf(vm.allRows)
 
     readonly property int totalCount: vm.reportModel
         ? (vm.reportModel.vulnerabilities ? vm.reportModel.vulnerabilities.length : 0)
         : 0
-    readonly property int visibleCount: Table.findingCount(vm.rows)
+    readonly property int visibleCount: Table.findingCount(vm.filteredRows)
     readonly property bool anyFilterActive: Filters.isActive(vm.filters)
 
     readonly property real maxSeverity: vm.reportModel
@@ -136,10 +140,10 @@ QtObject {
         return rows;
     }
 
-    function buildRows() {
+    function buildFilteredRows() {
         const filtered = Filters.apply(vm.allRows, vm.filters);
         Table.sortRows(filtered, vm.sortKey, vm.sortDescending);
-        return vm.groupByOrigin ? Table.flattenGroups(filtered) : filtered;
+        return filtered;
     }
 
     function resetScroll() {
@@ -228,15 +232,27 @@ QtObject {
         vm.resetScroll();
     }
 
-    function setGroupByOrigin(value) {
-        if (vm.groupByOrigin === value) {
+    function setGroupBy(mode) {
+        const value = ["none", "priority", "package", "origin"].indexOf(mode) >= 0
+            ? mode : "none";
+        if (vm.groupBy === value) {
             return;
         }
-        vm.groupByOrigin = value;
+        vm.groupBy = value;
+        vm.groupsExpanded = true;
         vm.resetScroll();
     }
 
-    function toggleGroupByOrigin() {
-        vm.setGroupByOrigin(!vm.groupByOrigin);
+    function setGroupsExpanded(value) {
+        const next = !!value;
+        if (vm.groupsExpanded === next) {
+            return;
+        }
+        vm.groupsExpanded = next;
+        vm.resetScroll();
+    }
+
+    function toggleGroupsExpanded() {
+        vm.setGroupsExpanded(!vm.groupsExpanded);
     }
 }

@@ -16,8 +16,8 @@ into a compact security dashboard.
   the full dependency-origin chain underneath.
 - Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
   direction arrow.
-- Flat list by default, with an optional **Group by origin** mode that turns
-  each origin into a section header.
+- Flat list by default, with a **Group by** menu for Priority, Package or
+  Origin sections and a global expand/collapse control.
 - Search plus a compact **Filters** menu for severity and fix state.
 - The cards, toolbar and findings table share one centered width.
 - The header logo and Settings button align with the outer card edges.
@@ -118,7 +118,8 @@ Right-click the widget and choose **Configure…**:
 - **Tracker API token:** used for authenticated Nixpkgs security tracker lookups.
 
 Use the list's **Filters** menu for severity and fix state, and the
-**Group by origin** toggle to switch between the flat list and origin sections.
+**Group by** menu to choose Priority, Package or Origin sections, and the
+plus/minus button to show or hide all findings in the grouped view.
 The CSV report and scan log are in the widget's context menu; hover the summary
 line under the title for the About/help text.
 

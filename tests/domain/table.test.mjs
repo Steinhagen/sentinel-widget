@@ -87,3 +87,30 @@ test("grouping does not mutate the input rows", () => {
     flattenGroups(rows);
     assert.equal(rows.map((row) => row.id).join(","), before);
 });
+
+test("grouping modes use priority, package and origin keys", () => {
+    const priority = flattenGroups(rows, "priority", true);
+    const priorityHeaders = priority.filter((entry) => entry.rowType === "group");
+    assert.deepEqual(priorityHeaders.map((entry) => entry.key),
+        ["critical", "high", "medium", "unknown"]);
+    assert.ok(priorityHeaders.every((entry) => entry.groupBy === "priority"));
+    assert.equal(findingCount(priority), rows.length);
+
+    const packages = flattenGroups(rows, "package", true);
+    const packageHeaders = packages.filter((entry) => entry.rowType === "group");
+    assert.ok(packageHeaders.length > 0);
+    assert.ok(packageHeaders.every((entry) => entry.groupBy === "package"));
+    assert.equal(findingCount(packages), rows.length);
+
+    const origins = flattenGroups(rows, "origin", true);
+    assert.ok(origins.filter((entry) => entry.rowType === "group")
+        .every((entry) => entry.groupBy === "origin"));
+});
+
+test("collapsed groups keep only headers and full counts", () => {
+    const collapsed = flattenGroups(rows, "package", false);
+    assert.ok(collapsed.length > 0);
+    assert.ok(collapsed.every((entry) => entry.rowType === "group"));
+    assert.equal(collapsed.reduce((sum, entry) => sum + entry.count, 0), rows.length);
+    assert.equal(findingCount(collapsed), 0);
+});

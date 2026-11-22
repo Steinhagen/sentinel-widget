@@ -97,14 +97,6 @@ QtObject {
         return "Clear filters";
     }
 
-    function groupByText(grouped) {
-        return grouped ? "Flat" : "Group";
-    }
-
-    function groupByTooltip(grouped) {
-        return grouped ? "Flat" : "Group";
-    }
-
     function countLabel(visible, total) {
         return visible + " of " + total;
     }
@@ -117,4 +109,15 @@ QtObject {
     function copyPackageText() { return "package"; }
     function copyFixUrlText() { return "fixurl"; }
     function searchNixpkgsText(name) { return "search " + name; }
+    function groupTitle(groupBy, key) {
+        return key;
+    }
+    function groupByButton() { return "Group by"; }
+    function groupByTooltip(groupBy) { return "group"; }
+    function groupNone() { return "No grouping"; }
+    function groupPriority() { return "Priority"; }
+    function groupPackage() { return "Package"; }
+    function groupOrigin() { return "Origin"; }
+    function expandAllGroups() { return "Expand all"; }
+    function collapseAllGroups() { return "Collapse all"; }
 }

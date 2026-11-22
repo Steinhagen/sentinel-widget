@@ -13,14 +13,16 @@ RowLayout {
     property bool anyFilterActive: false
     property int visibleCount: 0
     property int totalCount: 0
-    property bool groupByOrigin: false
+    property string groupBy: "none"
+    property bool groupsExpanded: true
     property var labels: null
 
     signal searchChanged(string text)
     signal severitySelected(string band)
     signal fixStateSelected(string band)
     signal clearFiltersRequested()
-    signal groupToggled()
+    signal groupBySelected(string groupBy)
+    signal toggleGroupsExpandedRequested()
 
     Layout.fillWidth: false
     spacing: Kirigami.Units.smallSpacing
@@ -151,12 +153,69 @@ RowLayout {
     PlasmaComponents3.ToolButton {
         id: groupByButton
 
-        icon.name: root.groupByOrigin ? "view-list-tree" : "view-list-details"
-        text: root.labels ? root.labels.groupByText(root.groupByOrigin) : ""
-        display: QQC2.AbstractButton.IconOnly
-        onClicked: root.groupToggled()
+        icon.name: root.groupBy === "none" ? "view-list-details" : "view-list-tree"
+        text: root.labels ? root.labels.groupByButton() : "Group by"
+        display: QQC2.AbstractButton.TextBesideIcon
+        onClicked: groupByMenu.popup(groupByButton, 0, groupByButton.height)
 
-        QQC2.ToolTip.text: root.labels ? root.labels.groupByTooltip(root.groupByOrigin) : ""
+        QQC2.ToolTip.text: root.labels ? root.labels.groupByTooltip(root.groupBy) : ""
+        QQC2.ToolTip.visible: hovered
+    }
+
+    QQC2.Menu {
+        id: groupByMenu
+
+        QQC2.MenuItem {
+            text: root.labels ? root.labels.groupNone() : ""
+            checkable: true
+            checked: root.groupBy === "none"
+            onTriggered: root.groupBySelected("none")
+        }
+
+        QQC2.MenuSeparator {}
+
+        QQC2.MenuItem {
+            text: root.labels ? root.labels.groupPriority() : ""
+            checkable: true
+            checked: root.groupBy === "priority"
+            onTriggered: root.groupBySelected("priority")
+        }
+        QQC2.MenuItem {
+            text: root.labels ? root.labels.groupPackage() : ""
+            checkable: true
+            checked: root.groupBy === "package"
+            onTriggered: root.groupBySelected("package")
+        }
+        QQC2.MenuItem {
+            text: root.labels ? root.labels.groupOrigin() : ""
+            checkable: true
+            checked: root.groupBy === "origin"
+            onTriggered: root.groupBySelected("origin")
+        }
+    }
+
+    PlasmaComponents3.ToolButton {
+        id: groupsExpandButton
+
+        visible: root.groupBy !== "none"
+        text: root.groupsExpanded ? "−" : "+"
+        display: QQC2.AbstractButton.TextOnly
+        flat: false
+        font.bold: true
+        font.pointSize: Math.round(Kirigami.Theme.defaultFont.pointSize * 1.2)
+        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
+        Accessible.name: root.labels
+            ? (root.groupsExpanded
+                ? root.labels.collapseAllGroups()
+                : root.labels.expandAllGroups())
+            : ""
+        onClicked: root.toggleGroupsExpandedRequested()
+
+        QQC2.ToolTip.text: root.labels
+            ? (root.groupsExpanded
+                ? root.labels.collapseAllGroups()
+                : root.labels.expandAllGroups())
+            : ""
         QQC2.ToolTip.visible: hovered
     }
 
