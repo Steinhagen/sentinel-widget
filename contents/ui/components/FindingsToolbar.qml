@@ -87,14 +87,12 @@ RowLayout {
     PlasmaComponents3.ToolButton {
         id: groupByButton
 
-        // A split button: the left side names the current state; the chevron
-        // opens the mode menu. Both halves share one accessible button.
-        flat: false
+        // Toolbar-style menu button: the mode label names the current state
+        // and the chevron indicates that it opens a menu.
+        flat: true
         display: QQC2.AbstractButton.IconOnly
         text: root.labels ? root.labels.groupByStateLabel(root.groupBy) : "Flat"
         Accessible.name: root.labels ? root.labels.groupByButton(root.groupBy) : ""
-        leftPadding: Kirigami.Units.gridUnit * 0.55
-        rightPadding: Kirigami.Units.gridUnit * 0.45
         Layout.preferredHeight: Math.round(Kirigami.Units.gridUnit * 1.65)
         onClicked: groupByMenu.popup(groupByButton, 0, groupByButton.height)
 
@@ -113,13 +111,6 @@ RowLayout {
                 color: Kirigami.Theme.textColor
                 font.family: Kirigami.Theme.defaultFont.family
                 font.pointSize: Kirigami.Theme.defaultFont.pointSize
-            }
-
-            Rectangle {
-                Layout.preferredWidth: 1
-                Layout.preferredHeight: Kirigami.Units.gridUnit * 0.9
-                color: Kirigami.Theme.disabledTextColor
-                opacity: 0.55
             }
 
             PlasmaComponents3.Label {
