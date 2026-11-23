@@ -37,6 +37,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   shown when the setting is off. The header is sortable; the tooltip names the
   CVE's vendor and product, and the toolbar count shows hidden entries as
   `(+ N false positives)`.
+- Added an **Unverified findings** setting, enabled by default, that hides
+  findings the triage pass could not confirm. When it and **Triage verdicts**
+  are both on, the Triaj column is hidden; the toolbar count now reports all
+  hidden rows as `(+ N hidden findings)`.
 - Added **Ignore this finding (false positive)** to the row context menu and
   an ignored-findings section in the settings page with **Restore all**. The
   list lives in the applet configuration and applies even when triage verdicts

@@ -116,7 +116,8 @@ package and the fix state, with the CVE's vendor → product in its tooltip.
 explores five ways to show the triage state when the **Triage verdicts**
 setting is off, so suppressed false positives are visible alongside the
 needs-review rows. The current triage column is now V2: icon-only, centered and
-sortable. The V4 setting bar is not implemented.
+sortable. It is hidden when both **Triage verdicts** and **Unverified findings**
+are on. The V4 setting bar is not implemented.
 
 | # | Design | What it is best at |
 |---|--------|--------------------|

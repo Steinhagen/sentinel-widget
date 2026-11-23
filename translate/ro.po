@@ -1124,6 +1124,29 @@ msgstr "Trecerea de triaj a confirmat că acest CVE descrie pachetul instalat."
 msgid "Shown because triage verdicts are off; enable them to hide this finding."
 msgstr "Afișat pentru că verdictele de triaj sunt oprite; activați-le pentru a ascunde această constatare."
 
+#: contents/ui/components/Labels.qml
+msgid "Unverified findings:"
+msgstr "Constatări de verificat:"
+
+#: contents/ui/components/Labels.qml
+msgid "Hide findings the triage pass could not confirm"
+msgstr "Ascunde constatările pe care trecerea de triaj nu le-a putut confirma"
+
+#: contents/ui/components/Labels.qml
+msgid "Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. When both options are on, the Triaj column is hidden too."
+msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse de „Verdicte de triaj”; constatările pe care trecerea de triaj nu le-a putut confirma sunt ascunse de „Constatări de verificat”. Verdictele provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Când ambele opțiuni sunt activate, se ascunde și coloana Triaj."
+
+#: contents/ui/components/Labels.qml
+msgid "The parenthesised findings are hidden by the triage settings or ignored by you. Ignored findings can be restored in the settings."
+msgstr "Constatările din paranteze sunt ascunse de setările de triaj sau ignorate de dvs. Cele ignorate pot fi restaurate din setări."
+
+#: contents/ui/components/Labels.qml
+msgid "%1 hidden finding"
+msgid_plural "%1 hidden findings"
+msgstr[0] "%1 ascuns"
+msgstr[1] "%1 ascunse"
+msgstr[2] "%1 de ascunse"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

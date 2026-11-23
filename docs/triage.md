@@ -185,9 +185,11 @@ still accepts a report at `/var/lib/sentinel/triage.json` (written with
 
 The **Triage verdicts** setting (configure dialog, enabled by default) hides
 `suppressed` findings from the list, the summary cards, the counts and the panel
-badge. The toolbar count shows them as `837 of 837 (+ 95 false positives)`;
-turning the setting off brings them back. `confirmed` and `unverified` findings
-are always shown.
+badge. The **Unverified findings** setting (also enabled by default) hides
+`unverified` rows in the same way. The toolbar count shows hidden rows as
+`837 of 932 (+ 95 hidden findings)`; turning a setting off brings those rows
+back. When both are on, the Triaj column is hidden; turning either off shows it.
+`confirmed` findings are always shown.
 
 The triage column between the package and the fix state uses compact icons:
 amber **!** for unverified rows, green **✓** for confirmed ones, and red **⊘**
@@ -208,5 +210,6 @@ an embedded verdict takes precedence over the report.
 The natural next step is to make the backend emit the verdict instead of a
 sidecar file: add `verdict` and `verdict_reasons[]` to the finding record
 (`schema_version` 8), compute them where the CVE data is already loaded, and let
-the widget filter `suppressed` by default and count `unverified` separately.
-Until then this tool is the place to tune the rules against real scans.
+the widget filter `suppressed` and `unverified` with independent settings and
+count all hidden rows together. Until then this tool is the place to tune the
+rules against real scans.

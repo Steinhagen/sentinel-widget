@@ -144,11 +144,15 @@ Right-click the widget and choose **Configure…**:
   [`tools/triage.mjs`](tools/triage.mjs), or from a `verdict` field on the
   finding itself. The triage column uses compact icons: amber **!** for
   unverified rows, green **✓** for confirmed ones, and red **⊘** for the
-  suppressed false positives shown when the setting is off. Hover the icon to
-  see what the CVE actually names (for example
+  suppressed false positives. The column is hidden when both this setting and
+  **Unverified findings** are on; turn one off to see that state. Hover the
+  icon to see what the CVE actually names (for example
   `Fidelis Cybersecurity → Fidelis Network`). The header is sortable; the
-  toolbar count shows hidden entries as `(+ N false positives)`. See
+  toolbar count shows hidden rows as `(+ N hidden findings)`. See
   [docs/triage.md](docs/triage.md).
+- **Unverified findings:** hide findings the triage pass could not confirm
+  (enabled by default). This is independent of **Triage verdicts**; when both
+  are on, the Triaj column is hidden.
 - **Ignored findings:** right-click a row and choose **Ignore this finding
   (false positive)** to hide a finding the scanners matched to the wrong
   package. The list is kept in the applet configuration; the same settings

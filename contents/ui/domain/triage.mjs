@@ -169,37 +169,65 @@ export function isSuppressed(finding, triage, enabled, ignoredPairs) {
         && verdictOf(finding, triage) === TriagedVerdict.SUPPRESSED;
 }
 
-/** The findings to display, honoring the triage setting. */
-export function visibleFindings(findings, triage, enabled, ignoredPairs) {
+/** The findings to display, honoring the triage settings. */
+export function visibleFindings(findings, triage, enabled, ignoredPairs,
+        hideUnverified) {
     const source = arrayOf(findings);
+    const hideSuppressed = enabled === true;
+    const hideReview = hideUnverified === true;
     const hasIgnores = Array.isArray(ignoredPairs) && ignoredPairs.length > 0;
-    if (enabled !== true && !hasIgnores) {
-        return source;
-    }
-    if (!triage && !hasIgnores) {
+    if (!hideSuppressed && !hideReview && !hasIgnores) {
         return source;
     }
     const visible = [];
     for (let i = 0; i < source.length; ++i) {
-        if (!isSuppressed(source[i], triage, true, ignoredPairs)) {
-            visible.push(source[i]);
+        const finding = source[i];
+        if (isIgnored(finding, ignoredPairs)) {
+            continue;
         }
+        const verdict = verdictOf(finding, triage);
+        if (hideSuppressed && verdict === TriagedVerdict.SUPPRESSED) {
+            continue;
+        }
+        if (hideReview && verdict === TriagedVerdict.UNVERIFIED) {
+            continue;
+        }
+        visible.push(finding);
     }
     return visible;
 }
 
 export function suppressedCount(findings, triage, enabled, ignoredPairs) {
     const source = arrayOf(findings);
-    const hasIgnores = Array.isArray(ignoredPairs) && ignoredPairs.length > 0;
-    if (enabled !== true && !hasIgnores) {
-        return 0;
-    }
-    if (!triage && !hasIgnores) {
-        return 0;
-    }
+    const hideSuppressed = enabled === true;
     let count = 0;
     for (let i = 0; i < source.length; ++i) {
-        if (isSuppressed(source[i], triage, true, ignoredPairs)) {
+        const finding = source[i];
+        if (isIgnored(finding, ignoredPairs)) {
+            count += 1;
+            continue;
+        }
+        if (hideSuppressed
+                && verdictOf(finding, triage) === TriagedVerdict.SUPPRESSED) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
+/** Unverified findings hidden by the "hide unverified" setting. */
+export function reviewCount(findings, triage, hideUnverified, ignoredPairs) {
+    if (hideUnverified !== true) {
+        return 0;
+    }
+    const source = arrayOf(findings);
+    let count = 0;
+    for (let i = 0; i < source.length; ++i) {
+        const finding = source[i];
+        if (isIgnored(finding, ignoredPairs)) {
+            continue;
+        }
+        if (verdictOf(finding, triage) === TriagedVerdict.UNVERIFIED) {
             count += 1;
         }
     }

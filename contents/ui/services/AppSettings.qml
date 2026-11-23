@@ -8,6 +8,7 @@ QtObject {
     property string badgeMode: "count"
     property string trackerToken: ""
     property bool triageEnabled: true
+    property bool hideUnverified: true
     // JSON array of { cve, package } pairs ignored from the applet.
     property string triageIgnore: "[]"
 

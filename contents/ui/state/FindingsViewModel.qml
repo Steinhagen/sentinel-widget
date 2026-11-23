@@ -13,8 +13,9 @@ QtObject {
     required property var store
     required property var labels
 
-    // Bound to the widget setting in main.qml.
+    // Bound to the widget settings in main.qml.
     property bool triageEnabled: true
+    property bool hideUnverified: true
     // { cve, package } pairs the user ignored from the applet.
     property var ignoredPairs: []
 
@@ -55,6 +56,8 @@ QtObject {
         }
         return false;
     }
+    readonly property bool triageColumnVisible: vm.triageAvailable
+        && !(vm.triageEnabled && vm.hideUnverified)
     readonly property bool hasFindings: vm.totalCount > 0
 
     readonly property var visibleFindings: {
@@ -67,7 +70,7 @@ QtObject {
             return [];
         }
         return Triage.visibleFindings(source, vm.triage, vm.triageEnabled,
-            vm.ignoredPairs);
+            vm.ignoredPairs, vm.hideUnverified);
     }
 
     readonly property int hiddenCount: {
@@ -77,7 +80,9 @@ QtObject {
             return 0;
         }
         return Triage.suppressedCount(source, vm.triage, vm.triageEnabled,
-            vm.ignoredPairs);
+            vm.ignoredPairs)
+            + Triage.reviewCount(source, vm.triage, vm.hideUnverified,
+                vm.ignoredPairs);
     }
 
     readonly property var filters: ({
@@ -208,7 +213,15 @@ QtObject {
     onSystemChannelChanged: vm.rowsReset(true)
     onTriageRevisionChanged: vm.rowsReset(true)
     onTriageEnabledChanged: vm.rowsReset(true)
+    onHideUnverifiedChanged: vm.rowsReset(true)
     onIgnoredPairsChanged: vm.rowsReset(true)
+    onTriageColumnVisibleChanged: {
+        if (!vm.triageColumnVisible && vm.sortKey === "review") {
+            vm.sortKey = "severity";
+            vm.sortDescending = true;
+            vm.resetScroll();
+        }
+    }
 
     function buildAllRows() {
         const revision = vm.checkedRevision;

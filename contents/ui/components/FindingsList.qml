@@ -19,7 +19,7 @@ Rectangle {
     property bool groupsExpanded: true
     property string groupSortKey: ""
     property bool groupSortDescending: false
-    property bool triageAvailable: false
+    property bool triageColumnVisible: false
 
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
@@ -100,7 +100,7 @@ Rectangle {
     // The triage state is an icon, so the column only has to fit the header
     // and the 18 px badge. This gives the package and source the width the
     // old text chip used to reserve.
-    readonly property real triageColumnWidth: root.triageAvailable
+    readonly property real triageColumnWidth: root.triageColumnVisible
         ? Math.max(Kirigami.Units.gridUnit * 2.8,
             metricTriage.width + Kirigami.Units.smallSpacing * 5)
         : 0

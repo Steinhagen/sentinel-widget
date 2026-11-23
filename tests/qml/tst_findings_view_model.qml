@@ -293,6 +293,17 @@ TestCase {
         }));
         env.store.triageRevision += 1;
 
+        // The "Unverified findings" setting is on by default.
+        compare(env.vm.hideUnverified, true);
+        compare(env.vm.totalCount, 12);
+        compare(env.vm.hiddenCount, 1);
+        compare(env.vm.triageColumnVisible, false);
+
+        env.vm.hideUnverified = false;
+        compare(env.vm.totalCount, 13);
+        compare(env.vm.hiddenCount, 0);
+        compare(env.vm.triageColumnVisible, true);
+
         const marked = env.vm.rows.find(row => row.id === "CVE-2026-111497");
         compare(marked.needsReview, true);
         compare(marked.triageVendor, "Google");
@@ -318,6 +329,8 @@ TestCase {
         env.store.report = Status.normalizeReport(raw);
 
         compare(env.vm.triageAvailable, true);
+        compare(env.vm.totalCount, 12);
+        env.vm.hideUnverified = false;
         const row = env.vm.rows.find(r => r.id === "CVE-2026-111497");
         compare(row.needsReview, true);
         compare(row.triageVendor, "Mozilla");
@@ -349,11 +362,13 @@ TestCase {
         compare(env.vm.rows.length, 12);
         verify(!env.vm.rows.some(row => row.id === "CVE-2021-35049"));
         compare(env.vm.severityBands[1].count, 4);
+        compare(env.vm.triageColumnVisible, false);
 
         env.vm.triageEnabled = false;
         compare(env.vm.totalCount, 13);
         compare(env.vm.hiddenCount, 0);
         compare(env.vm.maxSeverity, 9.9);
+        compare(env.vm.triageColumnVisible, true);
         verify(env.vm.rows.some(row => row.id === "CVE-2021-35049"));
 
         env.vm.destroy();

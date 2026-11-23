@@ -15,6 +15,9 @@
     <entry name="triageEnabled" type="Bool">
       <default>true</default>
     </entry>
+    <entry name="hideUnverified" type="Bool">
+      <default>true</default>
+    </entry>
     <entry name="triageIgnore" type="String">
       <default>[]</default>
     </entry>

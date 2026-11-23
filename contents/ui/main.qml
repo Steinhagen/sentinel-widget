@@ -23,6 +23,7 @@ PlasmoidItem {
         trackerToken: Plasmoid.configuration.sentinelTrackerToken || ""
         triageIgnore: Plasmoid.configuration.triageIgnore || "[]"
         triageEnabled: Plasmoid.configuration.triageEnabled !== false
+        hideUnverified: Plasmoid.configuration.hideUnverified !== false
     }
 
     CommandRunner { id: commandRunner }
@@ -70,6 +71,7 @@ PlasmoidItem {
         store: scanStore
         labels: sentinelLabels
         triageEnabled: appletSettings.triageEnabled
+        hideUnverified: appletSettings.hideUnverified
         ignoredPairs: appletSettings.ignoredPairs
     }
 

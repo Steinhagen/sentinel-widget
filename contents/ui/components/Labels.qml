@@ -692,15 +692,16 @@ QtObject {
         return i18n("Sort by %1", label);
     }
 
+    function hiddenCountLabel(count) {
+        return i18np("%1 hidden finding", "%1 hidden findings", count);
+    }
+
     function countLabel(visible, total, hidden) {
         const hiddenCount = Number(hidden || 0);
-        if (hiddenCount <= 0) {
-            return i18n("%1 of %2", visible, total);
-        }
-        if (hiddenCount === 1) {
-            return i18n("%1 of %2 (+ %3 false positive)", visible, total, hiddenCount);
-        }
-        return i18n("%1 of %2 (+ %3 false positives)", visible, total, hiddenCount);
+        const label = i18n("%1 of %2", visible, total);
+        return hiddenCount > 0
+            ? label + " (+ " + hiddenCountLabel(hiddenCount) + ")"
+            : label;
     }
 
     function reviewChipText() {
@@ -817,7 +818,7 @@ QtObject {
     }
 
     function triageHiddenTooltip() {
-        return i18n("The parenthesised findings are hidden by the triage pass or ignored by you. Ignored findings can be restored in the settings.");
+        return i18n("The parenthesised findings are hidden by the triage settings or ignored by you. Ignored findings can be restored in the settings.");
     }
 
     function noMatchesText() {

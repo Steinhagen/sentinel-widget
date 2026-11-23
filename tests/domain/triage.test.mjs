@@ -7,6 +7,7 @@ import {
     keyOf,
     parseTriageText,
     reasonsOf,
+    reviewCount,
     suppressedCount,
     verdictOf,
     visibleFindings,
@@ -104,12 +105,33 @@ test("an embedded verdict wins over the sidecar", () => {
 test("visibleFindings hides suppressed findings only when enabled", () => {
     const parsed = parseTriageText(JSON.stringify(report));
     const all = report.findings;
+    const plain = all.map(({ verdict, reasons, ...rest }) => rest);
     assert.equal(visibleFindings(all, parsed, true).length, 2);
     assert.equal(visibleFindings(all, parsed, false).length, 3);
-    assert.equal(visibleFindings(all, null, true).length, 3);
+    assert.equal(visibleFindings(plain, null, true).length, 3);
     assert.equal(suppressedCount(all, parsed, true), 1);
     assert.equal(suppressedCount(all, parsed, false), 0);
-    assert.equal(suppressedCount(all, null, true), 0);
+    assert.equal(suppressedCount(plain, null, true), 0);
+});
+
+test("embedded suppressed verdicts hide without a sidecar", () => {
+    assert.equal(visibleFindings(report.findings, null, true).length, 2);
+    assert.equal(suppressedCount(report.findings, null, true), 1);
+});
+
+test("unverified findings can be hidden independently", () => {
+    const parsed = parseTriageText(JSON.stringify(report));
+    const all = report.findings;
+    assert.equal(visibleFindings(all, parsed, true, [], true).length, 1);
+    assert.equal(visibleFindings(all, parsed, false, [], true).length, 2);
+    assert.equal(visibleFindings(all, parsed, true, [], false).length, 2);
+    assert.equal(reviewCount(all, parsed, true), 1);
+    assert.equal(reviewCount(all, parsed, false), 0);
+
+    // Embedded verdicts work without a sidecar report.
+    const unverified = report.findings[0];
+    assert.equal(visibleFindings([unverified], null, true, [], true).length, 0);
+    assert.equal(reviewCount([unverified], null, true), 1);
 });
 
 test("only suppressed findings are removed", () => {
@@ -139,6 +161,16 @@ test("a pair ignored from the applet is suppressed without a report", () => {
     // triage-verdict setting is off.
     assert.equal(visibleFindings(findings, null, false, pairs).length, 1);
     assert.equal(suppressedCount(findings, null, false, pairs), 1);
+});
+
+test("suppressedCount counts ignores but not disabled verdicts", () => {
+    const parsed = parseTriageText(JSON.stringify(report));
+    const pairs = [{ cve: "CVE-2021-24028", package: "thrift" }];
+    const findings = report.findings.concat([
+        { id: "CVE-2021-24028", package: "thrift", version: "0.25.0" },
+    ]);
+    assert.equal(suppressedCount(findings, parsed, false, pairs), 1);
+    assert.equal(suppressedCount(findings, parsed, true, pairs), 2);
 });
 
 test("ignored pairs and report verdicts hide together", () => {
