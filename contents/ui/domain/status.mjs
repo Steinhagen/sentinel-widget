@@ -4,6 +4,7 @@
 // of the applet works with a stable ScanReport.
 
 import { bandOf } from "./severity.mjs";
+import { normalizeSource } from "./source.mjs";
 import { SUPPORTED_SCHEMA_VERSION } from "./types.mjs";
 
 function arrayOf(value) {
@@ -90,6 +91,9 @@ export function normalizeFinding(raw) {
     // reads the sidecar report written by tools/triage.mjs.
     finding.verdict = stringOf(source.verdict);
     finding.verdict_reasons = arrayOf(source.verdict_reasons).map(String);
+    // A finding may name the flake source its package was built from; the row
+    // falls back to the report-level source otherwise.
+    finding.source = normalizeSource(source.source);
     return finding;
 }
 
@@ -154,6 +158,7 @@ export function fingerprint(report) {
         JSON.stringify(report.severityCounts),
         report.stamp,
         report.error,
+        JSON.stringify(report.source),
         JSON.stringify(report.vulnerabilities)
     ];
     return fnv1a(parts.join("|"));
@@ -178,6 +183,7 @@ export function normalizeReport(raw) {
         scannedAtMs: parseTimestamp(source),
         stamp: stampOf(source),
         error: stringOf(source.error),
+        source: normalizeSource(source.source),
         vulnerabilities: vulnerabilities,
         tracker: tracker
     };

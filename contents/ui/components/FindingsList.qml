@@ -103,9 +103,15 @@ Rectangle {
         ? metricReview.width + Kirigami.Units.smallSpacing * 6
         : 0
 
+    // The CVE column also carries the package source on the second line, so
+    // it is wider than the CVE id alone; 10.5 grid units keeps the channel
+    // and revision readable, and leaves the package column the rest. The full
+    // "nixpkgs/nixos-unstable (2786a2a)" label is in the source tooltip.
+    readonly property real cveColumnWidth: Kirigami.Units.gridUnit * 11
+
     readonly property var headerColumns: [
         { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
-        { key: "cve", width: Kirigami.Units.gridUnit * 8.5, fill: false, align: "left" },
+        { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
         { key: "package", width: 0, fill: true, align: "left" },
         { key: "review", width: root.reviewColumnWidth, fill: false, align: "left" },
         { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
@@ -255,6 +261,7 @@ Rectangle {
             theme: root.theme
             labels: root.labels
             systemChannel: root.systemChannel
+            cveWidth: root.cveColumnWidth
             fixPillWidth: root.fixPillWidth
             reviewWidth: root.reviewColumnWidth
 

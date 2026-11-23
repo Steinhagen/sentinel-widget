@@ -129,6 +129,13 @@ UNSTABLE_CHANNEL = "nixos-unstable"
 # "26.05"), used to decide whether a fix reaches *this* system. Empty means
 # unknown, in which case nixos-unstable is assumed.
 SYSTEM_RELEASE = os.environ.get("SENTINEL_SYSTEM_RELEASE", "").strip()
+# The Nixpkgs revision the scanned system was built from
+# (config.system.nixos.revision). Together with the system channel resolved
+# below it becomes the package source shown in each finding row.
+SYSTEM_NIXPKGS_REV = os.environ.get("SENTINEL_NIXPKGS_REV", "").strip()
+SYSTEM_NIXPKGS_FLAKE = (
+    os.environ.get("SENTINEL_NIXPKGS_FLAKE", "nixpkgs").strip() or "nixpkgs"
+)
 STAGING_BRANCHES = ("staging-next", "staging")
 # How long a probed ref (branch head or channel revision) is trusted. Staging
 # moves slowly (one cycle is weeks); a channel pointer is re-resolved more
@@ -826,6 +833,23 @@ def status_stamp(status):
     return status.get("scanned_at_iso") or status.get("scanned_at") or ""
 
 
+def system_source(channel):
+    """The Nixpkgs source the scanned system was built from.
+
+    The applet shows this under the CVE instead of repeating it in every
+    finding: the system closure was evaluated with this Nixpkgs revision,
+    which is the package source a finding can be traced to.
+    """
+    if not channel or not GIT_REVISION_RE.match(SYSTEM_NIXPKGS_REV):
+        return None
+    return {
+        "flake": SYSTEM_NIXPKGS_FLAKE,
+        "ref": channel,
+        "rev": SYSTEM_NIXPKGS_REV,
+        "short_rev": SYSTEM_NIXPKGS_REV[:7],
+    }
+
+
 def load_status(path):
     try:
         with open(path) as handle:
@@ -1213,8 +1237,8 @@ def tracker_state_digest(status):
         for item in (status.get("vulnerabilities") or [])
     ]
     return json.dumps(
-        [items, tracker], ensure_ascii=False, sort_keys=True,
-        separators=(",", ":"),
+        [status.get("source"), items, tracker], ensure_ascii=False,
+        sort_keys=True, separators=(",", ":"),
     )
 
 
@@ -1227,6 +1251,9 @@ def write_tracker_status(status_path, base_status, base_stamp, vulnerabilities,
         return False
     previous = tracker_state_digest(current)
     base_status["vulnerabilities"] = vulnerabilities
+    source = system_source(progress.get("system_channel"))
+    if source is not None:
+        base_status["source"] = source
     base_status["tracker"] = annotate_tracker(
         vulnerabilities, entries, complete, fetched, failures, issues, progress,
         probed

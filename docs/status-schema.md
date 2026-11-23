@@ -40,6 +40,7 @@ Current schema version: **7**.
 | `scanned_at_iso` | string | ISO-8601 timestamp, preferred |
 | `scanned_at_epoch` | number | Seconds since the epoch, preferred |
 | `error` | string/null | Last scan error, if any |
+| `source` | object | Nixpkgs source the scanned system was built from; see below |
 | `tracker` | object | Tracker progress; see below |
 | `vulnerabilities` | array | Finding records; older files may use `top` |
 
@@ -65,10 +66,36 @@ Legacy compatibility:
 | `patch_state` | string | Backend-specific patch information |
 | `origins` | object | Dependency provenance; see below |
 | `tracker` | object | Nixpkgs security tracker annotation; see below |
+| `source` | object | Optional per-finding override of the report source |
 | `verdict` | string | Optional triage verdict: `confirmed`, `unverified`, `suppressed` |
 | `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected` |
 | `verdict_vendor` | string | CVE vendor, shown in the REVIEW tooltip |
 | `verdict_product` | string | CVE product, shown in the REVIEW tooltip |
+
+### `source`
+
+The flake input the scanned system was built from. The NixOS module passes
+`config.system.nixos.revision`; the tracker pass resolves the channel the
+system updates from:
+
+```json
+{
+  "flake": "nixpkgs",
+  "ref": "nixos-unstable",
+  "rev": "2786a2a72088ecf32aea5b3ec52099e6a7cff78f",
+  "short_rev": "2786a2a"
+}
+```
+
+The applet renders this in the second row of every finding, under the CVE.
+The flake/ref and revision are shown together; on the default narrow CVE
+column the `nixpkgs/` prefix is dropped so the channel and revision stay
+readable (`nixos-unstable (2786a2a)`), and the full string is in the tooltip.
+The object is written by the tracker pass, so it is absent until that pass has
+resolved the system channel. It describes the system-wide Nixpkgs revision:
+Nix store paths do not record which flake input evaluated them. A finding may
+carry its own `source` object with the same shape, which takes precedence, once
+a backend can attribute a package more precisely.
 
 ### Triage verdicts
 

@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   backend always come from the same revision.
 - `tools/triage.mjs --embed` writes the triage verdicts into `status.json`, so
   the applet reads a single file; the tracker pass runs it automatically.
+- Each finding row now shows the Nixpkgs source the system was built from
+  (channel and revision, e.g. `nixos-unstable (2786a2a)`) under the CVE, and
+  the dependency-origin chain moved under the package name. The source comes
+  from a new top-level `source` object in `status.json`; a per-finding `source`
+  overrides it.
 
 - Added a complete Romanian translation (`translate/ro.po`), compiled to
   `contents/locale/ro/LC_MESSAGES/plasma_applet_io.github.steinhagen.sentinel.mo`

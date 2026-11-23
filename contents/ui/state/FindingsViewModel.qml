@@ -219,7 +219,8 @@ QtObject {
         const source = vm.visibleFindings;
         const rows = Table.buildRows(source, {
             systemChannel: vm.systemChannel,
-            checked: vm.store ? vm.store.checked : {}
+            checked: vm.store ? vm.store.checked : {},
+            source: report.source
         });
         for (let i = 0; i < rows.length; ++i) {
             const row = rows[i];

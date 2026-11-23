@@ -11,6 +11,13 @@ import {
     storePathsOf
 } from "./origins.mjs";
 import { classify } from "./fix.mjs";
+import {
+    normalizeSource,
+    sourceNameText,
+    sourceRefText,
+    sourceRevLabel,
+    sourceText
+} from "./source.mjs";
 import { stateOf, statusOf } from "./tracker.mjs";
 
 function arrayOf(value) {
@@ -32,6 +39,8 @@ export function buildFindingRow(finding, context) {
     const chain = normalizedChain(source);
     const tracker = source.tracker || null;
     const fix = classify(source, options.systemChannel || "");
+    const provenance = normalizeSource(source.source)
+        || normalizeSource(options.source);
 
     row.rowType = "finding";
     row.severityValue = numberOf(severity);
@@ -58,6 +67,11 @@ export function buildFindingRow(finding, context) {
     row.trackerState = stateOf(source, options.checked || {});
     row.trackerStatus = statusOf(source);
     row.tracker = tracker;
+    row.source = provenance;
+    row.sourceText = sourceText(provenance);
+    row.sourceName = sourceNameText(provenance);
+    row.sourceRef = sourceRefText(provenance);
+    row.sourceRev = sourceRevLabel(provenance);
     row.originSearch = row.origin.searchText;
     row.fixSortText = "";
     row.viaLabel = "";

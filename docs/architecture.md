@@ -796,6 +796,8 @@ Qt/Plasma version matching the supported runtime.
  * @property {string} confidence
  * @property {string} patchState
  * @property {OriginInfo} origin
+ * @property {SourceInfo|null} source   // finding source or report fallback
+ * @property {string} sourceText        // "nixpkgs/nixos-unstable (2786a2a)"
  * @property {TrackerState} trackerState
  * @property {FixClassification} fix
  * @property {string} searchText         // lowercase haystack
@@ -815,6 +817,18 @@ Qt/Plasma version matching the supported runtime.
  * @property {{status:string, version:string, source:string, range:string}} master
  * @property {string} url
  * @property {string} nextStep         // token, e.g. channel-bump|backport|staging-merge|none
+ */
+```
+
+`SourceInfo`:
+
+```js
+/**
+ * @typedef {Object} SourceInfo
+ * @property {string} flake            // e.g. nixpkgs
+ * @property {string} ref              // e.g. nixos-unstable
+ * @property {string} rev              // full git revision
+ * @property {string} shortRev         // seven-character abbreviation
  */
 ```
 
@@ -858,9 +872,9 @@ Add `docs/status-schema.md` (or a JSON Schema) with the v7 fields actually used:
 
 - top level: `schema_version`, `state`, `findings`, `max_severity`,
   `packages_affected`, `severity_counts`, `scanned_at`, `scanned_at_iso`,
-  `scanned_at_epoch`, `error`, `tracker`, `vulnerabilities`;
+  `scanned_at_epoch`, `error`, `source`, `tracker`, `vulnerabilities`;
 - per finding: `id`, `package`, `version`, `severity`, `url`, `scanners`,
-  `confidence`, `patch_state`, `origins`, `tracker`;
+  `confidence`, `patch_state`, `origins`, `source`, `tracker`;
 - per tracker: `found`, `status`, `issue`, `issue_state`, `master_status`,
   `master_version`, `master_status_source`, `master_range`, `fix_state`,
   `fix_branch`, `fix_version`, `fix_branches`, `fix_url`, `github_issue_url`,

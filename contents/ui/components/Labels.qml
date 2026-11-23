@@ -245,6 +245,23 @@ QtObject {
         }
     }
 
+    function sourceTooltip(source) {
+        if (!source) {
+            return "";
+        }
+        const name = source.flake && source.ref
+            ? source.flake + "/" + source.ref
+            : (source.flake || source.ref || "");
+        const lines = [];
+        if (name.length > 0) {
+            lines.push(i18n("Built from %1", name));
+        }
+        if (source.rev) {
+            lines.push(i18n("Revision: %1", source.rev));
+        }
+        return lines.join("\n");
+    }
+
     function originTooltip(origin) {
         if (!origin || !origin.names || origin.names.length === 0) {
             return "";

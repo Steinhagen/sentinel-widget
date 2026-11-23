@@ -15,6 +15,12 @@
   "scanned_at_iso": "2026-11-22T17:05:35+02:00",
   "scanned_at_epoch": 1795359935,
   "error": null,
+  "source": {
+    "flake": "nixpkgs",
+    "ref": "nixos-unstable",
+    "rev": "2786a2a72088ecf32aea5b3ec52099e6a7cff78f",
+    "short_rev": "2786a2a"
+  },
   "tracker": {
     "available": true,
     "complete": true,

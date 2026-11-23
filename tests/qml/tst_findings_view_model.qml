@@ -40,6 +40,7 @@ TestCase {
         compare(env.vm.totalCount, 13);
         compare(env.vm.visibleCount, 13);
         compare(env.vm.rows.length, 13);
+        compare(env.vm.rows[0].sourceText, "nixpkgs/nixos-unstable (2786a2a)");
         compare(env.vm.maxSeverity, 9.9);
         compare(env.vm.affectedPackages, 13);
         compare(env.vm.severityBands[1].count, 5);

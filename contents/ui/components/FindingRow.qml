@@ -13,6 +13,7 @@ PlasmaComponents3.ItemDelegate {
     property var theme: null
     property var labels: null
     property string systemChannel: ""
+    property real cveWidth: Kirigami.Units.gridUnit * 11
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
     property real reviewWidth: 0
     signal openFinding(string url)
@@ -32,7 +33,43 @@ PlasmaComponents3.ItemDelegate {
         ? root.rowData.origin.chainText : ""
     readonly property string originPrimary: root.rowData && root.rowData.origin
         ? root.rowData.origin.primary : ""
+    readonly property string sourceText: root.rowData
+        ? (root.rowData.sourceText || "") : ""
+    readonly property string sourceName: root.rowData
+        ? (root.rowData.sourceName || "") : ""
+    readonly property string sourceRef: root.rowData
+        ? (root.rowData.sourceRef || "") : ""
+    readonly property string sourceRev: root.rowData
+        ? (root.rowData.sourceRev || "") : ""
+    // On a narrow CVE column the flake prefix is dropped so the channel and
+    // revision stay readable; the tooltip always names both.
+    readonly property bool sourceNameFits: {
+        if (!root.sourceRev || !root.sourceRef) {
+            return true;
+        }
+        return sourceNameMetrics.width + sourceRevMetrics.width
+            + Kirigami.Units.smallSpacing <= root.cveWidth;
+    }
+    readonly property var sourceInfo: root.rowData ? root.rowData.source : null
+    readonly property string sourceTooltip: root.labels && root.sourceInfo
+        ? root.labels.sourceTooltip(root.sourceInfo) : ""
     readonly property string fixUrl: root.fix ? root.fix.url : ""
+
+    TextMetrics {
+        id: sourceNameMetrics
+
+        font.family: Kirigami.Theme.smallFont.family
+        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+        text: root.sourceName
+    }
+
+    TextMetrics {
+        id: sourceRevMetrics
+
+        font.family: Kirigami.Theme.smallFont.family
+        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+        text: root.sourceRev
+    }
 
     width: parent ? parent.width : implicitWidth
     height: Math.max(contentItem.implicitHeight + topPadding + bottomPadding,
@@ -89,7 +126,16 @@ PlasmaComponents3.ItemDelegate {
     Accessible.name: root.rowData && root.labels
         ? root.labels.rowAccessibleName(root.rowData.id, root.rowData.package, root.rowData.severityText)
         : ""
-    Accessible.description: root.originChain
+    Accessible.description: {
+        const parts = [];
+        if (root.sourceText.length > 0) {
+            parts.push(root.sourceText);
+        }
+        if (root.originChain.length > 0) {
+            parts.push(root.originChain);
+        }
+        return parts.join(" · ");
+    }
 
     contentItem: ColumnLayout {
         spacing: 1
@@ -115,9 +161,9 @@ PlasmaComponents3.ItemDelegate {
             PlasmaComponents3.Label {
                 id: cveLabel
 
-                Layout.preferredWidth: Kirigami.Units.gridUnit * 8.5
-                Layout.minimumWidth: Kirigami.Units.gridUnit * 8.5
-                Layout.maximumWidth: Kirigami.Units.gridUnit * 8.5
+                Layout.preferredWidth: root.cveWidth
+                Layout.minimumWidth: root.cveWidth
+                Layout.maximumWidth: root.cveWidth
                 text: root.rowData ? (root.rowData.id || "—") : "—"
                 color: root.rowData && root.rowData.url
                     ? Kirigami.Theme.linkColor : Kirigami.Theme.textColor
@@ -292,48 +338,110 @@ PlasmaComponents3.ItemDelegate {
             Layout.leftMargin: Kirigami.Units.gridUnit * 2
                 + Kirigami.Units.smallSpacing
             spacing: Kirigami.Units.smallSpacing
-            visible: root.originChain.length > 0
+            visible: root.sourceText.length > 0 || root.originChain.length > 0
 
-            PlasmaComponents3.Label {
-                text: "↳"
-                color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
-            }
-
+            // The package source sits under the CVE; the origin chain starts
+            // under the package name, in the next column.
             Item {
-                Layout.fillWidth: true
-                implicitHeight: chainLabel.implicitHeight
+                id: sourceColumn
 
-                PlasmaComponents3.Label {
-                    id: chainLabel
+                Layout.preferredWidth: root.cveWidth
+                Layout.minimumWidth: root.cveWidth
+                Layout.maximumWidth: root.cveWidth
+                implicitHeight: sourceRow.implicitHeight
 
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: root.originChain
-                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                    elide: Text.ElideRight
+                // The channel is allowed to elide; the revision stays
+                // readable at the end of the cell. The full pair is in the
+                // tooltip.
+                RowLayout {
+                    id: sourceRow
+
+                    anchors.fill: parent
+                    spacing: Kirigami.Units.smallSpacing
+
+                    PlasmaComponents3.Label {
+                        id: sourceLabel
+
+                        Layout.maximumWidth: Math.max(0, root.cveWidth
+                            - sourceRevMetrics.width - Kirigami.Units.smallSpacing)
+                        text: root.sourceNameFits || root.sourceRef.length === 0
+                            ? root.sourceName : root.sourceRef
+                        visible: text.length > 0
+                        color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                        elide: Text.ElideRight
+                    }
+
+                    PlasmaComponents3.Label {
+                        text: root.sourceRev
+                        visible: text.length > 0
+                        color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
                 }
 
                 HoverHandler {
-                    id: chainHover
-                    cursorShape: Qt.PointingHandCursor
+                    id: sourceHover
+                    cursorShape: Qt.WhatsThisCursor
                 }
 
-                QQC2.ToolTip.text: root.labels && root.rowData
-                    ? root.labels.originTooltip(root.rowData.origin)
-                    : ""
-                QQC2.ToolTip.visible: chainHover.hovered
+                QQC2.ToolTip.text: root.sourceTooltip
+                QQC2.ToolTip.visible: sourceHover.hovered
                     && QQC2.ToolTip.text.length > 0
+            }
 
-                MouseArea {
-                    anchors.fill: parent
-                    onClicked: {
-                        if (root.originPrimary) {
-                            root.filterOriginRequested(root.originPrimary);
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: Kirigami.Units.smallSpacing
+                visible: root.originChain.length > 0
+
+                PlasmaComponents3.Label {
+                    text: "↳"
+                    color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    implicitHeight: chainLabel.implicitHeight
+
+                    PlasmaComponents3.Label {
+                        id: chainLabel
+
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.originChain
+                        color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Kirigami.Theme.smallFont.pointSize
+                        elide: Text.ElideRight
+                    }
+
+                    HoverHandler {
+                        id: chainHover
+                        cursorShape: Qt.PointingHandCursor
+                    }
+
+                    QQC2.ToolTip.text: root.labels && root.rowData
+                        ? root.labels.originTooltip(root.rowData.origin)
+                        : ""
+                    QQC2.ToolTip.visible: chainHover.hovered
+                        && QQC2.ToolTip.text.length > 0
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            if (root.originPrimary) {
+                                root.filterOriginRequested(root.originPrimary);
+                            }
                         }
                     }
                 }

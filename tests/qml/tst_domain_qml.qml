@@ -28,10 +28,15 @@ TestCase {
             origins: { introduced_by: ["curl"], chain: ["curl", "zlib"] },
             tracker: { found: true, status: "pending" }
         };
-        const row = Table.buildFindingRow(finding, { systemChannel: "nixos-unstable", checked: {} });
+        const row = Table.buildFindingRow(finding, {
+            systemChannel: "nixos-unstable",
+            checked: {},
+            source: { flake: "nixpkgs", ref: "nixos-unstable", rev: "2786a2a72088ecf32aea5b3ec52099e6a7cff78f" }
+        });
         compare(row.rowType, "finding");
         compare(row.severityBand, "high");
         compare(row.trackerState, "found");
         compare(row.origin.primary, "curl");
+        compare(row.sourceText, "nixpkgs/nixos-unstable (2786a2a)");
     }
 }

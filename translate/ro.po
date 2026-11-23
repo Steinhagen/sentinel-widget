@@ -1060,6 +1060,14 @@ msgstr "Deschide jurnalul scanării"
 msgid "Open Nixpkgs Security Tracker"
 msgstr "Deschide trackerul de securitate Nixpkgs"
 
+#: contents/ui/components/Labels.qml
+msgid "Built from %1"
+msgstr "Construit din %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Revision: %1"
+msgstr "Revizie: %1"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

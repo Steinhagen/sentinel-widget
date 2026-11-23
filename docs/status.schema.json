@@ -16,6 +16,7 @@
     "scanned_at_iso": { "type": "string" },
     "scanned_at_epoch": { "type": "number" },
     "error": { "type": ["string", "null"] },
+    "source": { "$ref": "#/$defs/source" },
     "tracker": { "$ref": "#/$defs/trackerProgress" },
     "vulnerabilities": {
       "type": "array",
@@ -24,6 +25,16 @@
   },
   "additionalProperties": true,
   "$defs": {
+    "source": {
+      "type": "object",
+      "properties": {
+        "flake": { "type": "string" },
+        "ref": { "type": "string" },
+        "rev": { "type": "string" },
+        "short_rev": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
     "severityCounts": {
       "type": "object",
       "properties": {
@@ -48,6 +59,7 @@
         "confidence": { "type": "string" },
         "patch_state": { "type": "string" },
         "origins": { "$ref": "#/$defs/origins" },
+        "source": { "$ref": "#/$defs/source" },
         "tracker": { "$ref": "#/$defs/findingTracker" }
       },
       "additionalProperties": true

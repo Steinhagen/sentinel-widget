@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { normalizeReport } from "../../contents/ui/domain/status.mjs";
 import { readFixture } from "../helpers/fixtures.mjs";
 
 const raw = readFixture("status-v7.json");
@@ -16,6 +17,10 @@ test("the v7 fixture satisfies the top-level contract", () => {
     assert.equal(typeof raw.max_severity, "number");
     assert.ok(raw.severity_counts && typeof raw.severity_counts === "object");
     assert.ok(raw.tracker && typeof raw.tracker === "object");
+    assert.equal(typeof raw.source.flake, "string");
+    assert.equal(typeof raw.source.ref, "string");
+    assert.match(raw.source.rev, /^[0-9a-f]{40}$/);
+    assert.match(raw.source.short_rev, /^[0-9a-f]{7}$/);
 });
 
 test("every finding has the fields the applet reads", () => {
@@ -45,4 +50,15 @@ test("unknown fields are tolerated", () => {
     copy.vulnerabilities[0].future_field = 42;
     assert.equal(copy.future_field.nested, true);
     assert.equal(copy.vulnerabilities[0].future_field, 42);
+});
+
+test("the package source is normalized and optional", () => {
+    const report = normalizeReport(raw);
+    assert.equal(report.source.flake, "nixpkgs");
+    assert.equal(report.source.ref, "nixos-unstable");
+    assert.equal(report.source.shortRev, "2786a2a");
+
+    const without = structuredClone(raw);
+    delete without.source;
+    assert.equal(normalizeReport(without).source, null);
 });

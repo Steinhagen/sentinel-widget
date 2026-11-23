@@ -27,6 +27,9 @@ let
     "LANG=C.UTF-8"
     "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
     "SENTINEL_SYSTEM_RELEASE=${config.system.nixos.release}"
+    # Shown in the applet as "nixpkgs/<channel> (<rev>)": the revision this
+    # system closure was built from.
+    "SENTINEL_NIXPKGS_REV=${config.system.nixos.revision}"
     "SENTINEL_TRACKER_TOKEN_FILE=${trackerTokenFile}"
     # The report step reads the runtime closure graph to turn the scanner's
     # component evidence into "introduced by" chains.

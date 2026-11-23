@@ -12,7 +12,7 @@ import {
 } from "../../contents/ui/domain/table.mjs";
 import { v7 } from "../helpers/fixtures.mjs";
 
-const context = { systemChannel: "nixos-unstable", checked: {} };
+const context = { systemChannel: "nixos-unstable", checked: {}, source: v7.source };
 const rows = buildRows(v7.vulnerabilities, context);
 
 test("a view row carries display data and tokens", () => {
@@ -25,8 +25,26 @@ test("a view row carries display data and tokens", () => {
     assert.equal(row.fix.labelKey, "fixed");
     assert.equal(row.origin.primary, "imagemagick-7.1.2-35");
     assert.equal(row.trackerState, "found");
+    assert.equal(row.sourceText, "nixpkgs/nixos-unstable (2786a2a)");
+    assert.equal(row.source.rev, "2786a2a72088ecf32aea5b3ec52099e6a7cff78f");
     assert.ok(row.searchText.includes("cve-2026-111497"));
     assert.ok(row.originSearch.includes("imagemagick"));
+});
+
+test("a finding source overrides the report source", () => {
+    const shown = buildFindingRow({
+        id: "CVE-2026-0002",
+        package: "zlib",
+        source: { flake: "sentinel-widget", ref: "main", rev: "abcdef0123456789" }
+    }, context);
+    assert.equal(shown.sourceText, "sentinel-widget/main (abcdef0)");
+
+    const fallback = buildFindingRow({ id: "CVE-2026-0003", package: "zlib" }, context);
+    assert.equal(fallback.sourceText, "nixpkgs/nixos-unstable (2786a2a)");
+
+    const missing = buildFindingRow({ id: "CVE-2026-0004", package: "zlib" }, {});
+    assert.equal(missing.sourceText, "");
+    assert.equal(missing.source, null);
 });
 
 test("buildRows keeps the input order and count", () => {

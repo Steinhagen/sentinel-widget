@@ -13,8 +13,9 @@ the same revision, so the two cannot drift apart.
 - Three dashboard cards: highest CVSS score, severity mix, and available fixes
   with a fix-state breakdown.
   Dependency origins are shown in the findings list and group-by-origin mode.
-- Two-line findings list: CVSS score, CVE, package + version, fix status, and
-  the full dependency-origin chain underneath.
+- Two-line findings list: CVSS score, CVE, package + version, fix status, with
+  the dependency-origin chain aligned under the package and the Nixpkgs source
+  (channel and revision, e.g. `nixos-unstable (2786a2a)`) under the CVE.
 - Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
   direction arrow.
 - Flat list by default, with a current-state **Group by** split button
