@@ -4,6 +4,8 @@ import QtQuick.Shapes
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.components as PlasmaComponents3
 
+import "../domain/severity.mjs" as Severity
+
 Rectangle {
     id: root
 
@@ -15,6 +17,7 @@ Rectangle {
     property var labels: null
 
     readonly property real severityRatio: Math.max(0, Math.min(1, root.maxSeverity / 10))
+    readonly property string severityBand: Severity.bandOf(root.maxSeverity)
 
     radius: 16
     color: root.theme ? root.theme.cardColor : "transparent"
@@ -49,7 +52,7 @@ Rectangle {
 
                 ShapePath {
                     strokeColor: root.maxSeverity > 0 && root.theme
-                        ? root.theme.criticalColor : "transparent"
+                        ? root.theme.severityBandColor(root.severityBand) : "transparent"
                     strokeWidth: 8
                     fillColor: "transparent"
                     capStyle: ShapePath.RoundCap
@@ -91,8 +94,13 @@ Rectangle {
             spacing: 1
 
             PlasmaComponents3.Label {
-                text: root.labels ? root.labels.criticalExposureTitle() : "CRITICAL EXPOSURE"
-                color: root.theme ? root.theme.criticalColor : Kirigami.Theme.negativeTextColor
+                objectName: "exposureTitle"
+                text: root.labels
+                    ? root.labels.exposureTitle(root.severityBand)
+                    : root.severityBand
+                color: root.theme
+                    ? root.theme.severityBandColor(root.severityBand)
+                    : Kirigami.Theme.disabledTextColor
                 font.bold: true
                 font.family: Kirigami.Theme.smallFont.family
                 font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)

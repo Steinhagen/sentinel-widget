@@ -11,7 +11,7 @@ network.
 
 ## Commands
 
-Current suite: 127 Node tests, 44 qmltestrunner test functions and 11 backend
+Current suite: 127 Node tests, 50 qmltestrunner test functions and 11 backend
 tests.
 
 ```sh

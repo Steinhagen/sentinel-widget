@@ -928,8 +928,19 @@ QtObject {
             : i18n("Click to show these findings");
     }
 
-    function criticalExposureTitle() {
-        return i18n("CRITICAL EXPOSURE");
+    function exposureTitle(band) {
+        switch (band) {
+        case "critical":
+            return i18n("CRITICAL EXPOSURE");
+        case "high":
+            return i18n("HIGH EXPOSURE");
+        case "medium":
+            return i18n("MEDIUM EXPOSURE");
+        case "low":
+            return i18n("LOW EXPOSURE");
+        default:
+            return i18n("UNKNOWN EXPOSURE");
+        }
     }
 
     function potentialVulnerabilities() {

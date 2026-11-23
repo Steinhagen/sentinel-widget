@@ -1207,6 +1207,22 @@ msgstr "Acest atribut de pachet este încă afectat în toate ramurile verificat
 msgid "No checked branch has a fix yet."
 msgstr "Nicio ramură verificată nu are încă un fix."
 
+#: contents/ui/components/Labels.qml
+msgid "HIGH EXPOSURE"
+msgstr "EXPUNERE RIDICATĂ"
+
+#: contents/ui/components/Labels.qml
+msgid "MEDIUM EXPOSURE"
+msgstr "EXPUNERE MEDIE"
+
+#: contents/ui/components/Labels.qml
+msgid "LOW EXPOSURE"
+msgstr "EXPUNERE SCĂZUTĂ"
+
+#: contents/ui/components/Labels.qml
+msgid "UNKNOWN EXPOSURE"
+msgstr "EXPUNERE NECUNOSCUTĂ"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

@@ -81,6 +81,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `openssl_1_1`, `libressl` 4.2.1 → `libressl_4_2`) instead of the bare
   package name. A legacy or vendored attribute stays **no fix** even when the
   default package is fixed; the fix tooltip names the matched tracker package.
+- The exposure card now follows the actual CVSS band: a maximum of 8.8 shows
+  **High exposure** in orange (the same band as the severity list), not
+  **Critical exposure**; only 9.0+ uses the critical title and colour.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.
