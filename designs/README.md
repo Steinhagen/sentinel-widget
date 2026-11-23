@@ -109,3 +109,22 @@ once. [review-markers.html](review-markers.html) compares five placements for
 the marker without dropping the dependency-origin line; the widget uses the
 **REVIEW** chip from variant 4, moved into its own column between the
 package and the fix state, with the CVE's vendor → product in its tooltip.
+
+## Review and false-positive states
+
+[review-states.html](review-states.html) · [overview](review-states.png)
+explores five ways to show the triage state when the **Triage verdicts**
+setting is off, so suppressed false positives are visible alongside the
+needs-review rows. The current REVIEW chip is now a centered, sortable column
+(V1); the false-positive chip and the setting bar are not implemented yet.
+
+| # | Design | What it is best at |
+|---|--------|--------------------|
+| V1 | [Dual pill in the Triaj column](review-states.png) | Smallest change; explicit; sortable |
+| V2 | [Icon-only Triaj column](review-states.png) | Saves ~3 grid units; still sortable |
+| V3 | [Status dot next to the CVE](review-states.png) | Maximum width; sorting moves to a menu |
+| V4 | [Triage bar + inline suffix](review-states.png) | Explains when false positives are shown or hidden |
+| V5 | [Group by triage / review queue](review-states.png) | Bulk workflow for many findings |
+
+**Recommendation:** V1 for the column plus V4's bar for the setting state; V3
+if the package/origin width is the priority.

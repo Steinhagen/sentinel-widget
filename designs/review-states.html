@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — cum afișăm triajul și false pozitivele</title>
+<style>
+  :root {
+    --bg: #1b1e24;
+    --card: #20242b;
+    --card2: #262b33;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --line: #2b3038;
+    --accent: #3daee9;
+    --cve: #7cc7f0;
+    --critical: #fb7185;
+    --amber: #f3d79a;
+    --amber-bg: #3a2f16;
+    --amber-line: #6b5624;
+    --red: #f0a3a3;
+    --red-bg: #3a1f23;
+    --red-line: #66343b;
+    --green: #9fe0b8;
+    --green-bg: #1d3327;
+    --green-line: #2c4d3a;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 26px 28px 40px;
+    background: #0f1115;
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .page-head { max-width: 900px; margin: 0 auto 16px; }
+  .page-head h1 { margin: 0 0 6px; font-size: 23px; letter-spacing: -.2px; }
+  .page-head p { margin: 0; color: #aab0b9; line-height: 1.55; max-width: 860px; }
+  .page-head b { color: var(--text); }
+
+  .legend {
+    max-width: 900px; margin: 0 auto 18px; padding: 9px 12px;
+    border: 1px solid #2b3038; background: #151a20; border-radius: 8px;
+    color: #aab0b9; font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 18px;
+  }
+  .legend .k { color: #d7dce1; }
+  .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+  .swatch.a { background: var(--amber); }
+  .swatch.r { background: var(--red); }
+  .swatch.g { background: var(--green); }
+
+  .recommend {
+    max-width: 900px; margin: 0 auto 22px; padding: 10px 13px;
+    border: 1px solid #2f4a5c; border-left: 3px solid var(--accent);
+    background: #18232b; border-radius: 8px; color: #b9c1c9; font-size: 12.5px;
+  }
+  .recommend b { color: #8fd3f5; }
+
+  .variant { max-width: 900px; margin: 0 auto 24px; }
+  .vhead { display: flex; align-items: baseline; gap: 9px; margin-bottom: 7px; }
+  .tag { color: #59616c; font: 11px "DejaVu Sans Mono", monospace; }
+  .vhead h2 { margin: 0; font-size: 14.5px; font-weight: 600; }
+  .note-inline { margin-left: auto; color: #8f96a0; font-size: 11.5px; }
+
+  .widget {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 11px;
+    overflow: hidden;
+  }
+  .scenario {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 10px; border-bottom: 1px solid var(--line);
+    color: var(--faint); font-size: 10.5px; background: #171a1f;
+  }
+  .scenario .on { color: var(--amber); }
+  .scenario .spacer { flex: 1; }
+
+  .wrow {
+    display: grid; align-items: center; gap: 8px;
+    padding: 7px 10px; border-bottom: 1px solid #232830;
+  }
+  .wrow:last-child { border-bottom: 0; }
+  .wrow.head {
+    padding: 5px 10px; background: #181b20; color: var(--faint);
+    font-size: 10px; text-transform: uppercase; letter-spacing: .035em;
+  }
+  .wrow.head .sort { color: #59616c; margin-left: 3px; }
+  .wrow.head .active { color: #cfd4da; }
+
+  .cols-v1 { grid-template-columns: 32px minmax(0, 1fr) 108px 88px; }
+  .cols-v2 { grid-template-columns: 32px minmax(0, 1fr) 34px 88px; }
+  .cols-v3 { grid-template-columns: 32px minmax(0, 1fr) 88px; }
+  .cols-v4 { grid-template-columns: 32px minmax(0, 1fr) 88px; }
+  .cols-v5 { grid-template-columns: 32px minmax(0, 1fr) 108px 88px; }
+
+  .score { color: var(--critical); font-weight: 700; font-size: 12.5px; }
+  .main { min-width: 0; }
+  .line1 { display: flex; align-items: baseline; gap: 7px; white-space: nowrap; min-width: 0; }
+  .cve {
+    color: var(--cve); font-family: "DejaVu Sans Mono", monospace;
+    font-size: 11px; flex: 0 0 auto;
+  }
+  .pkg { color: var(--text); font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .ver { color: var(--faint); font-size: 10.5px; flex: 0 0 auto; }
+  .line2 {
+    display: flex; align-items: baseline; gap: 6px; margin-top: 2px;
+    color: var(--faint); font-size: 10.5px; white-space: nowrap; min-width: 0;
+  }
+  .src { color: #8b939d; flex: 0 0 132px; overflow: hidden; text-overflow: ellipsis; }
+  .branch { color: #4f5862; flex: 0 0 auto; }
+  .chain { overflow: hidden; text-overflow: ellipsis; }
+  .suffix {
+    margin-left: auto; padding-left: 8px; flex: 0 0 auto;
+    font-size: 10px; letter-spacing: .02em; text-transform: uppercase;
+  }
+  .suffix.review { color: var(--amber); }
+  .suffix.fp { color: var(--red); }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    justify-self: center;
+    font-size: 9px; letter-spacing: .03em; text-transform: uppercase;
+    border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+  }
+  .chip.review { color: var(--amber); background: var(--amber-bg); border: 1px solid var(--amber-line); }
+  .chip.fp { color: var(--red); background: var(--red-bg); border: 1px solid var(--red-line); }
+  .chip.ok { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-line); }
+  .chip .glyph { font-size: 9px; }
+
+  .icon {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: grid; place-items: center; justify-self: center;
+    font-size: 11px; font-weight: 700;
+  }
+  .icon.review { color: var(--amber); background: var(--amber-bg); border: 1px solid var(--amber-line); }
+  .icon.fp { color: var(--red); background: var(--red-bg); border: 1px solid var(--red-line); }
+  .icon.ok { color: var(--green); background: var(--green-bg); border: 1px solid var(--green-line); }
+
+  .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    margin-right: 5px; vertical-align: 1px;
+  }
+  .dot.review { background: var(--amber); box-shadow: 0 0 0 2px rgba(243,215,154,.14); }
+  .dot.fp { background: transparent; border: 1px solid var(--red); }
+
+  .fix {
+    justify-self: end; font-size: 10px; color: #c9ced4;
+    background: #2a3038; border: 1px solid #353d47;
+    border-radius: 999px; padding: 1px 8px; white-space: nowrap;
+  }
+  .fix.ok { color: var(--green); background: var(--green-bg); border-color: var(--green-line); }
+
+  .strike { text-decoration: line-through; text-decoration-color: #6b4a4f; }
+
+  .row-fp { background: rgba(240,163,163,.035); }
+  .row-review { background: rgba(243,215,154,.035); }
+
+  .toolbar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-bottom: 1px solid var(--line);
+    background: var(--card); font-size: 11.5px; color: #cfd4da;
+  }
+  .toolbar .spacer { flex: 1; }
+  .toolbar .btn {
+    border: 1px solid #353d47; background: #2a3038; border-radius: 7px;
+    padding: 2px 8px; font-size: 10.5px; color: #cfd4da;
+  }
+  .toolbar .btn.on { color: var(--amber); border-color: var(--amber-line); background: var(--amber-bg); }
+  .toolbar .count { color: var(--faint); font-size: 10.5px; }
+  .toolbar .count b { color: var(--amber); }
+
+  .tri-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-bottom: 1px solid var(--line);
+    background: #20242b; font-size: 11.5px; color: #cfd4da;
+  }
+  .tri-bar .spacer { flex: 1; }
+  .tri-bar .counts { color: var(--muted); font-size: 11px; }
+  .tri-bar .counts b { color: var(--amber); }
+  .tri-bar .counts .fp { color: var(--red); }
+  .tri-bar .hint { color: var(--faint); font-size: 10px; }
+  .switch { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10.5px; }
+  .switch .knob {
+    width: 24px; height: 14px; border-radius: 999px; background: #3a414b;
+    position: relative; display: inline-block;
+  }
+  .switch .knob::after {
+    content: ""; position: absolute; width: 10px; height: 10px; border-radius: 50%;
+    background: #e8eaed; top: 2px; left: 12px;
+  }
+
+  .group {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; background: var(--card2);
+    border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+  }
+  .group:first-child { border-top: 0; }
+  .group .gname { font-weight: 600; }
+  .group .n { background: #333b46; border-radius: 999px; padding: 0 7px; color: #cfd4da; font-size: 10.5px; }
+  .group .why { color: var(--faint); font-size: 10.5px; }
+  .group .spacer { flex: 1; }
+  .group .action {
+    color: var(--amber); border: 1px solid var(--amber-line); background: var(--amber-bg);
+    border-radius: 7px; padding: 2px 8px; font-size: 10.5px; white-space: nowrap;
+  }
+  .group.fp .gname { color: var(--red); }
+  .group.fp .action { color: var(--red); border-color: var(--red-line); background: var(--red-bg); }
+  .group.ok .gname { color: var(--muted); }
+
+  .reason {
+    display: flex; gap: 5px; margin-top: 2px;
+    color: #e3c169; font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .reason b { color: var(--amber); font-weight: 600; }
+
+  .foot {
+    display: flex; gap: 18px; margin-top: 7px; color: #8f96a0;
+    font-size: 11.5px; line-height: 1.5;
+  }
+  .foot div { flex: 1; }
+  .foot .lbl { color: #59616c; text-transform: uppercase; font-size: 9.5px; letter-spacing: .04em; margin-right: 4px; }
+  .foot b { color: #d7dce1; }
+
+  .callout {
+    position: relative; margin-top: 6px; padding: 7px 10px;
+    background: #10141a; border: 1px dashed #3a424d; border-radius: 7px;
+    color: #aab0b9; font-size: 11px;
+  }
+  .callout b { color: var(--amber); }
+  .callout .k { color: var(--faint); margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<div class="page-head">
+  <h1>Cum afișăm „de verificat” și false pozitivele</h1>
+  <p>Cinci direcții pentru coloana de triaj. În toate, rândurile <b>false pozitive</b> sunt vizibile
+     pentru că setarea <b>Verdicturi de triaj</b> este oprită; rândurile <b>confirmate</b> nu primesc
+     niciun marcaj. Aceleași date: <b>network 3.2.8.0</b> (de verificat), <b>setuptools 65.5.1</b>
+     (fals pozitiv), <b>brotli 1.2.1</b> (confirmat).</p>
+</div>
+
+<div class="legend">
+  <span><span class="swatch a"></span><span class="k">De verificat</span> — triajul nu a putut confirma potrivirea</span>
+  <span><span class="swatch r"></span><span class="k">Fals pozitiv</span> — ascuns când setarea este pornită</span>
+  <span><span class="swatch g"></span><span class="k">Confirmat</span> — fără marcaj</span>
+</div>
+
+<div class="recommend">
+  <b>Recomandarea mea: V1 + bara din V4.</b> V1 păstrează coloana explicită și sortabilă, iar bara
+  din V4 face vizibilă starea setării și oferă un singur click pentru „arată / ascunde false pozitive”.
+  Dacă prioritatea este lățimea maximă pentru pachet și origine, alege V3.
+</div>
+
+<!-- V1 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V1</span><h2>Pastilă dublă în coloana Triaj</h2>
+    <span class="note-inline">schimbare minimă · explicit · sortabil</span></div>
+  <div class="widget">
+    <div class="scenario"><span>Setarea „Verdicturi de triaj”: <span class="on">oprită</span> — false pozitivele sunt vizibile</span><span class="spacer"></span><span>triaj: 12 de verificat · 7 false pozitive</span></div>
+    <div class="wrow head cols-v1"><span>CVSS</span><span>CVE · Pachet</span><span style="text-align:center">Triaj <span class="sort">↕</span></span><span style="text-align:right">Remediere <span class="sort">↕</span></span></div>
+    <div class="wrow cols-v1 row-review">
+      <div class="score">9.9</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2021-35049</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div></div>
+      <span class="chip review">DE VERIFICAT</span>
+      <span class="fix">necunoscut</span>
+    </div>
+    <div class="wrow cols-v1 row-fp">
+      <div class="score">7.5</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2022-40897</span><span class="pkg strike">setuptools</span><span class="ver">65.5.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">python3.14-pyarrow-24.0.0 → setuptools</span></div></div>
+      <span class="chip fp"><span class="glyph">⊘</span>FALS POZITIV</span>
+      <span class="fix">fără remediere</span>
+    </div>
+    <div class="wrow cols-v1">
+      <div class="score">9.8</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div></div>
+      <span></span>
+      <span class="fix ok">remediat</span>
+    </div>
+  </div>
+  <div class="foot"><div><span class="lbl">Bine</span>Explică ambele stări fără hover; click pe „Triaj” sortează direct.</div><div><span class="lbl">Cost</span>Coloana rămâne lată; „FALS POZITIV” încape la limită.</div></div>
+</section>
+
+<!-- V2 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V2</span><h2>Pictograme în coloana Triaj</h2>
+    <span class="note-inline">compact · sortabil · tooltip pentru motiv</span></div>
+  <div class="widget">
+    <div class="scenario"><span>Setarea „Verdicturi de triaj”: <span class="on">oprită</span> — false pozitivele sunt vizibile</span><span class="spacer"></span><span>triaj: 12 de verificat · 7 false pozitive</span></div>
+    <div class="wrow head cols-v2"><span>CVSS</span><span>CVE · Pachet</span><span style="text-align:center">Triaj <span class="sort">↕</span></span><span style="text-align:right">Remediere <span class="sort">↕</span></span></div>
+    <div class="wrow cols-v2 row-review">
+      <div class="score">9.9</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2021-35049</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div></div>
+      <span class="icon review">!</span>
+      <span class="fix">necunoscut</span>
+    </div>
+    <div class="wrow cols-v2 row-fp">
+      <div class="score">7.5</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2022-40897</span><span class="pkg strike">setuptools</span><span class="ver">65.5.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">python3.14-pyarrow-24.0.0 → setuptools</span></div></div>
+      <span class="icon fp">⊘</span>
+      <span class="fix">fără remediere</span>
+    </div>
+    <div class="wrow cols-v2">
+      <div class="score">9.8</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div></div>
+      <span class="icon ok">✓</span>
+      <span class="fix ok">remediat</span>
+    </div>
+  </div>
+  <div class="callout"><span class="k">Hover pe „!”</span><b>De verificat</b> — doar numele produsului se potrivește: Fidelis Cybersecurity → Fidelis Network.</div>
+  <div class="foot"><div><span class="lbl">Bine</span>Salvezi ~3 gu pentru pachet și origine; sortarea rămâne în header.</div><div><span class="lbl">Cost</span>Semnificația cere tooltip; formele trebuie să fie distincte și pentru daltonism.</div></div>
+</section>
+
+<!-- V3 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V3</span><h2>Punct de stare lângă CVE, fără coloană</h2>
+    <span class="note-inline">lățime maximă · sortare din meniu</span></div>
+  <div class="widget">
+    <div class="scenario"><span>Setarea „Verdicturi de triaj”: <span class="on">oprită</span> — false pozitivele sunt vizibile</span><span class="spacer"></span><span>triaj: 12 de verificat · 7 false pozitive</span></div>
+    <div class="toolbar"><span class="btn on">Triaj ▾</span><span class="btn">Filtre</span><span class="spacer"></span><span class="count">12 de verificat · 7 false pozitive</span></div>
+    <div class="wrow head cols-v3"><span>CVSS</span><span>CVE · Pachet</span><span style="text-align:right">Remediere <span class="sort">↕</span></span></div>
+    <div class="wrow cols-v3 row-review">
+      <div class="score">9.9</div>
+      <div class="main"><div class="line1"><span class="cve"><span class="dot review"></span>CVE-2021-35049</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div></div>
+      <span class="fix">necunoscut</span>
+    </div>
+    <div class="wrow cols-v3 row-fp">
+      <div class="score">7.5</div>
+      <div class="main"><div class="line1"><span class="cve"><span class="dot fp"></span>CVE-2022-40897</span><span class="pkg strike">setuptools</span><span class="ver">65.5.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">python3.14-pyarrow-24.0.0 → setuptools</span></div></div>
+      <span class="fix">fără remediere</span>
+    </div>
+    <div class="wrow cols-v3">
+      <div class="score">9.8</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div></div>
+      <span class="fix ok">remediat</span>
+    </div>
+  </div>
+  <div class="callout"><span class="k">Hover pe punct</span><b>De verificat</b> — doar numele produsului se potrivește: Fidelis Cybersecurity → Fidelis Network.</div>
+  <div class="foot"><div><span class="lbl">Bine</span>Cel mai mult spațiu pentru pachet, sursă și lanțul de origine; rândul rămâne curat.</div><div><span class="lbl">Cost</span>Fără header sortabil; sortarea/filtrarea trebuie mutate într-un meniu „Triaj”; sensul cere hover.</div></div>
+</section>
+
+<!-- V4 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V4</span><h2>Bară de triaj + etichetă inline</h2>
+    <span class="note-inline">setarea devine vizibilă · fără coloană</span></div>
+  <div class="widget">
+    <div class="tri-bar">
+      <span class="counts">Triaj: <b>12 de verificat</b> · <span class="fp">7 false pozitive</span></span>
+      <span class="hint">(afișate)</span>
+      <span class="spacer"></span>
+      <span class="switch"><span class="knob"></span>Arată false pozitive</span>
+    </div>
+    <div class="wrow head cols-v4"><span>CVSS</span><span>CVE · Pachet</span><span style="text-align:right">Remediere <span class="sort">↕</span></span></div>
+    <div class="wrow cols-v4 row-review">
+      <div class="score">9.9</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2021-35049</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">haskell-language-server-2.13.0.0 → network</span><span class="suffix review">· de verificat</span></div></div>
+      <span class="fix">necunoscut</span>
+    </div>
+    <div class="wrow cols-v4 row-fp">
+      <div class="score">7.5</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2022-40897</span><span class="pkg strike">setuptools</span><span class="ver">65.5.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">python3.14-pyarrow-24.0.0 → setuptools</span><span class="suffix fp">· fals pozitiv</span></div></div>
+      <span class="fix">fără remediere</span>
+    </div>
+    <div class="wrow cols-v4">
+      <div class="score">9.8</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2026-111497</span><span class="pkg">brotli</span><span class="ver">1.2.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">imagemagick-7.1.2-35 → brotli</span></div></div>
+      <span class="fix ok">remediat</span>
+    </div>
+  </div>
+  <div class="foot"><div><span class="lbl">Bine</span>Spune explicit când false pozitivele sunt afișate sau ascunse și oferă comutarea lângă listă.</div><div><span class="lbl">Cost</span>O bară în plus; eticheta inline poate fi împinsă de un lanț de origine lung.</div></div>
+</section>
+
+<!-- V5 -->
+<section class="variant">
+  <div class="vhead"><span class="tag">V5</span><h2>Grupare „Triaj” / coadă de verificare</h2>
+    <span class="note-inline">workflow · acțiuni în bloc</span></div>
+  <div class="widget">
+    <div class="toolbar"><span class="btn on">Grupare: Triaj ▾</span><span class="btn">Filtre</span><span class="spacer"></span><span class="count">12 de verificat · 7 false pozitive</span></div>
+    <div class="group"><span class="gname">De verificat</span><span class="n">12</span><span class="why">· doar numele produsului se potrivește</span><span class="spacer"></span><span class="action">Ignoră grupul</span></div>
+    <div class="wrow cols-v5 row-review">
+      <div class="score">9.9</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2021-35049</span><span class="pkg">network</span><span class="ver">3.2.8.0</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">haskell-language-server-2.13.0.0 → network</span></div><div class="reason">⚠ <b>Fidelis Cybersecurity → Fidelis Network</b></div></div>
+      <span class="chip review">DE VERIFICAT</span>
+      <span class="fix">necunoscut</span>
+    </div>
+    <div class="group fp"><span class="gname">False pozitive</span><span class="n">7</span><span class="why">· vizibile pentru că setarea este oprită</span><span class="spacer"></span><span class="action">Ascunde grupul</span></div>
+    <div class="wrow cols-v5 row-fp">
+      <div class="score">7.5</div>
+      <div class="main"><div class="line1"><span class="cve">CVE-2022-40897</span><span class="pkg strike">setuptools</span><span class="ver">65.5.1</span></div><div class="line2"><span class="src">nixos-unstable (2786a2a)</span><span class="branch">↳</span><span class="chain">python3.14-pyarrow-24.0.0 → setuptools</span></div><div class="reason">⊘ <b>versiunea 65.5.1 nu este în intervalul afectat</b></div></div>
+      <span class="chip fp">FALS POZITIV</span>
+      <span class="fix">fără remediere</span>
+    </div>
+    <div class="group ok"><span class="gname">Confirmate</span><span class="n">913</span><span class="why">· fără marcaj</span><span class="spacer"></span><span class="action">Restrânge</span></div>
+  </div>
+  <div class="foot"><div><span class="lbl">Bine</span>Transformă triajul într-o coadă de lucru: vezi câte sunt, citești motivul și închizi un grup întreg.</div><div><span class="lbl">Cost</span>Necesită group-by; în modul plat ai nevoie în continuare de un marcaj compact.</div></div>
+</section>
+
+<div class="recommend">
+  <b>Pe scurt:</b> V1 este cel mai mic pas față de ce ai acum; V2 și V3 recuperează spațiu;
+  V4 rezolvă cel mai bine întrebarea „ce se întâmplă când setarea este oprită”; V5 este pentru
+  curățarea în bloc a listei. Spune-mi care direcție îți place și o implementez.
+</div>
+
+</body>
+</html>
