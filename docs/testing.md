@@ -11,7 +11,7 @@ network.
 
 ## Commands
 
-Current suite: 127 Node tests, 50 qmltestrunner test functions and 11 backend
+Current suite: 128 Node tests, 56 qmltestrunner test functions and 11 backend
 tests.
 
 ```sh
@@ -132,6 +132,7 @@ commit a tracker token.
 | Command/service | QML test with `FakeRunner`; exit code and timeout |
 | Scan lifecycle | QML test for start, adopt, finish, timeout, failure |
 | UI component | QML test for labels, signals and empty states; manual screenshot |
+| Origin popover | `tst_origin_popover.qml` for the title/count; `origins.test.mjs` for package/version splitting |
 | Performance | 2,000-row synthetic fixture and a CI benchmark threshold |
 
 ## Manual release checklist

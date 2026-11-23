@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chainText, groupKeyOf, namesOf, normalizedChain, primaryOf } from "../../contents/ui/domain/origins.mjs";
+import { chainText, groupKeyOf, namesOf, normalizedChain, primaryOf, splitNode } from "../../contents/ui/domain/origins.mjs";
 import { finding } from "../helpers/fixtures.mjs";
 
 test("missing origins are empty", () => {
@@ -40,4 +40,14 @@ test("the fixture exposes multiple origins and chains", () => {
     assert.ok(namesOf(item).length >= 2);
     assert.ok(normalizedChain(item).length >= 2);
     assert.equal(primaryOf(item), "imagemagick-7.1.2-35");
+});
+
+test("origin step nodes split package names from versions", () => {
+    assert.deepEqual(splitNode("calibre-9.17.0"), { name: "calibre", version: "9.17.0" });
+    assert.deepEqual(splitNode("open-webui-0.13.3"), { name: "open-webui", version: "0.13.3" });
+    assert.deepEqual(splitNode("ffmpeg-9.0.2-lib"), { name: "ffmpeg-lib", version: "9.0.2" });
+    assert.deepEqual(splitNode("ffmpeg-9.0.2-data"), { name: "ffmpeg-data", version: "9.0.2" });
+    assert.deepEqual(splitNode("python3.14-pydub-0.25.1"), { name: "python3.14-pydub", version: "0.25.1" });
+    assert.deepEqual(splitNode("ffmpeg"), { name: "ffmpeg", version: "" });
+    assert.deepEqual(splitNode("python3.14-pydub"), { name: "python3.14-pydub", version: "" });
 });

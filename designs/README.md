@@ -153,4 +153,8 @@ muted versions, a red outline on the vulnerable package, and the hint in a
 separate footer. Use 03 if the chain is worth a click and actions; 02 if long
 package names dominate.
 
-**Not implemented yet** — mockups for choosing the direction.
+**Implemented:** 01, the rich hover tooltip (`OriginPopover.qml` +
+`OriginStep.qml`). The origins are chips, each trail is a numbered row, the
+vulnerable last step is outlined in the critical colour, and the hint sits in
+its own footer. 02 and 03 remain alternatives if the popup needs to be shorter
+or interactive.

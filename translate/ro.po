@@ -1223,6 +1223,22 @@ msgstr "EXPUNERE SCĂZUTĂ"
 msgid "UNKNOWN EXPOSURE"
 msgstr "EXPUNERE NECUNOSCUTĂ"
 
+#: contents/ui/components/Labels.qml
+msgid "ORIGIN"
+msgstr "ORIGINE"
+
+#: contents/ui/components/Labels.qml
+msgid "Introduced by"
+msgstr "Introdus de"
+
+#: contents/ui/components/Labels.qml
+msgid "TRAILS"
+msgstr "TRASEE"
+
+#: contents/ui/components/Labels.qml
+msgid "Click the origin row to filter all findings."
+msgstr "Click pe rândul de origine pentru a filtra toate constatările."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

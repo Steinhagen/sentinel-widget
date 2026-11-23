@@ -33,6 +33,10 @@ PlasmaComponents3.ItemDelegate {
         ? root.rowData.origin.chainText : ""
     readonly property string originPrimary: root.rowData && root.rowData.origin
         ? root.rowData.origin.primary : ""
+    readonly property var originInfo: root.rowData ? root.rowData.origin : null
+    readonly property bool hasOrigin: !!root.originInfo
+        && Array.isArray(root.originInfo.names)
+        && root.originInfo.names.length > 0
     readonly property string sourceText: root.rowData
         ? (root.rowData.sourceText || "") : ""
     readonly property string sourceName: root.rowData
@@ -493,11 +497,21 @@ PlasmaComponents3.ItemDelegate {
                         cursorShape: Qt.PointingHandCursor
                     }
 
-                    QQC2.ToolTip.text: root.labels && root.rowData
-                        ? root.labels.originTooltip(root.rowData.origin)
-                        : ""
-                    QQC2.ToolTip.visible: chainHover.hovered
-                        && QQC2.ToolTip.text.length > 0
+                    QQC2.ToolTip {
+                        id: originTip
+
+                        visible: chainHover.hovered && root.hasOrigin
+                        padding: 0
+                        background: Rectangle {
+                            color: "transparent"
+                            border.width: 0
+                        }
+                        contentItem: OriginPopover {
+                            origin: root.originInfo
+                            theme: root.theme
+                            labels: root.labels
+                        }
+                    }
 
                     MouseArea {
                         anchors.fill: parent

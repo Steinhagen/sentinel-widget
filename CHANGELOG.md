@@ -84,6 +84,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The exposure card now follows the actual CVSS band: a maximum of 8.8 shows
   **High exposure** in orange (the same band as the severity list), not
   **Critical exposure**; only 9.0+ uses the critical title and colour.
+- The dependency-origin tooltip is now a structured card instead of a plain
+  text block: origin chips, numbered trails with package/version chips, a
+  highlighted vulnerable last step and a separate hint footer.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

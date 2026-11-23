@@ -14,6 +14,12 @@ QtObject {
     readonly property color cardBorder: Qt.rgba(Kirigami.Theme.textColor.r,
         Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b,
         darkMode ? 0.16 : 0.10)
+    readonly property color tooltipBackground: darkMode ? "#20242b" : "#ffffff"
+    readonly property color tooltipBorder: darkMode ? "#353c46" : "#d8dde4"
+    readonly property color chipBackground: darkMode ? "#2b323c" : "#f2f5f9"
+    readonly property color chipBorder: darkMode ? "#3a424d" : "#dfe4ea"
+    readonly property color originRowBackground: darkMode ? "#1b2026" : "#f7f9fc"
+    readonly property color originFooterBackground: darkMode ? "#1b2026" : "#f4f6f9"
     readonly property color mutedText: Qt.rgba(Kirigami.Theme.textColor.r,
         Kirigami.Theme.textColor.g, Kirigami.Theme.textColor.b, 0.62)
     readonly property color faintText: Qt.rgba(Kirigami.Theme.textColor.r,

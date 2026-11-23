@@ -262,6 +262,22 @@ QtObject {
         return lines.join("\n");
     }
 
+    function originEyebrow() {
+        return i18n("ORIGIN");
+    }
+
+    function originIntroducedBy() {
+        return i18n("Introduced by");
+    }
+
+    function originTrails() {
+        return i18n("TRAILS");
+    }
+
+    function originHint() {
+        return i18n("Click the origin row to filter all findings.");
+    }
+
     function originTooltip(origin) {
         if (!origin || !origin.names || origin.names.length === 0) {
             return "";

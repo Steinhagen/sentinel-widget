@@ -70,6 +70,32 @@ export function chainText(finding) {
     return normalizedChain(finding).join(" → ");
 }
 
+const ORIGIN_OUTPUTS = "bin|data|debug|dev|doc|full|headless|info|lib|man|unwrapped|wrapper";
+const ORIGIN_VERSION_RE = new RegExp(
+    `(?:^|-)(\\d+\\.\\d+(?:\\.\\d+)*)(?=$|-(?:${ORIGIN_OUTPUTS}))`
+);
+
+/**
+ * Split a chain node such as `ffmpeg-9.0.2-lib` into a display name and a
+ * version. Output suffixes stay with the name: `ffmpeg` + `-lib` becomes
+ * `ffmpeg-lib`, while the version is `9.0.2`.
+ *
+ * @param {string} node
+ * @returns {{name: string, version: string}}
+ */
+export function splitNode(node) {
+    const value = String(node || "");
+    const match = ORIGIN_VERSION_RE.exec(value);
+    if (!match) {
+        return { name: value, version: "" };
+    }
+    const version = match[1];
+    const prefix = value.slice(0, match.index);
+    const suffix = value.slice(match.index + match[0].length);
+    const name = (prefix + suffix).replace(/^-+/, "") || value;
+    return { name, version };
+}
+
 export function groupKeyOf(finding) {
     return primaryOf(finding);
 }
