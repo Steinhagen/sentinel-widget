@@ -46,7 +46,8 @@ Rectangle {
         PlasmaComponents3.Label {
             text: root.parts.name
             color: root.last && root.theme
-                ? root.theme.criticalColor : Kirigami.Theme.textColor
+                ? root.theme.criticalColor
+                : (root.theme ? root.theme.textColor : Kirigami.Theme.textColor)
             font.bold: true
             font.family: Kirigami.Theme.smallFont.family
             font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)

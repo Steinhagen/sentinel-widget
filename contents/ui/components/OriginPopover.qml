@@ -129,7 +129,7 @@ Rectangle {
 
                         text: root.labels ? root.labels.originIntroducedBy()
                             : "Introduced by"
-                        color: Kirigami.Theme.textColor
+                        color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
                         font.bold: true
                         font.family: Kirigami.Theme.defaultFont.family
                         font.pointSize: Math.max(9,
@@ -176,7 +176,7 @@ Rectangle {
 
                             PlasmaComponents3.Label {
                                 text: originChip.parts.name
-                                color: Kirigami.Theme.textColor
+                                color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
                                 font.bold: true
                                 font.family: Kirigami.Theme.smallFont.family
                                 font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
