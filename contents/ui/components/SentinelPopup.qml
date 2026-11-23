@@ -10,6 +10,7 @@ PlasmaExtras.Representation {
     property var vm: null
     property var theme: null
     property var labels: null
+    property var originPreview: null
 
     signal scanRequested()
     signal settingsRequested()
@@ -202,6 +203,7 @@ PlasmaExtras.Representation {
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)
                 onFilterOriginRequested: (name) => root.vm.showOrigin(name)
+                onOriginPreviewRequested: (origin) => root.originPreview = origin
                 onOpenFixRequested: (url) => root.store.openUrl(url)
                 onTrackerRequested: (finding) => root.store.openTracker(finding)
                 onCopyRequested: (text) => root.store.copyText(text)
@@ -229,6 +231,37 @@ PlasmaExtras.Representation {
 
             TrackerHint {
                 text: root.hintText
+            }
+        }
+
+        Item {
+            id: originOverlay
+
+            anchors.fill: parent
+            z: 1000
+            visible: root.originPreview !== null
+
+            Rectangle {
+                anchors.fill: parent
+                color: Qt.rgba(0, 0, 0, 0.45)
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: root.originPreview = null
+                }
+            }
+
+            OriginPopover {
+                id: originPreviewCard
+
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: Math.max(12,
+                    Math.min(40, parent.height - implicitHeight - 16))
+                width: Math.min(implicitWidth, parent.width - 24)
+                height: implicitHeight
+                origin: root.originPreview
+                theme: root.theme
+                labels: root.labels
             }
         }
     }

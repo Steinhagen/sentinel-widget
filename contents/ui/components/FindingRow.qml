@@ -19,6 +19,7 @@ PlasmaComponents3.ItemDelegate {
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
+    signal originPreviewRequested(var origin)
     signal openFixRequested(string url)
     signal trackerRequested(var finding)
     signal copyRequested(string text)
@@ -496,78 +497,10 @@ PlasmaComponents3.ItemDelegate {
                     HoverHandler {
                         id: chainHover
                         cursorShape: Qt.PointingHandCursor
-                    }
 
-                    QQC2.Popup {
-                        id: originTip
-
-                        readonly property var anchorRect: {
-                            const win = parent && parent.Window ? parent.Window.window : null;
-                            if (!win || !win.contentItem) {
-                                return { x: 0, y: 0, width: 0, height: 0 };
-                            }
-                            const point = parent.mapToItem(win.contentItem, 0, 0);
-                            return {
-                                x: point.x,
-                                y: point.y,
-                                width: win.width,
-                                height: win.height
-                            };
-                        }
-
-                        visible: (chainHover.hovered || originPopupHover.hovered)
-                            && root.hasOrigin
-                        width: originContent.implicitWidth
-                        height: originContent.implicitHeight
-                        x: {
-                            const area = originTip.anchorRect;
-                            if (area.width <= 0) {
-                                return 0;
-                            }
-                            const margin = Kirigami.Units.smallSpacing;
-                            const desired = area.x + (parent.width - width) / 2;
-                            return Math.max(margin,
-                                Math.min(desired, area.width - width - margin)) - area.x;
-                        }
-                        y: {
-                            const area = originTip.anchorRect;
-                            const margin = Kirigami.Units.smallSpacing;
-                            if (area.height <= 0) {
-                                return parent.height + margin;
-                            }
-                            const below = area.y + parent.height + margin;
-                            const above = area.y - height - margin;
-                            let target = below;
-                            if (below + height > area.height - margin) {
-                                target = above >= margin
-                                    ? above
-                                    : Math.max(margin, area.height - height - margin);
-                            }
-                            return target - area.y;
-                        }
-                        padding: 0
-                        modal: false
-                        focus: false
-                        dim: false
-                        closePolicy: QQC2.Popup.NoAutoClose
-                        background: Rectangle {
-                            radius: 14
-                            color: root.theme
-                                ? root.theme.tooltipBackground
-                                : Kirigami.Theme.backgroundColor
-                            border.width: 1
-                            border.color: root.theme
-                                ? root.theme.tooltipBorder
-                                : Kirigami.Theme.disabledTextColor
-                        }
-                        contentItem: OriginPopover {
-                            id: originContent
-                            origin: root.originInfo
-                            theme: root.theme
-                            labels: root.labels
-
-                            HoverHandler {
-                                id: originPopupHover
+                        onHoveredChanged: {
+                            if (hovered && root.originInfo) {
+                                root.originPreviewRequested(root.originInfo);
                             }
                         }
                     }
