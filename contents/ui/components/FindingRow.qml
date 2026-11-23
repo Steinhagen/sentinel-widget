@@ -496,19 +496,34 @@ PlasmaComponents3.ItemDelegate {
                         elide: Text.ElideRight
                     }
 
+                    Timer {
+                        id: originHoverTimer
+
+                        interval: 3000
+                        repeat: false
+                        onTriggered: {
+                            if (!chainHover.hovered || !root.originInfo) {
+                                return;
+                            }
+                            const point = originAnchor.mapToItem(null, 0, 0);
+                            root.originPreviewRequested(root.originInfo, {
+                                x: point.x,
+                                y: point.y,
+                                width: originAnchor.width,
+                                height: originAnchor.height
+                            });
+                        }
+                    }
+
                     HoverHandler {
                         id: chainHover
                         cursorShape: Qt.PointingHandCursor
 
                         onHoveredChanged: {
-                            if (hovered && root.originInfo) {
-                                const point = originAnchor.mapToItem(null, 0, 0);
-                                root.originPreviewRequested(root.originInfo, {
-                                    x: point.x,
-                                    y: point.y,
-                                    width: originAnchor.width,
-                                    height: originAnchor.height
-                                });
+                            if (hovered) {
+                                originHoverTimer.restart();
+                            } else {
+                                originHoverTimer.stop();
                             }
                         }
                     }
