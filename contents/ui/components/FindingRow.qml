@@ -256,6 +256,10 @@ PlasmaComponents3.ItemDelegate {
             Item {
                 id: triageColumn
 
+                // Omit the item entirely when the column is hidden so the
+                // RowLayout spacing matches the header.
+                visible: root.triageWidth > 0
+
                 readonly property color tone: {
                     if (root.triageVerdict === "unverified") {
                         return root.theme ? root.theme.reviewColor : "#f3d79a";

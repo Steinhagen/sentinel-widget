@@ -111,13 +111,28 @@ Rectangle {
     // "nixpkgs/nixos-unstable (2786a2a)" label is in the source tooltip.
     readonly property real cveColumnWidth: Kirigami.Units.gridUnit * 11
 
-    readonly property var headerColumns: [
-        { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
-        { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
-        { key: "package", width: 0, fill: true, align: "left" },
-        { key: "review", width: root.triageColumnWidth, fill: false, align: "center" },
-        { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
-    ]
+    readonly property var headerColumns: {
+        const columns = [
+            { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
+            { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
+            { key: "package", width: 0, fill: true, align: "left" }
+        ];
+        if (root.triageColumnVisible) {
+            columns.push({
+                key: "review",
+                width: root.triageColumnWidth,
+                fill: false,
+                align: "center"
+            });
+        }
+        columns.push({
+            key: "master",
+            width: root.fixPillWidth,
+            fill: false,
+            align: "center"
+        });
+        return columns;
+    }
 
     function sortArrow(key) {
         if (root.sortKey !== key) {
