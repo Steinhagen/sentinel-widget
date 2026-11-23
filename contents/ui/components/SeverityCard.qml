@@ -35,26 +35,35 @@ Rectangle {
             font.letterSpacing: 0.6
         }
 
-        Row {
-            id: severityBar
-
+        // The Row widths depend on the bar width; keep the Row inside a
+        // layout-managed Item so its implicit width cannot feed back into the
+        // ColumnLayout. The same pattern is used by FixesCard; without it the
+        // positioner reports a QQuickItem::polish() loop and the cards
+        // repaint on top of each other.
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 9
-            spacing: 2
 
-            Repeater {
-                model: root.bands.slice(1)
+            Row {
+                id: severityBar
 
-                Rectangle {
-                    required property var modelData
+                anchors.fill: parent
+                spacing: 2
 
-                    width: Math.max(2, (severityBar.width - 8)
-                        * modelData.count / Math.max(1, root.total))
-                    height: 9
-                    radius: 2
-                    color: root.theme
-                        ? root.theme.severityBandColor(modelData.key)
-                        : "transparent"
+                Repeater {
+                    model: root.bands.slice(1)
+
+                    Rectangle {
+                        required property var modelData
+
+                        width: Math.max(2, (severityBar.width - 8)
+                            * modelData.count / Math.max(1, root.total))
+                        height: 9
+                        radius: 2
+                        color: root.theme
+                            ? root.theme.severityBandColor(modelData.key)
+                            : "transparent"
+                    }
                 }
             }
         }
