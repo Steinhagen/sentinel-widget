@@ -830,7 +830,7 @@ QtObject {
     }
 
     function triageHiddenTooltip() {
-        return i18n("The parenthesised findings are hidden by the triage settings or ignored by you. Ignored findings can be restored in the settings.");
+        return i18n("The parenthesised findings are hidden by the triage or OSV settings or ignored by you. Ignored findings can be restored in the settings.");
     }
 
     function noMatchesText() {

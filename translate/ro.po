@@ -1163,6 +1163,22 @@ msgstr "Nu s-a putut determina ce versiune a bibliotecii C folosește binding-ul
 msgid "The linked C library version does not compare with the CVE's affected range."
 msgstr "Versiunea bibliotecii C legate nu se poate compara cu intervalul afectat din CVE."
 
+#: contents/ui/configGeneral.qml
+msgid "OSV advisories:"
+msgstr "Alerte OSV:"
+
+#: contents/ui/configGeneral.qml
+msgid "Hide all OSV findings"
+msgstr "Ascunde toate constatările OSV"
+
+#: contents/ui/configGeneral.qml
+msgid "Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”; OSV advisories are hidden by “OSV advisories”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. When both triage options are on, the Triaj column is hidden too."
+msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse de „Verdicte de triaj”; constatările pe care trecerea de triaj nu le-a putut confirma sunt ascunse de „Constatări de verificat”; alertele OSV sunt ascunse de „Alerte OSV”. Verdictele provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Când ambele opțiuni de triaj sunt activate, se ascunde și coloana Triaj."
+
+#: contents/ui/components/Labels.qml
+msgid "The parenthesised findings are hidden by the triage or OSV settings or ignored by you. Ignored findings can be restored in the settings."
+msgstr "Constatările din paranteze sunt ascunse de setările de triaj sau OSV ori ignorate de dvs. Cele ignorate pot fi restaurate din setări."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

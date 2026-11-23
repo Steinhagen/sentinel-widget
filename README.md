@@ -153,6 +153,10 @@ Right-click the widget and choose **Configure…**:
 - **Unverified findings:** hide findings the triage pass could not confirm
   (enabled by default). This is independent of **Triage verdicts**; when both
   are on, the Triaj column is hidden.
+- **OSV advisories:** hide findings whose id starts with `OSV-` (enabled by
+  default). OSV entries are keyed by package and ecosystem rather than a CPE
+  product string, so they use their own setting; the toolbar count includes
+  them as hidden findings.
 - **Ignored findings:** right-click a row and choose **Ignore this finding
   (false positive)** to hide a finding the scanners matched to the wrong
   package. The list is kept in the applet configuration; the same settings

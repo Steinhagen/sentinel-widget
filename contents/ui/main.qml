@@ -24,6 +24,7 @@ PlasmoidItem {
         triageIgnore: Plasmoid.configuration.triageIgnore || "[]"
         triageEnabled: Plasmoid.configuration.triageEnabled !== false
         hideUnverified: Plasmoid.configuration.hideUnverified !== false
+        hideOsv: Plasmoid.configuration.hideOsv !== false
     }
 
     CommandRunner { id: commandRunner }
@@ -72,6 +73,7 @@ PlasmoidItem {
         labels: sentinelLabels
         triageEnabled: appletSettings.triageEnabled
         hideUnverified: appletSettings.hideUnverified
+        hideOsv: appletSettings.hideOsv
         ignoredPairs: appletSettings.ignoredPairs
     }
 

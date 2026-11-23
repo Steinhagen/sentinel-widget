@@ -9,6 +9,7 @@ QtObject {
     property string trackerToken: ""
     property bool triageEnabled: true
     property bool hideUnverified: true
+    property bool hideOsv: true
     // JSON array of { cve, package } pairs ignored from the applet.
     property string triageIgnore: "[]"
 

@@ -21,7 +21,7 @@ TestCase {
         return JSON.parse(xhr.responseText);
     }
 
-    function makeVm() {
+    function makeVmRaw() {
         const store = Qt.createComponent(Qt.resolvedUrl("FakeStore.qml")).createObject(testCase);
         const labels = Qt.createComponent(Qt.resolvedUrl("FakeLabels.qml")).createObject(testCase);
         const clock = Qt.createQmlObject("import QtQml; QtObject { property double now: 1795360000000 }", testCase);
@@ -33,6 +33,14 @@ TestCase {
         store.tracker = report.tracker;
         store.systemChannel = report.tracker.system_channel;
         return { store: store, labels: labels, clock: clock, vm: vm };
+    }
+
+    function makeVm() {
+        const env = testCase.makeVmRaw();
+        // Most tests exercise the complete fixture; the OSV default is tested
+        // separately so the fixture keeps all 13 findings.
+        env.vm.hideOsv = false;
+        return env;
     }
 
     function test_initial_rows_and_counts() {
@@ -48,6 +56,24 @@ TestCase {
         compare(env.vm.hasFindings, true);
         compare(env.vm.anyFilterActive, false);
         verify(env.vm.lastScanAge > 0);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
+    function test_osv_findings_are_hidden_by_default() {
+        const env = testCase.makeVmRaw();
+        compare(env.vm.hideOsv, true);
+        compare(env.vm.totalCount, 12);
+        compare(env.vm.hiddenCount, 1);
+        verify(!env.vm.rows.some(row => /^OSV-/.test(row.id)));
+
+        env.vm.hideOsv = false;
+        compare(env.vm.totalCount, 13);
+        compare(env.vm.hiddenCount, 0);
+        verify(env.vm.rows.some(row => row.id === "OSV-2026-1517"));
 
         env.vm.destroy();
         env.store.destroy();

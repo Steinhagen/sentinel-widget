@@ -13,6 +13,7 @@ KCM.SimpleKCM {
     property alias cfg_sentinelTrackerToken: tokenField.text
     property alias cfg_triageEnabled: triageCheck.checked
     property alias cfg_hideUnverified: hideReviewCheck.checked
+    property alias cfg_hideOsv: hideOsvCheck.checked
     property alias cfg_triageIgnore: ignoreState.value
 
     // Non-visual holder so the page can edit the ignore list.
@@ -61,13 +62,21 @@ KCM.SimpleKCM {
             text: i18n("Hide findings the triage pass could not confirm")
         }
 
+        QQC2.CheckBox {
+            id: hideOsvCheck
+
+            Kirigami.FormData.label: i18n("OSV advisories:")
+
+            text: i18n("Hide all OSV findings")
+        }
+
         PlasmaComponents3.Label {
             Layout.fillWidth: true
             Layout.maximumWidth: Kirigami.Units.gridUnit * 30
             wrapMode: Text.WordWrap
             opacity: 0.7
             font: Kirigami.Theme.smallFont
-            text: i18n("Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. When both options are on, the Triaj column is hidden too.")
+            text: i18n("Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”; OSV advisories are hidden by “OSV advisories”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. When both triage options are on, the Triaj column is hidden too.")
         }
 
         RowLayout {

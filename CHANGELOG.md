@@ -41,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   findings the triage pass could not confirm. When it and **Triage verdicts**
   are both on, the Triaj column is hidden; the toolbar count now reports all
   hidden rows as `(+ N hidden findings)`.
+- Added an **OSV advisories** setting, enabled by default, that hides all
+  findings whose id starts with `OSV-`. The toolbar count includes them as
+  hidden findings.
 - Added **Ignore this finding (false positive)** to the row context menu and
   an ignored-findings section in the settings page with **Restore all**. The
   list lives in the applet configuration and applies even when triage verdicts

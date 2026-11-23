@@ -2,7 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
     detailsOf,
+    hideOsvFindings,
     isIgnored,
+    isOsvFinding,
     isVerdict,
     keyOf,
     parseTriageText,
@@ -76,6 +78,17 @@ test("parseTriageText accepts a bare array and rejects junk", () => {
     assert.equal(parseTriageText("{ nope").ok, false);
     assert.equal(parseTriageText('{"findings": 3}').ok, false);
     assert.equal(parseTriageText('{"findings": []}').ok, true);
+});
+
+test("OSV advisories can be hidden independently", () => {
+    const findings = [
+        { id: "OSV-2026-1", package: "a", version: "1" },
+        { id: "CVE-2026-1", package: "b", version: "1" },
+    ];
+    assert.equal(isOsvFinding(findings[0]), true);
+    assert.equal(isOsvFinding(findings[1]), false);
+    assert.equal(hideOsvFindings(findings, true).length, 1);
+    assert.equal(hideOsvFindings(findings, false).length, 2);
 });
 
 test("the sidecar verdict is looked up by id, package and version", () => {

@@ -169,6 +169,20 @@ export function isSuppressed(finding, triage, enabled, ignoredPairs) {
         && verdictOf(finding, triage) === TriagedVerdict.SUPPRESSED;
 }
 
+/** Whether a finding is an OSV advisory rather than a CVE. */
+export function isOsvFinding(finding) {
+    return /^OSV-/i.test(stringOf(finding && finding.id));
+}
+
+/** The findings left after optionally hiding all OSV advisories. */
+export function hideOsvFindings(findings, hideOsv) {
+    const source = arrayOf(findings);
+    if (hideOsv !== true) {
+        return source;
+    }
+    return source.filter((finding) => !isOsvFinding(finding));
+}
+
 /** The findings to display, honoring the triage settings. */
 export function visibleFindings(findings, triage, enabled, ignoredPairs,
         hideUnverified) {

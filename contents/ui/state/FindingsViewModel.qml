@@ -16,6 +16,7 @@ QtObject {
     // Bound to the widget settings in main.qml.
     property bool triageEnabled: true
     property bool hideUnverified: true
+    property bool hideOsv: true
     // { cve, package } pairs the user ignored from the applet.
     property var ignoredPairs: []
 
@@ -69,8 +70,9 @@ QtObject {
         if (!source) {
             return [];
         }
-        return Triage.visibleFindings(source, vm.triage, vm.triageEnabled,
-            vm.ignoredPairs, vm.hideUnverified);
+        const visible = Triage.visibleFindings(source, vm.triage,
+            vm.triageEnabled, vm.ignoredPairs, vm.hideUnverified);
+        return Triage.hideOsvFindings(visible, vm.hideOsv);
     }
 
     readonly property int hiddenCount: {
@@ -79,10 +81,7 @@ QtObject {
         if (revision < 0 || !source) {
             return 0;
         }
-        return Triage.suppressedCount(source, vm.triage, vm.triageEnabled,
-            vm.ignoredPairs)
-            + Triage.reviewCount(source, vm.triage, vm.hideUnverified,
-                vm.ignoredPairs);
+        return Math.max(0, source.length - vm.visibleFindings.length);
     }
 
     readonly property var filters: ({
@@ -214,6 +213,7 @@ QtObject {
     onTriageRevisionChanged: vm.rowsReset(true)
     onTriageEnabledChanged: vm.rowsReset(true)
     onHideUnverifiedChanged: vm.rowsReset(true)
+    onHideOsvChanged: vm.rowsReset(true)
     onIgnoredPairsChanged: vm.rowsReset(true)
     onTriageColumnVisibleChanged: {
         if (!vm.triageColumnVisible && vm.sortKey === "review") {
