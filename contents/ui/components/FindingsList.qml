@@ -113,7 +113,7 @@ Rectangle {
         { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
         { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
         { key: "package", width: 0, fill: true, align: "left" },
-        { key: "review", width: root.reviewColumnWidth, fill: false, align: "left" },
+        { key: "review", width: root.reviewColumnWidth, fill: false, align: "center" },
         { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
     ]
 
@@ -122,6 +122,25 @@ Rectangle {
             return "↕";
         }
         return root.sortDescending ? "↓" : "↑";
+    }
+
+    function headerLabelFor(key) {
+        if (key === "review") {
+            return root.labels ? root.labels.reviewChipText() : "Review";
+        }
+        return root.labels ? root.labels.headerLabel(key) : key;
+    }
+
+    function headerText(key) {
+        return root.headerLabelFor(key) + " " + root.sortArrow(key);
+    }
+
+    function headerTooltip(key) {
+        if (!root.labels) {
+            return "";
+        }
+        return root.labels.sortTooltip(key, root.sortKey === key,
+            root.sortDescending, root.headerLabelFor(key));
     }
 
     function positionViewAtBeginning() {
@@ -197,10 +216,7 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     horizontalAlignment: modelData.align === "center"
                         ? Text.AlignHCenter : Text.AlignLeft
-                    text: modelData.key === "review"
-                        ? (root.labels ? root.labels.reviewChipText() : "Review")
-                        : (root.labels ? root.labels.headerLabel(modelData.key) : modelData.key)
-                            + " " + root.sortArrow(modelData.key)
+                    text: root.headerText(modelData.key)
                     color: root.sortKey === modelData.key
                         ? Kirigami.Theme.textColor
                         : (root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor)
@@ -213,17 +229,11 @@ Rectangle {
 
                 MouseArea {
                     anchors.fill: parent
-                    enabled: modelData.key !== "review"
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: root.sortRequested(modelData.key)
 
-                    QQC2.ToolTip.text: root.labels
-                        ? root.labels.sortTooltip(modelData.key,
-                            root.sortKey === modelData.key,
-                            root.sortDescending,
-                            root.labels.headerLabel(modelData.key))
-                        : ""
+                    QQC2.ToolTip.text: root.headerTooltip(modelData.key)
                     QQC2.ToolTip.visible: containsMouse
                 }
             }

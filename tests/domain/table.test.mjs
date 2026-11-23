@@ -64,6 +64,25 @@ test("sorting handles numeric and text columns", () => {
     assert.ok(byPackage[0].package <= byPackage[byPackage.length - 1].package);
 });
 
+test("review sorting puts needs-review rows first", () => {
+    const review = buildFindingRow({ id: "CVE-2026-0001", package: "a" }, context);
+    review.needsReview = true;
+    review.triageVerdict = "unverified";
+    const confirmed = buildFindingRow({ id: "CVE-2026-0002", package: "b" }, context);
+    confirmed.needsReview = false;
+    confirmed.triageVerdict = "confirmed";
+    const suppressed = buildFindingRow({ id: "CVE-2026-0003", package: "c" }, context);
+    suppressed.needsReview = false;
+    suppressed.triageVerdict = "suppressed";
+
+    assert.equal(valueOf(review, "review"), 0);
+    assert.equal(valueOf(confirmed, "review"), 1);
+    assert.equal(valueOf(suppressed, "review"), 2);
+    const sorted = sortRows([suppressed, confirmed, review], "review", false);
+    assert.deepEqual(sorted.map((row) => row.id),
+        ["CVE-2026-0001", "CVE-2026-0002", "CVE-2026-0003"]);
+});
+
 test("row values are stable for each column", () => {
     const row = rows[0];
     assert.equal(valueOf(row, "severity"), row.severityValue);

@@ -248,7 +248,7 @@ PlasmaComponents3.ItemDelegate {
 
                     visible: root.rowData ? root.rowData.needsReview === true : false
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
+                    anchors.horizontalCenter: parent.horizontalCenter
                     width: reviewChipLabel.implicitWidth
                         + Kirigami.Units.smallSpacing * 3
                     height: reviewChipLabel.implicitHeight

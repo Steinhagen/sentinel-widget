@@ -123,6 +123,16 @@ export function valueOf(row, key) {
         return row.originSearch;
     case "version":
         return row.version;
+    case "review":
+        // Needs-review rows first, then confirmed/unknown, then the
+        // suppressed false positives when the setting shows them.
+        if (row.needsReview === true || row.triageVerdict === "unverified") {
+            return 0;
+        }
+        if (row.triageVerdict === "suppressed") {
+            return 2;
+        }
+        return 1;
     case "master":
         return row.fixSortText || (row.fix ? row.fix.labelKey : "");
     case "via":
