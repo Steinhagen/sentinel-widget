@@ -266,14 +266,6 @@ PlasmaExtras.Representation {
                 anchors.fill: parent
                 color: "transparent"
 
-                HoverHandler {
-                    onHoveredChanged: {
-                        if (hovered) {
-                            originPreviewTimer.restart();
-                        }
-                    }
-                }
-
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
