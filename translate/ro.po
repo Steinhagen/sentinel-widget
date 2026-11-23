@@ -1187,6 +1187,14 @@ msgstr "CVE-ul vizează modulul %2 al %1, nu acest pachet."
 msgid "The CVE targets a content management system module, not this package."
 msgstr "CVE-ul vizează un modul de sistem de management al conținutului, nu acest pachet."
 
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs tracker reports the installed version as fixed."
+msgstr "Trackerul Nixpkgs raportează versiunea instalată ca remediată."
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs tracker says the master branch is affected, but the installed version is outside the CVE range."
+msgstr "Trackerul Nixpkgs spune că ramura master este afectată, dar versiunea instalată este în afara intervalului CVE."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

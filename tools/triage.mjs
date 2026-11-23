@@ -731,7 +731,10 @@ export function parseCve(record) {
     for (const container of containers) {
         for (const affected of container.affected ?? []) {
             const vendor = cleanIdentity(affected.vendor);
-            const product = cleanIdentity(affected.product);
+            // CVE 5.1 upstream entries often carry only packageName (for
+            // example the GnuTLS record has no vendor/product for the
+            // upstream range). Treat it as the product name.
+            const product = cleanIdentity(affected.product || affected.packageName);
             if (!vendor && !product) {
                 continue;
             }
@@ -872,6 +875,33 @@ export function ignoreEntryOf(finding, ignore) {
 }
 
 /**
+ * Whether the tracker's installed-channel fix covers the installed version.
+ * The backend computes fix_state against the system channel; only a `fixed`
+ * state with a comparable fix version on that channel counts. A fix that is
+ * only on another branch (for example release-26.05) does not cover it.
+ *
+ * @param {any} tracker
+ * @param {string} installed
+ * @returns {boolean}
+ */
+function trackerFixApplies(tracker, installed) {
+    if (tracker?.fix_state !== "fixed") {
+        return false;
+    }
+    const fixed = parseVersion(stringOf(tracker.fix_version));
+    const current = parseVersion(stringOf(installed));
+    if (!fixed || !current || !plausibleScheme(current, fixed)) {
+        return false;
+    }
+    const channel = stringOf(tracker.system_channel);
+    const branch = stringOf(tracker.fix_branch);
+    if (channel.length > 0 && branch.length > 0 && channel !== branch) {
+        return false;
+    }
+    return compareVersions(current, fixed) >= 0;
+}
+
+/**
  * Classify a single finding.
  *
  * @param {any} finding
@@ -883,6 +913,8 @@ export function ignoreEntryOf(finding, ignore) {
  */
 export function verdictFor(finding, cve, options = {}) {
     const tracker = finding?.tracker ?? {};
+    const trackerConfirmed = tracker.status === "published"
+        || tracker.status === "accepted";
     const result = (verdict, reasons, extra = {}) => ({
         verdict,
         reasons,
@@ -890,22 +922,25 @@ export function verdictFor(finding, cve, options = {}) {
         product: extra.product ?? null,
         identity: extra.identity ?? null,
     });
+    // A tracker confirmation is still subject to the fix state: an issue can
+    // be published while the installed channel already carries the fix.
+    const trackerView = (extra = {}) => (
+        trackerFixApplies(tracker, finding?.version ?? "")
+            ? result("suppressed", ["tracker-fixed"], extra)
+            : result("confirmed", [`tracker-${tracker.status}`], extra)
+    );
 
-    // 1. Verdicts already made by a human or the NixOS tracker.
-    if (tracker.status === "published" || tracker.status === "accepted") {
-        return result("confirmed", [`tracker-${tracker.status}`]);
-    }
-
-    // 2. A manual dismissal retires anything else. A tracker issue still wins
-    // above: never hide a vulnerability a human confirmed.
-    if (ignoreEntryOf(finding, options.ignore)) {
-        return result("suppressed", ["manual-ignore"]);
-    }
+    // 1. A rejected tracker match or an explicitly unaffected master verdict.
     if (tracker.status === "rejected") {
         return result("suppressed", ["tracker-rejected"]);
     }
-    if (tracker.master_status === "unaffected") {
+    if (!trackerConfirmed && tracker.master_status === "unaffected") {
         return result("suppressed", ["tracker-unaffected"]);
+    }
+
+    // 2. A manual dismissal retires anything the tracker has not confirmed.
+    if (!trackerConfirmed && ignoreEntryOf(finding, options.ignore)) {
+        return result("suppressed", ["manual-ignore"]);
     }
 
     // 3. Advisories from the package's own ecosystem (OSV) are identity-exact.
@@ -913,15 +948,20 @@ export function verdictFor(finding, cve, options = {}) {
         return result("confirmed", ["osv-advisory"]);
     }
 
-    if (!cve) {
-        return result("unverified", ["no-cve-data"]);
-    }
-    if (cve.products.length === 0) {
-        return result("unverified", ["no-affected-data"]);
+    // 4. Without CVE data the tracker's confirmation is the only evidence; its
+    // fix state still decides whether the installed version is covered.
+    if (!cve || cve.products.length === 0) {
+        if (trackerConfirmed) {
+            return trackerView();
+        }
+        return result("unverified", [cve ? "no-affected-data" : "no-cve-data"]);
     }
 
     const packageTokens = packageTokensOf(finding?.package ?? "");
     if (packageTokens.length === 0) {
+        if (trackerConfirmed) {
+            return trackerView();
+        }
         return result("unverified", ["unidentified-package"]);
     }
 
@@ -932,21 +972,24 @@ export function verdictFor(finding, cve, options = {}) {
         identity: best.relation,
     };
 
-    // 3. Identity gate: a matching product name alone is not enough.
-    if (best.relation === "none" && !best.vendorMatch) {
-        if (isScopedVendor(best.product.vendor)) {
-            return result("unverified", ["vendor-scoped-cve"], identity);
+    // 5. Identity gate. A tracker confirmation is a human/tracker decision
+    // about identity, so it skips this gate; its version is checked below.
+    if (!trackerConfirmed) {
+        if (best.relation === "none" && !best.vendorMatch) {
+            if (isScopedVendor(best.product.vendor)) {
+                return result("unverified", ["vendor-scoped-cve"], identity);
+            }
+            return result("suppressed", ["identity-mismatch"], identity);
         }
-        return result("suppressed", ["identity-mismatch"], identity);
-    }
-    if (best.relation === "overlap" && !best.vendorMatch) {
-        return result("unverified", ["product-only-match"], identity);
-    }
-    if (best.relation === "none" && best.vendorMatch) {
-        return result("unverified", ["product-mismatch"], identity);
+        if (best.relation === "overlap" && !best.vendorMatch) {
+            return result("unverified", ["product-only-match"], identity);
+        }
+        if (best.relation === "none" && best.vendorMatch) {
+            return result("unverified", ["product-mismatch"], identity);
+        }
     }
 
-    // 4. CMS module names: a generic product name from a CMS vendor can
+    // 6. CMS module names: a generic product name from a CMS vendor can
     // collide with a package from another ecosystem. A known non-PHP package
     // is provably unrelated; an unknown or PHP package stays for review.
     if (best.relation === "equal" && !best.vendorMatch
@@ -965,7 +1008,7 @@ export function verdictFor(finding, cve, options = {}) {
         return result("unverified", ["cms-module-cve"], identity);
     }
 
-    // 5. Language bindings: the package version belongs to the binding, not
+    // 7. Language bindings: the package version belongs to the binding, not
     // to the C library in the CVE. Compare the library version the binding
     // actually links against (from the store path references).
     const binding = bindingFor(finding, best.product);
@@ -991,7 +1034,27 @@ export function verdictFor(finding, cve, options = {}) {
         return result("unverified", ["binding-version-incomparable"], identity);
     }
 
-    // 6. Version gate.
+    // 8. Tracker confirmation: the issue proves identity, but the installed
+    // version and the channel fix state decide whether it is still affected.
+    if (trackerConfirmed) {
+        if (trackerFixApplies(tracker, finding?.version ?? "")) {
+            return result("suppressed", ["tracker-fixed"], identity);
+        }
+        const versionResult = evaluateRanges(finding?.version ?? "",
+            best.product.ranges);
+        if (versionResult === "not-affected") {
+            if (tracker.master_status === "affected") {
+                return result("unverified", ["version-conflict-with-tracker"],
+                    identity);
+            }
+            return result("suppressed", ["version-not-affected"], identity);
+        }
+        // Affected, unknown or no ranges: the tracker is the strongest
+        // evidence; a fixed version was already cleared above.
+        return result("confirmed", [`tracker-${tracker.status}`], identity);
+    }
+
+    // 9. Version gate.
     const versionResult = evaluateRanges(finding?.version ?? "", best.product.ranges);
     if (versionResult === "affected") {
         return result("confirmed", ["version-in-range"], identity);

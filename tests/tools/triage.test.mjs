@@ -100,6 +100,67 @@ const haskellDiff = {
     },
 };
 
+/** CVE-2026-111497: Google Brotli, affected through 1.2.0; 1.2.1 is fixed. */
+const brotliCve = parseCve({
+    cveMetadata: { cveId: "CVE-2026-111497" },
+    containers: {
+        cna: {
+            affected: [{
+                vendor: "Google",
+                product: "Brotli",
+                versions: [
+                    { version: "1.0.3", lessThan: "1.0.10", status: "affected" },
+                    { version: "1.1.0", lessThan: "1.1.1", status: "affected" },
+                    { version: "1.2.0", lessThan: "1.2.1", status: "affected" },
+                ],
+            }],
+        },
+    },
+});
+
+const brotliFinding = {
+    id: "CVE-2026-111497",
+    package: "brotli",
+    version: "1.2.1",
+    tracker: {
+        status: "published",
+        master_status: "affected",
+        fix_state: "fixed",
+        fix_branch: "nixos-unstable",
+        fix_version: "1.2.1",
+        system_channel: "nixos-unstable",
+    },
+};
+
+/** CVE-2026-33845: the upstream GnuTLS entry has packageName but no vendor/product. */
+const gnutlsCve = parseCve({
+    cveMetadata: { cveId: "CVE-2026-33845" },
+    containers: {
+        cna: {
+            affected: [{
+                packageName: "gnutls",
+                versions: [{
+                    version: "0",
+                    lessThan: "3.8.13",
+                    status: "affected",
+                }],
+            }],
+        },
+    },
+});
+
+const gnutlsFinding = {
+    id: "CVE-2026-33845",
+    package: "gnutls",
+    version: "3.8.13",
+    tracker: {
+        status: "published",
+        master_status: "unknown",
+        fix_state: null,
+        system_channel: "nixos-unstable",
+    },
+};
+
 test("tokens strip non-alphanumerics, trailing digits and filler words", () => {
     assert.deepEqual(tokens("Fidelis Cybersecurity"), ["fidelis", "cybersecurity"]);
     assert.deepEqual(tokens("python3.14"), ["python"]);
@@ -567,4 +628,53 @@ test("an equal product name from a non-CMS vendor is unchanged", () => {
     }, diffProjectCve);
     assert.equal(result.verdict, "confirmed");
     assert.deepEqual(result.reasons, ["version-in-range"]);
+});
+
+test("CVE 5.1 packageName entries become products", () => {
+    assert.equal(gnutlsCve.products[0].vendor, null);
+    assert.equal(gnutlsCve.products[0].product, "gnutls");
+    assert.equal(gnutlsCve.products[0].ranges.length, 1);
+    assert.equal(evaluateRanges("3.8.13", gnutlsCve.products[0].ranges),
+        "not-affected");
+});
+
+test("a tracker fix suppresses an already fixed installed version", () => {
+    const result = verdictFor(brotliFinding, brotliCve);
+    assert.equal(result.verdict, "suppressed");
+    assert.deepEqual(result.reasons, ["tracker-fixed"]);
+    assert.equal(result.vendor, "Google");
+    assert.equal(result.product, "Brotli");
+});
+
+test("a tracker issue on an affected version stays confirmed", () => {
+    const result = verdictFor({ ...brotliFinding, version: "1.2.0" }, brotliCve);
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["tracker-published"]);
+});
+
+test("a fix on another branch does not cover the system channel", () => {
+    const result = verdictFor({
+        ...brotliFinding,
+        version: "1.2.0",
+        tracker: {
+            ...brotliFinding.tracker,
+            fix_branch: "release-26.05",
+        },
+    }, brotliCve);
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["tracker-published"]);
+});
+
+test("a tracker issue on a version outside the CVE range is suppressed", () => {
+    const result = verdictFor(gnutlsFinding, gnutlsCve);
+    assert.equal(result.verdict, "suppressed");
+    assert.deepEqual(result.reasons, ["version-not-affected"]);
+    assert.equal(result.vendor, null);
+    assert.equal(result.product, "gnutls");
+});
+
+test("an affected gnutls version stays confirmed", () => {
+    const result = verdictFor({ ...gnutlsFinding, version: "3.8.12" }, gnutlsCve);
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["tracker-published"]);
 });

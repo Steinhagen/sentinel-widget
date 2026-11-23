@@ -50,7 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are disabled.
 - Added `--ignore` to `tools/triage.mjs` and a
   `/var/lib/sentinel/triage-ignore.json` dismissal list for product-name
-  collisions no rule can resolve; a tracker-confirmed verdict still wins.
+  collisions no rule can resolve; a tracker-confirmed identity still wins over
+  a manual dismissal, but the installed version and channel fix still decide.
 - Added a **Triage verdicts** setting (enabled by default) that hides findings
   classified as false positives, plus the hidden count in the toolbar. Verdicts
   come from `/var/lib/sentinel/triage.json` or from a `verdict` field on the
@@ -70,6 +71,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ecosystem-mismatch`; an unknown or PHP package stays `unverified`
   (`cms-module-cve`). `docs/triage.md` documents the rule tables, worked
   examples and verdict reasons.
+- Tracker-published findings are now checked against the installed version and
+  the tracker's channel fix. A fixed brotli 1.2.1 is suppressed as
+  `tracker-fixed`; a gnutls 3.8.13 outside the CVE range is suppressed as
+  `version-not-affected`. CVE 5.1 `packageName` entries are parsed as product
+  names when vendor/product are absent.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

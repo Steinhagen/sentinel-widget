@@ -744,6 +744,8 @@ QtObject {
             parts.push(i18n("The CVE record has no affected version range."));
         } else if (reasons.indexOf("version-incomparable") >= 0) {
             parts.push(i18n("The CVE's version scheme does not compare with the installed version."));
+        } else if (reasons.indexOf("version-conflict-with-tracker") >= 0) {
+            parts.push(i18n("The Nixpkgs tracker says the master branch is affected, but the installed version is outside the CVE range."));
         } else if (reasons.indexOf("vendor-scoped-cve") >= 0) {
             parts.push(i18n("The CVE is scoped to a distribution or platform, not to this package."));
         } else {
@@ -786,6 +788,9 @@ QtObject {
         }
         if (reasons.indexOf("tracker-unaffected") >= 0) {
             return i18n("The Nixpkgs tracker says this version is unaffected.");
+        }
+        if (reasons.indexOf("tracker-fixed") >= 0) {
+            return i18n("The Nixpkgs tracker reports the installed version as fixed.");
         }
         if (reasons.indexOf("manual-ignore") >= 0) {
             return i18n("You ignored this finding.");
