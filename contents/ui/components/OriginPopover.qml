@@ -20,28 +20,36 @@ Rectangle {
     property var labels: null
 
     readonly property var originNames: {
-        if (!origin || !Array.isArray(origin.names)) {
+        if (!origin || !origin.names) {
             return [];
         }
-        return origin.names;
+        return origin.names.length !== undefined ? origin.names : [];
     }
     readonly property var chains: {
         if (!origin) {
             return [];
         }
-        let source = Array.isArray(origin.chains) ? origin.chains : [];
-        source = source.filter((chain) => Array.isArray(chain) && chain.length > 0);
-        if (source.length === 0 && Array.isArray(origin.chain) && origin.chain.length > 0) {
-            source = [origin.chain];
+        const raw = origin.chains && origin.chains.length !== undefined
+            ? origin.chains : [];
+        const selected = [];
+        for (let i = 0; i < raw.length && selected.length < 3; ++i) {
+            if (raw[i] && raw[i].length > 0) {
+                selected.push(raw[i]);
+            }
         }
-        return source.slice(0, 3).map((chain, chainIndex) => ({
-            index: chainIndex,
-            nodes: chain,
-            steps: chain.map((node, stepIndex) => ({
-                node: node,
-                last: stepIndex === chain.length - 1
-            }))
-        }));
+        if (selected.length === 0 && origin.chain && origin.chain.length > 0) {
+            selected.push(origin.chain);
+        }
+        const result = [];
+        for (let c = 0; c < selected.length; ++c) {
+            const chain = selected[c];
+            const steps = [];
+            for (let s = 0; s < chain.length; ++s) {
+                steps.push({ node: chain[s], last: s === chain.length - 1 });
+            }
+            result.push({ index: c, nodes: chain, steps: steps });
+        }
+        return result;
     }
     readonly property int chainCount: root.chains.length
 

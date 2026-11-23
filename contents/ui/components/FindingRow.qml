@@ -35,7 +35,8 @@ PlasmaComponents3.ItemDelegate {
         ? root.rowData.origin.primary : ""
     readonly property var originInfo: root.rowData ? root.rowData.origin : null
     readonly property bool hasOrigin: !!root.originInfo
-        && Array.isArray(root.originInfo.names)
+        && root.originInfo.names !== undefined
+        && root.originInfo.names !== null
         && root.originInfo.names.length > 0
     readonly property string sourceText: root.rowData
         ? (root.rowData.sourceText || "") : ""
