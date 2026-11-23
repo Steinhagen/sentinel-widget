@@ -19,7 +19,7 @@ PlasmaComponents3.ItemDelegate {
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
-    signal originPreviewRequested(var origin)
+    signal originPreviewRequested(var origin, var anchor)
     signal openFixRequested(string url)
     signal trackerRequested(var finding)
     signal copyRequested(string text)
@@ -478,6 +478,8 @@ PlasmaComponents3.ItemDelegate {
                 }
 
                 Item {
+                    id: originAnchor
+
                     Layout.fillWidth: true
                     implicitHeight: chainLabel.implicitHeight
 
@@ -500,7 +502,13 @@ PlasmaComponents3.ItemDelegate {
 
                         onHoveredChanged: {
                             if (hovered && root.originInfo) {
-                                root.originPreviewRequested(root.originInfo);
+                                const point = originAnchor.mapToItem(null, 0, 0);
+                                root.originPreviewRequested(root.originInfo, {
+                                    x: point.x,
+                                    y: point.y,
+                                    width: originAnchor.width,
+                                    height: originAnchor.height
+                                });
                             }
                         }
                     }

@@ -11,6 +11,7 @@ PlasmaExtras.Representation {
     property var theme: null
     property var labels: null
     property var originPreview: null
+    property var originPreviewAnchor: null
 
     signal scanRequested()
     signal settingsRequested()
@@ -203,7 +204,11 @@ PlasmaExtras.Representation {
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)
                 onFilterOriginRequested: (name) => root.vm.showOrigin(name)
-                onOriginPreviewRequested: (origin) => root.originPreview = origin
+                onOriginPreviewRequested: (origin, anchor) => {
+                    originPreviewTimer.stop();
+                    root.originPreview = origin;
+                    root.originPreviewAnchor = anchor;
+                }
                 onOpenFixRequested: (url) => root.store.openUrl(url)
                 onTrackerRequested: (finding) => root.store.openTracker(finding)
                 onCopyRequested: (text) => root.store.copyText(text)
@@ -234,8 +239,24 @@ PlasmaExtras.Representation {
             }
         }
 
+        Timer {
+            id: originPreviewTimer
+
+            interval: 160
+            onTriggered: root.originPreview = null
+        }
+
         Item {
             id: originOverlay
+
+            readonly property var anchorPoint: root.originPreviewAnchor
+                ? originOverlay.mapFromItem(null,
+                    root.originPreviewAnchor.x, root.originPreviewAnchor.y)
+                : Qt.point(0, 0)
+            readonly property var anchorSize: root.originPreviewAnchor || {
+                width: 0,
+                height: 0
+            }
 
             anchors.fill: parent
             z: 1000
@@ -245,23 +266,56 @@ PlasmaExtras.Representation {
                 anchors.fill: parent
                 color: Qt.rgba(0, 0, 0, 0.45)
 
+                HoverHandler {
+                    onHoveredChanged: {
+                        if (hovered) {
+                            originPreviewTimer.restart();
+                        }
+                    }
+                }
+
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: root.originPreview = null
+                    onClicked: {
+                        originPreviewTimer.stop();
+                        root.originPreview = null;
+                    }
                 }
             }
 
             OriginPopover {
                 id: originPreviewCard
 
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: Math.max(12,
-                    Math.min(40, parent.height - implicitHeight - 16))
-                width: Math.min(implicitWidth, parent.width - 24)
+                x: {
+                    const margin = 12;
+                    const point = originOverlay.anchorPoint;
+                    return Math.max(margin, Math.min(
+                        point.x + (originOverlay.anchorSize.width - width) / 2,
+                        originOverlay.width - width - margin));
+                }
+                y: {
+                    const margin = 12;
+                    const point = originOverlay.anchorPoint;
+                    return Math.max(margin, Math.min(
+                        point.y + originOverlay.anchorSize.height / 2
+                            - height / 2,
+                        originOverlay.height - height - margin));
+                }
+                width: Math.min(implicitWidth, originOverlay.width - 24)
                 height: implicitHeight
                 origin: root.originPreview
                 theme: root.theme
                 labels: root.labels
+
+                HoverHandler {
+                    onHoveredChanged: {
+                        if (hovered) {
+                            originPreviewTimer.stop();
+                        } else {
+                            originPreviewTimer.restart();
+                        }
+                    }
+                }
             }
         }
     }
