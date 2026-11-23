@@ -214,6 +214,10 @@ QtObject {
         store.serviceActive = false;
         store.scanTimeoutTimer.stop();
         if (wasScanning) {
+            // The service writes status.json before it exits. Read it now
+            // instead of waiting for the idle refresh timer (up to 60 s); the
+            // pending tracker marker then shortens the next intervals to 3 s.
+            store.source.read();
             store.scanFinished();
         }
     }

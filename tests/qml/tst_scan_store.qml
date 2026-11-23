@@ -115,9 +115,12 @@ TestCase {
         compare(env.service.startCount, 1);
         env.service.respondStart(true);
         env.store.checkScanService();
+        const readsBeforeFinish = env.source.readCount;
         env.service.respondActive(false);
         compare(env.store.scanning, false);
         compare(finished.count, 1);
+        // The finished scan is read immediately, not on the next idle timer.
+        compare(env.source.readCount, readsBeforeFinish + 1);
 
         env.store.destroy();
         env.source.destroy();
