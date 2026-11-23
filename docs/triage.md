@@ -54,12 +54,72 @@ can be reviewed and, later, adopted by the backend.
    --references`) and compares that instead. It reports
    `binding-library-unaffected`, `binding-library-in-range`,
    `binding-version-unknown` or `binding-version-incomparable`.
+7. **CMS module names.** A generic module name (`Diff`, `Token`, `Views`) can
+   collide with a package from a different ecosystem. When the CVE vendor is a
+   CMS (`Drupal`, `WordPress`, `Joomla`, `Moodle`, `TYPO3`, `SilverStripe`,
+   `Craft CMS`, `Concrete CMS`), the product name matches exactly, and the
+   vendor does not corroborate the package, the pass infers the package
+   ecosystem from its origin names and store path. A known non-PHP package is
+   suppressed (`ecosystem-mismatch`); an unknown or PHP package stays
+   `unverified` (`cms-module-cve`).
 
-The alias tables (`PACKAGE_ALIASES`, `DISTRIBUTIONS`, `PLATFORMS` in the tool)
-are the maintenance point: when a real CVE is suppressed because two names mean
-the same software (`linux`/`kernel`, `libupnp`/`pupnp`), add an alias and a
-test. New language bindings go in `LIBRARY_BINDINGS`; the entry names the C
-library and the ecosystem whose origins identify the binding.
+The tables in the tool are the maintenance points:
+
+| Table | What it holds | When to extend it |
+| --- | --- | --- |
+| `PACKAGE_ALIASES` | Package names that mean the same software (`linux`/`kernel`, `libupnp`/`pupnp`) | A real CVE is suppressed because the names differ |
+| `DISTRIBUTIONS`, `PLATFORMS` | Vendors that ship components inside their own OS or platform | A distribution-scoped CVE is wrongly suppressed |
+| `LIBRARY_BINDINGS` | Language binding → C library, plus the ecosystem whose origins identify the binding | A binding package collides with a C library CVE |
+| `CMS_VENDORS` | Vendors that publish CMS modules | A CMS module name collides with an unrelated package |
+| `ECOSYSTEM_ORIGINS` | Origin-name patterns for Haskell, PHP, Python and Node | A package ecosystem cannot be inferred |
+
+Every new entry needs a regression test in `tests/tools/triage.test.mjs`.
+Tests should assert both the fixed case and a control that must keep its
+old verdict.
+
+## Worked examples
+
+**CVE-2023-45853 — Hackage `zlib` vs the C zlib library.**
+
+- Finding: `zlib` 0.7.1.1, introduced by `haskell-language-server`.
+- CVE: MiniZip in the C zlib library, affected `<1.3.1`.
+- Rule: `LIBRARY_BINDINGS`; `nix-store --references` on the finding's store
+  path resolves the linked C library to `zlib 1.3.2`.
+- Verdict: `suppressed` / `binding-library-unaffected`.
+- Why: 0.7.1.1 is the Hackage package version; the C library it links is fixed.
+
+**CVE-2024-13278 — Hackage `Diff` vs the Drupal Diff module.**
+
+- Finding: `Diff` 1.0.2, introduced by `haskell-language-server`; the store
+  path contains `lib/ghc-*`, so the package is Haskell.
+- CVE: the Drupal `Diff` module, affected `<1.8.0`, vendor `Drupal`.
+- Rule: `CMS_VENDORS`; the package ecosystem is Haskell, not PHP.
+- Verdict: `suppressed` / `ecosystem-mismatch`.
+- Why: the version 1.0.2 only coincides with Drupal's version range; the two
+  products are unrelated. An unknown ecosystem would stay `unverified`
+  (`cms-module-cve`) for review.
+
+## Verdict reasons
+
+The applet maps these tokens to tooltip text in `Labels.qml`.
+
+| Reason | Verdict | Meaning |
+| --- | --- | --- |
+| `tracker-published`, `tracker-accepted` | confirmed | A human/tracker confirmed the match |
+| `tracker-rejected`, `tracker-unaffected` | suppressed | The tracker rejected the match or the version |
+| `osv-advisory` | confirmed | The finding is an OSV advisory for its own ecosystem |
+| `version-in-range` | confirmed | The installed version is inside the affected range |
+| `version-not-affected` | suppressed | The installed version is outside every affected range |
+| `version-incomparable`, `no-version-range` | unverified | The version or range cannot be compared |
+| `identity-mismatch` | suppressed | The CVE names a different product |
+| `product-only-match`, `product-mismatch` | unverified | The name overlaps but the identity is not proven |
+| `vendor-scoped-cve` | unverified | The CVE belongs to a distribution or platform |
+| `binding-library-unaffected` | suppressed | The binding links a C library version outside the range |
+| `binding-library-in-range` | confirmed | The binding links an affected C library version |
+| `binding-version-unknown`, `binding-version-incomparable` | unverified | The linked library version could not be used |
+| `ecosystem-mismatch` | suppressed | A CMS module name collided with a known non-PHP package |
+| `cms-module-cve` | unverified | A CMS module name collided and the ecosystem is unknown/PHP |
+| `manual-ignore` | suppressed | The user dismissed this CVE/package pair |
 
 ## Running it
 

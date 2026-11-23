@@ -65,6 +65,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   they link instead of the binding's package version. Hackage `zlib` 0.7.1.1 is
   compared with the linked zlib 1.3.2, so CVE-2023-45853 and similar C zlib CVEs
   are no longer confirmed against the Haskell binding.
+- The triage pass now treats CMS module-name collisions separately: a Drupal
+  `Diff` CVE against the Haskell `Diff` package is suppressed as
+  `ecosystem-mismatch`; an unknown or PHP package stays `unverified`
+  (`cms-module-cve`). `docs/triage.md` documents the rule tables, worked
+  examples and verdict reasons.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

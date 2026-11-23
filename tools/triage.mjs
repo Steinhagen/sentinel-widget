@@ -29,7 +29,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import path from "node:path";
@@ -178,6 +178,23 @@ const LIBRARY_BINDINGS = {
 };
 
 /**
+ * Vendors whose CVE products are modules of a content management system. A
+ * generic module name (`Diff`, `Token`, `Views`) can collide with a package
+ * from a completely different ecosystem; see the identity rule in
+ * verdictFor().
+ */
+const CMS_VENDORS = new Set([
+    "craftcms",
+    "concretecms",
+    "drupal",
+    "joomla",
+    "moodle",
+    "silverstripe",
+    "typo3",
+    "wordpress",
+]);
+
+/**
  * Linux distribution vendors. Their CVEs describe a component *as shipped in
  * the distribution*, so a product mismatch with the component name proves
  * nothing: keep the finding for review instead of suppressing it.
@@ -233,6 +250,19 @@ export function packageTokensOf(value) {
 export function isScopedVendor(vendor) {
     const joined = tokens(vendor || "").join("");
     return [...DISTRIBUTIONS, ...PLATFORMS].some(
+        (name) => joined === name || joined.startsWith(name),
+    );
+}
+
+/**
+ * Whether the vendor publishes CMS modules (Drupal, WordPress, …).
+ *
+ * @param {string|null} vendor
+ * @returns {boolean}
+ */
+export function isCmsVendor(vendor) {
+    const joined = tokens(vendor || "").join("");
+    return [...CMS_VENDORS].some(
         (name) => joined === name || joined.startsWith(name),
     );
 }
@@ -362,6 +392,13 @@ const STORE_PATH_RE = /^\/nix\/store\/[a-z0-9]{32}-(.+?)-([0-9][^/]*)$/;
 const PLAIN_VERSION_RE = /^[0-9]+(?:\.[0-9]+)*$/;
 const libraryVersionCache = new Map();
 
+/** Store paths attached to a finding by the backend's origin pass. */
+function storePathsOf(finding) {
+    return Array.isArray(finding?.origins?.store_paths)
+        ? finding.origins.store_paths
+        : [];
+}
+
 /**
  * The C library version a binding links against, read from the direct
  * references of the finding's store paths (for example Hackage zlib 0.7.1.1
@@ -372,10 +409,7 @@ const libraryVersionCache = new Map();
  * @returns {string}
  */
 export function linkedLibraryVersion(finding, library) {
-    const storePaths = Array.isArray(finding?.origins?.store_paths)
-        ? finding.origins.store_paths
-        : [];
-    for (const storePath of storePaths) {
+    for (const storePath of storePathsOf(finding)) {
         const key = `${library}|${storePath}`;
         if (libraryVersionCache.has(key)) {
             const cached = libraryVersionCache.get(key);
@@ -427,6 +461,79 @@ export function linkedLibraryVersion(finding, library) {
         libraryVersionCache.set(key, selected);
         if (selected.length > 0) {
             return selected;
+        }
+    }
+    return "";
+}
+
+const ECOSYSTEM_ORIGINS = [
+    {
+        ecosystem: "haskell",
+        pattern: /(^|-)haskell-language-server(-|$)|(^|-)ghc(-|$)/,
+    },
+    {
+        ecosystem: "php",
+        pattern: /(^|-)(craftcms|concretecms|drupal|joomla|moodle|silverstripe|typo3|wordpress|php)(-|$)/,
+    },
+    {
+        ecosystem: "python",
+        pattern: /(^|-)python[0-9.]*(-|$)/,
+    },
+    {
+        ecosystem: "node",
+        pattern: /(^|-)node(js)?(-|$)/,
+    },
+];
+
+/** Ecosystem inferred from a package's store path directory layout. */
+function storeEcosystem(storePath) {
+    if (existsSync(path.join(storePath, "share", "php"))) {
+        return "php";
+    }
+    const lib = path.join(storePath, "lib");
+    if (!existsSync(lib)) {
+        return "";
+    }
+    let entries = [];
+    try {
+        entries = readdirSync(lib);
+    } catch (error) {
+        return "";
+    }
+    if (entries.some((name) => /^ghc-/.test(name))) {
+        return "haskell";
+    }
+    if (entries.some((name) => /^python/.test(name))) {
+        return "python";
+    }
+    if (entries.includes("php") || entries.includes("drupal")) {
+        return "php";
+    }
+    if (entries.includes("node_modules")) {
+        return "node";
+    }
+    return "";
+}
+
+/**
+ * The package's ecosystem, from the origin names first and the store path
+ * layout second. Returns "" when it cannot be determined.
+ *
+ * @param {any} finding
+ * @returns {string}
+ */
+export function packageEcosystem(finding) {
+    for (const name of originNamesOf(finding)) {
+        for (const candidate of ECOSYSTEM_ORIGINS) {
+            if (candidate.pattern.test(name)) {
+                return candidate.ecosystem;
+            }
+        }
+    }
+    for (const storePath of storePathsOf(finding)) {
+        const ecosystem = storeEcosystem(storePath);
+        if (ecosystem.length > 0) {
+            return ecosystem;
         }
     }
     return "";
@@ -770,7 +877,8 @@ export function ignoreEntryOf(finding, ignore) {
  * @param {any} finding
  * @param {CveMetadata|null} cve
  * @param {{osv?: boolean, ignore?: object|null,
- *   resolveLibraryVersion?: (finding: any, library: string) => string}} [options]
+ *   resolveLibraryVersion?: (finding: any, library: string) => string,
+ *   resolvePackageEcosystem?: (finding: any) => string}} [options]
  * @returns {VerdictResult}
  */
 export function verdictFor(finding, cve, options = {}) {
@@ -838,7 +946,26 @@ export function verdictFor(finding, cve, options = {}) {
         return result("unverified", ["product-mismatch"], identity);
     }
 
-    // 4. Language bindings: the package version belongs to the binding, not
+    // 4. CMS module names: a generic product name from a CMS vendor can
+    // collide with a package from another ecosystem. A known non-PHP package
+    // is provably unrelated; an unknown or PHP package stays for review.
+    if (best.relation === "equal" && !best.vendorMatch
+            && isCmsVendor(best.product.vendor)) {
+        let ecosystem = "";
+        try {
+            ecosystem = String(options.resolvePackageEcosystem
+                ? (options.resolvePackageEcosystem(finding) ?? "")
+                : packageEcosystem(finding));
+        } catch (error) {
+            ecosystem = "";
+        }
+        if (ecosystem.length > 0 && ecosystem !== "php") {
+            return result("suppressed", ["ecosystem-mismatch"], identity);
+        }
+        return result("unverified", ["cms-module-cve"], identity);
+    }
+
+    // 5. Language bindings: the package version belongs to the binding, not
     // to the C library in the CVE. Compare the library version the binding
     // actually links against (from the store path references).
     const binding = bindingFor(finding, best.product);
@@ -864,7 +991,7 @@ export function verdictFor(finding, cve, options = {}) {
         return result("unverified", ["binding-version-incomparable"], identity);
     }
 
-    // 5. Version gate.
+    // 6. Version gate.
     const versionResult = evaluateRanges(finding?.version ?? "", best.product.ranges);
     if (versionResult === "affected") {
         return result("confirmed", ["version-in-range"], identity);

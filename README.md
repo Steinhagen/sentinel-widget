@@ -148,8 +148,9 @@ Right-click the widget and choose **Configure…**:
   **Unverified findings** are on; turn one off to see that state. Hover the
   icon to see what the CVE actually names (for example
   `Fidelis Cybersecurity → Fidelis Network`). The header is sortable; the
-  toolbar count shows hidden rows as `(+ N hidden findings)`. See
-  [docs/triage.md](docs/triage.md).
+  toolbar count shows hidden rows as `(+ N hidden findings)`. The rule tables
+  (language bindings, CMS module names), worked examples and verdict reasons
+  are in [docs/triage.md](docs/triage.md).
 - **Unverified findings:** hide findings the triage pass could not confirm
   (enabled by default). This is independent of **Triage verdicts**; when both
   are on, the Triaj column is hidden.

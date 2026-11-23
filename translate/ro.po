@@ -1179,6 +1179,14 @@ msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse de
 msgid "The parenthesised findings are hidden by the triage or OSV settings or ignored by you. Ignored findings can be restored in the settings."
 msgstr "Constatările din paranteze sunt ascunse de setările de triaj sau OSV ori ignorate de dvs. Cele ignorate pot fi restaurate din setări."
 
+#: contents/ui/components/Labels.qml
+msgid "The CVE targets %1's %2 module, not this package."
+msgstr "CVE-ul vizează modulul %2 al %1, nu acest pachet."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE targets a content management system module, not this package."
+msgstr "CVE-ul vizează un modul de sistem de management al conținutului, nu acest pachet."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

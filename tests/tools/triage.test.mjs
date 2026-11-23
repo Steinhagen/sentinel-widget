@@ -7,7 +7,9 @@ import {
     embedVerdicts,
     evaluateRange,
     evaluateRanges,
+    isCmsVendor,
     isScopedVendor,
+    packageEcosystem,
     packageTokensOf,
     parseCve,
     parseIgnoreText,
@@ -67,6 +69,34 @@ const haskellZlib = {
         introduced_by: ["haskell-language-server-2.13.0.0"],
         chain: ["haskell-language-server-2.13.0.0", "zlib-0.7.1.1"],
         store_paths: ["/nix/store/i0ann5d1v85kfvsz7jfm6agyqbrymdsq-zlib-0.7.1.1"],
+    },
+};
+
+/** CVE-2024-13278: the Drupal Diff module, not the Haskell Diff package. */
+const drupalDiffCve = parseCve({
+    cveMetadata: { cveId: "CVE-2024-13278" },
+    containers: {
+        cna: {
+            affected: [{
+                vendor: "Drupal",
+                product: "Diff",
+                versions: [{
+                    version: "0.0.0",
+                    lessThan: "1.8.0",
+                    status: "affected",
+                }],
+            }],
+        },
+    },
+});
+
+const haskellDiff = {
+    id: "CVE-2024-13278",
+    package: "Diff",
+    version: "1.0.2",
+    origins: {
+        introduced_by: ["haskell-language-server-2.13.0.0"],
+        chain: ["haskell-language-server-2.13.0.0", "Diff-1.0.2"],
     },
 };
 
@@ -466,6 +496,75 @@ test("the C library finding keeps the normal version gate", () => {
             chain: ["zlib-1.2.13"],
         },
     }, zlibCve);
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["version-in-range"]);
+});
+
+test("CMS vendors are recognised", () => {
+    assert.equal(isCmsVendor("Drupal"), true);
+    assert.equal(isCmsVendor("WordPress Foundation"), true);
+    assert.equal(isCmsVendor("Apache"), false);
+    assert.equal(isCmsVendor(null), false);
+});
+
+test("package ecosystem comes from the origin names", () => {
+    assert.equal(packageEcosystem(haskellDiff), "haskell");
+    assert.equal(packageEcosystem({
+        origins: { introduced_by: ["drupal-diff-1.0.0"] },
+    }), "php");
+    assert.equal(packageEcosystem({}), "");
+});
+
+test("a CMS module name on a Haskell package is suppressed", () => {
+    const result = verdictFor(haskellDiff, drupalDiffCve);
+    assert.equal(result.verdict, "suppressed");
+    assert.deepEqual(result.reasons, ["ecosystem-mismatch"]);
+    assert.equal(result.vendor, "Drupal");
+    assert.equal(result.product, "Diff");
+});
+
+test("an unknown ecosystem keeps a CMS collision for review", () => {
+    const result = verdictFor({
+        id: "CVE-2024-13278",
+        package: "Diff",
+        version: "1.0.2",
+        origins: {},
+    }, drupalDiffCve);
+    assert.equal(result.verdict, "unverified");
+    assert.deepEqual(result.reasons, ["cms-module-cve"]);
+});
+
+test("a PHP package keeps a CMS collision for review", () => {
+    const result = verdictFor(haskellDiff, drupalDiffCve, {
+        resolvePackageEcosystem: () => "php",
+    });
+    assert.equal(result.verdict, "unverified");
+    assert.deepEqual(result.reasons, ["cms-module-cve"]);
+});
+
+test("an equal product name from a non-CMS vendor is unchanged", () => {
+    const diffProjectCve = parseCve({
+        cveMetadata: { cveId: "CVE-2024-99999" },
+        containers: {
+            cna: {
+                affected: [{
+                    vendor: "Diff",
+                    product: "Diff",
+                    versions: [{
+                        version: "0.0.0",
+                        lessThan: "2.0.0",
+                        status: "affected",
+                    }],
+                }],
+            },
+        },
+    });
+    const result = verdictFor({
+        id: "CVE-2024-99999",
+        package: "Diff",
+        version: "1.0.2",
+        origins: { introduced_by: ["haskell-language-server-2.13.0.0"] },
+    }, diffProjectCve);
     assert.equal(result.verdict, "confirmed");
     assert.deepEqual(result.reasons, ["version-in-range"]);
 });

@@ -68,7 +68,7 @@ Legacy compatibility:
 | `tracker` | object | Nixpkgs security tracker annotation; see below |
 | `source` | object | Optional per-finding override of the report source |
 | `verdict` | string | Optional triage verdict: `confirmed`, `unverified`, `suppressed` |
-| `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected` |
+| `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected`, `binding-library-unaffected`, `ecosystem-mismatch` |
 | `verdict_vendor` | string | CVE vendor, shown in the triage tooltip |
 | `verdict_product` | string | CVE product, shown in the triage tooltip |
 

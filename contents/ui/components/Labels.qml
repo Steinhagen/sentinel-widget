@@ -770,6 +770,14 @@ QtObject {
         if (reasons.indexOf("binding-version-incomparable") >= 0) {
             return i18n("The linked C library version does not compare with the CVE's affected range.");
         }
+        if (reasons.indexOf("ecosystem-mismatch") >= 0
+                || reasons.indexOf("cms-module-cve") >= 0) {
+            if (row.triageVendor && row.triageProduct) {
+                return i18n("The CVE targets %1's %2 module, not this package.",
+                    row.triageVendor, row.triageProduct);
+            }
+            return i18n("The CVE targets a content management system module, not this package.");
+        }
         if (reasons.indexOf("identity-mismatch") >= 0) {
             return i18n("The CVE does not describe this package.");
         }
