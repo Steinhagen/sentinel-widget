@@ -130,3 +130,27 @@ are on. The V4 setting bar is not implemented.
 **Implemented:** V2, the icon-only triage column. V4's bar remains the
 recommended follow-up for the setting state; V3 if the package/origin width is
 the priority.
+
+## Origin popovers
+
+[origin-popovers.html](origin-popovers.html) · [overview](origin-popovers.png)
+explores the dependency-origin popup, which currently renders a plain
+`QQC2.ToolTip.text` string: one narrow block, no hierarchy, no separation
+between package names and versions. The mockups use the same three chains
+(`calibre` and `open-webui` pulling in `ffmpeg 9.0.2`) and the same dark
+context.
+
+| # | Design | What it is best at |
+|---|--------|--------------------|
+| 01 | [Inspector](origin-popovers.png) | Rich hover tooltip; origins as chips, chains as numbered steps; smallest good change |
+| 02 | [Vertical trail](origin-popovers.png) | Long names never wrap awkwardly; each chain is a compact vertical list; taller |
+| 03 | [Details at click](origin-popovers.png) | Stable popover with **Filter by origin** and **Copy chain**; best readability, bigger interaction change |
+
+**Recommendation:** 01 for the hover tooltip. It keeps the current interaction
+and fixes the actual readability problems: 360–400 px max width, 14 px padding,
+11–13 px type, origin chips, name/version split, one numbered row per chain,
+muted versions, a red outline on the vulnerable package, and the hint in a
+separate footer. Use 03 if the chain is worth a click and actions; 02 if long
+package names dominate.
+
+**Not implemented yet** — mockups for choosing the direction.
