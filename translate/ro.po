@@ -1195,6 +1195,18 @@ msgstr "Trackerul Nixpkgs raportează versiunea instalată ca remediată."
 msgid "The Nixpkgs tracker says the master branch is affected, but the installed version is outside the CVE range."
 msgstr "Trackerul Nixpkgs spune că ramura master este afectată, dar versiunea instalată este în afara intervalului CVE."
 
+#: contents/ui/components/Labels.qml
+msgid "Tracker package: %1"
+msgstr "Pachet tracker: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "This package attribute is still affected in every checked branch."
+msgstr "Acest atribut de pachet este încă afectat în toate ramurile verificate."
+
+#: contents/ui/components/Labels.qml
+msgid "No checked branch has a fix yet."
+msgstr "Nicio ramură verificată nu are încă un fix."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

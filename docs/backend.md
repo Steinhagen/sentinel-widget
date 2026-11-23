@@ -54,6 +54,33 @@ The applet starts the scan with `systemctl start --no-block sentinel.service`;
 the module’s polkit rule allows `wheel` users to do that without a password
 prompt.
 
+## Tracker package attributes
+
+A tracker suggestion can cover several nixpkgs attributes: `ffmpeg`,
+`ffmpeg_6`, `ffmpeg_8`, `openssl_1_1`, `openssl_3_5`, `libressl_4_2`,
+`capstone_4`, and `-full`/`-headless` outputs. Matching by the bare package
+name is not enough. The backend scores every versioned attribute of the base
+package by how many leading version components match the installed finding and
+picks the best; the exact base wins a tie:
+
+- `ffmpeg` 9.0.2 → the default `ffmpeg`;
+- `ffmpeg` 8.1.3 → `ffmpeg_8`;
+- `ffmpeg` 6.1.6 → `ffmpeg_6`;
+- `openssl` 1.1.1w → `openssl_1_1`;
+- `openssl` 3.5.2 → `openssl_3_5`;
+- `libressl` 4.2.1 → `libressl_4_2`;
+- `capstone` 4.0.2 → `capstone_4`.
+
+This matters for legacy attributes and vendored dependencies. `tor-browser`
+uses `ffmpeg_8`; the tracker's `ffmpeg_8` master and release branches are still
+8.1.2 and affected, while the default `ffmpeg` in master is 9.0.1 and fixed.
+The applet therefore shows **no fix** for a `ffmpeg` 8.1.3 finding, and its fix
+tooltip names `ffmpeg_8` — it does not inherit the default package's `master`
+fix. The channel probe reads one version literal from a package file; a
+versioned attribute often shares that file with the default, so a channel or
+staging reading is only trusted when its leading major.minor matches the
+matched attribute's master version.
+
 ## Status contract
 
 The applet depends on the fields in [`status-schema.md`](status-schema.md).

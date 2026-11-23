@@ -495,21 +495,120 @@ def fetch_package_suggestions(package, deadline, stop, token, limiter, flags):
     return suggestions, None
 
 
-def match_package(packages, name):
-    """Find the suggestion package that corresponds to the finding's package."""
+def _version_components(value):
+    match = re.match(r"^\s*[vV]?(\d+(?:[._-]\d+)*)", str(value or ""))
+    if not match:
+        return []
+    return [int(part) for part in re.split(r"[._-]", match.group(1))]
+
+
+def _version_prefix_length(left, right):
+    left_parts = _version_components(left)
+    right_parts = _version_components(right)
+    count = 0
+    for left_part, right_part in zip(left_parts, right_parts):
+        if left_part != right_part:
+            break
+        count += 1
+    return count
+
+
+def _probe_matches(master_version, probe_version):
+    """Whether a channel/staging probe read the matched attribute's file.
+
+    The probe reads one version literal from a package file. Versioned
+    attributes often share that file with the default (ffmpeg generic.nix,
+    openssl/default.nix), so a probe is only trusted when its leading
+    major.minor matches the matched attribute's master version.
+    """
+    master = _version_components(master_version)
+    probe = _version_components(probe_version)
+    if not master or not probe:
+        return True
+    depth = min(2, len(master), len(probe))
+    return master[:depth] == probe[:depth]
+
+
+def _branch_version(branches):
+    """The version of the matched attribute, from master or any branch."""
+    master = (branches or {}).get("master") or {}
+    if master.get("version"):
+        return master.get("version")
+    for info in (branches or {}).values():
+        if isinstance(info, dict) and info.get("version"):
+            return info.get("version")
+    return ""
+
+
+def _variant_suffix(candidate, key):
+    """The version suffix of a versioned attribute, if this is one.
+
+    ``ffmpeg_8``, ``ffmpeg_8-full``, ``openssl_1_1`` and ``capstone_4`` are
+    variants of ``ffmpeg``, ``openssl`` and ``capstone``; ``ffmpeg-full`` is
+    an output variant, not a version.
+    """
+    if not key.startswith(candidate):
+        return None
+    rest = key[len(candidate):]
+    if not rest or rest[0] not in "_-":
+        return None
+    suffix = rest[1:]
+    if not re.match(
+        r"^\d+(?:[._-]\d+)*(?:-(?:full|headless|unwrapped|wrapper|dev|doc|man|bin|lib))?$",
+        suffix,
+    ):
+        return None
+    return suffix
+
+
+def match_package(packages, name, version=None):
+    """Find the suggestion package that corresponds to the finding's package.
+
+    A tracker suggestion can cover several nixpkgs attributes (``ffmpeg``,
+    ``ffmpeg_8``, ``ffmpeg_6``, …). The plain name is not enough: master's
+    default ``ffmpeg`` may already be 9.x while ``ffmpeg_8`` is still 8.x and
+    affected. When the installed major differs from the base attribute's
+    major, prefer the versioned attribute for the installed major.
+    """
     if not name:
         return None, None
-    if name in packages:
-        return name, packages[name]
-    # Nix attribute paths such as python313Packages.ultralytics.
-    shortened = [key for key in packages if key.rsplit(".", 1)[-1] == name]
-    if len(shortened) == 1:
-        return shortened[0], packages[shortened[0]]
-    for suffix in ("-unwrapped", "-wrapper"):
-        candidate = name + suffix
-        if candidate in packages:
-            return candidate, packages[candidate]
-    return None, None
+    candidate = name if name in packages else None
+    if candidate is None:
+        # Nix attribute paths such as python313Packages.ultralytics.
+        shortened = [key for key in packages if key.rsplit(".", 1)[-1] == name]
+        if len(shortened) == 1:
+            candidate = shortened[0]
+    if candidate is None:
+        for suffix in ("-unwrapped", "-wrapper"):
+            candidate = name + suffix
+            if candidate in packages:
+                break
+            candidate = None
+    if candidate is None:
+        return None, None
+
+    if not version:
+        return candidate, packages[candidate]
+
+    # Score every versioned attribute of the base package by how many leading
+    # version components match the installed version; the exact base wins a
+    # tie. This selects ffmpeg_8 for 8.1.3, openssl_1_1 for 1.1.1w and
+    # openssl_3_5 for 3.5.2, not only the bare names.
+    options = []
+    for key, branches in packages.items():
+        suffix = "" if key == candidate else _variant_suffix(candidate, key)
+        if suffix is None:
+            continue
+        options.append({
+            "key": key,
+            "score": _version_prefix_length(version, _branch_version(branches)),
+            "exact": key == candidate,
+        })
+    if not options:
+        return candidate, packages[candidate]
+    best = max(options, key=lambda item: (
+        item["score"], 1 if item["exact"] else 0, -len(item["key"])))
+    return best["key"], packages[best["key"]]
 
 
 def master_status(branches):
@@ -740,17 +839,29 @@ def branch_rows(entry, item, branches, probed):
             ),
         })
 
-    # Channels first: they are what an update actually pulls.
+    # Channels first: they are what an update actually pulls. The probe reads
+    # one version literal from the package file; a versioned attribute such as
+    # ffmpeg_8 shares generic.nix with the default ffmpeg. Ignore a channel
+    # reading whose major does not match the matched attribute.
+    master_version = (master or {}).get("version")
     for name in sorted(
         (ref for ref in readings if ref.startswith("nixos-")),
         key=lambda ref: (ref != UNSTABLE_CHANNEL, ref),
     ):
-        add(name, (readings[name] or {}).get("version"), "channel",
+        channel_version = (readings[name] or {}).get("version")
+        if (master_version and channel_version
+                and not _probe_matches(master_version, channel_version)):
+            continue
+        add(name, channel_version, "channel",
             (readings[name] or {}).get("ref") or name)
     add("master", master.get("version"), "branch", "master", master.get("status"))
     for name in STAGING_BRANCHES:
         if name in readings:
-            add(name, (readings[name] or {}).get("version"), "staging",
+            staging_version = (readings[name] or {}).get("version")
+            if (master_version and staging_version
+                    and not _probe_matches(master_version, staging_version)):
+                continue
+            add(name, staging_version, "staging",
                 (readings[name] or {}).get("ref") or name)
     for name in sorted(branches):
         if name.startswith("release-"):
@@ -1154,7 +1265,8 @@ def annotate_tracker(vulnerabilities, entries, complete, fetched=0, failures=0,
             summary["rejected"] += 1
 
         matched, branches = match_package(
-            entry.get("packages") or {}, item.get("package")
+            entry.get("packages") or {}, item.get("package"),
+            item.get("version")
         )
         branch_status, branch_version, branch_src = master_status(branches)
         master_source = "tracker" if branch_status in ("affected", "unaffected") else None

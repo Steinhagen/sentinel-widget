@@ -76,6 +76,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tracker-fixed`; a gnutls 3.8.13 outside the CVE range is suppressed as
   `version-not-affected`. CVE 5.1 `packageName` entries are parsed as product
   names when vendor/product are absent.
+- The tracker now selects versioned nixpkgs attributes by the longest matching
+  version prefix (`ffmpeg` 8.1.3 → `ffmpeg_8`, `openssl` 1.1.1w →
+  `openssl_1_1`, `libressl` 4.2.1 → `libressl_4_2`) instead of the bare
+  package name. A legacy or vendored attribute stays **no fix** even when the
+  default package is fixed; the fix tooltip names the matched tracker package.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

@@ -1,16 +1,18 @@
 # Testing Sentinel
 
-The test suite has two runners:
+The test suite has three runners:
 
 - **Node** (`node --test`) for the pure `.mjs` domain modules.
 - **qmltestrunner** for QML services and state, with fake services.
+- **Python unittest** for the scanner backend's tracker rules.
 
 Both run without Plasma, a display server, `/var/lib/sentinel`, systemd or the
 network.
 
 ## Commands
 
-Current suite: 60 Node domain tests and 26 qmltestrunner test functions.
+Current suite: 127 Node tests, 44 qmltestrunner test functions and 11 backend
+tests.
 
 ```sh
 # one command for everything available
@@ -22,6 +24,9 @@ Current suite: 60 Node domain tests and 26 qmltestrunner test functions.
 # QML services/state/components only
 ./scripts/test-qml.sh
 
+# scanner backend only
+./scripts/test-backend.sh
+
 # lint only
 ./scripts/lint.sh
 
@@ -29,8 +34,8 @@ Current suite: 60 Node domain tests and 26 qmltestrunner test functions.
 ./scripts/test-i18n.sh
 ```
 
-`check.sh` runs lint, domain tests, QML tests, the translation catalog checks and
-the package build. It skips a stage only when that stage has no files yet; CI
+`check.sh` runs lint, domain tests, backend tests, QML tests, the translation
+catalog checks and the package build. It skips a stage only when that stage has no files yet; CI
 treats a missing tool as an error.
 
 ## Tooling
@@ -122,6 +127,7 @@ commit a tracker token.
 | --- | --- |
 | New status field | `status.test.mjs`, fixture, schema doc |
 | Fix/tracker rule | `fix.test.mjs` or `tracker.test.mjs`; one test per state |
+| Backend tracker matching | `tests/backend/test_status.py`; package attribute and channel-probe cases |
 | Filter/sort/group | `filters.test.mjs` / `table.test.mjs` |
 | Command/service | QML test with `FakeRunner`; exit code and timeout |
 | Scan lifecycle | QML test for start, adopt, finish, timeout, failure |

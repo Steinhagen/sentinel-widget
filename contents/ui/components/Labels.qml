@@ -295,6 +295,9 @@ QtObject {
     function fixTooltipLines(fix, systemChannel) {
         const lines = [];
         if (fix.rows && fix.rows.length > 0) {
+            if (fix.matchedPackage) {
+                lines.push(i18n("Tracker package: %1", fix.matchedPackage));
+            }
             lines.push(i18n("Fix status by nixpkgs branch:"));
             for (let i = 0; i < fix.rows.length; ++i) {
                 const row = fix.rows[i];
@@ -327,7 +330,13 @@ QtObject {
                 lines.push(i18n("No fix merged yet."));
                 break;
             }
-            lines.push(i18n("Update to a branch marked ✓ to get the fix."));
+            const anyFixed = fix.rows.some((row) => row.state === "unaffected");
+            const allAffected = fix.rows.every((row) => row.state === "affected");
+            lines.push(anyFixed
+                ? i18n("Update to a branch marked ✓ to get the fix.")
+                : (allAffected
+                    ? i18n("This package attribute is still affected in every checked branch.")
+                    : i18n("No checked branch has a fix yet.")));
             if (fix.bucket === "progress") {
                 lines.push(i18n("Pending: the fix is merged, but no channel carries it yet."));
             }

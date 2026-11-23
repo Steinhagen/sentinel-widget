@@ -172,6 +172,8 @@ export function classify(finding, systemChannel) {
         labelKey: label.key,
         labelArg: label.arg,
         branch: tracker && tracker.fix_branch ? String(tracker.fix_branch) : "",
+        matchedPackage: tracker && tracker.matched_package
+            ? String(tracker.matched_package) : "",
         branchShort: state === FixStage.RELEASE
             ? shortRefName(tracker && tracker.fix_branch ? tracker.fix_branch : "")
             : "",
