@@ -275,7 +275,7 @@ QtObject {
     }
 
     function originHint() {
-        return i18n("Click the origin row to filter all findings.");
+        return i18n("Click an origin to filter all findings.");
     }
 
     function originTooltip(origin) {

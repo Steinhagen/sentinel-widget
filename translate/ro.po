@@ -1239,6 +1239,10 @@ msgstr "TRASEE"
 msgid "Click the origin row to filter all findings."
 msgstr "Click pe rândul de origine pentru a filtra toate constatările."
 
+#: contents/ui/components/Labels.qml
+msgid "Click an origin to filter all findings."
+msgstr "Click pe o origine pentru a filtra toate constatările."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

@@ -264,7 +264,7 @@ PlasmaExtras.Representation {
 
             Rectangle {
                 anchors.fill: parent
-                color: Qt.rgba(0, 0, 0, 0.45)
+                color: "transparent"
 
                 HoverHandler {
                     onHoveredChanged: {
@@ -315,6 +315,12 @@ PlasmaExtras.Representation {
                             originPreviewTimer.restart();
                         }
                     }
+                }
+
+                onOriginSelected: (name) => {
+                    originPreviewTimer.stop();
+                    root.originPreview = null;
+                    root.vm.showOrigin(name);
                 }
             }
         }

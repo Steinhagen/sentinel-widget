@@ -19,6 +19,8 @@ Rectangle {
     property var theme: null
     property var labels: null
 
+    signal originSelected(string name)
+
     readonly property var originNames: {
         if (!origin || !origin.names) {
             return [];
@@ -67,6 +69,13 @@ Rectangle {
     color: root.theme ? root.theme.tooltipBackground : Kirigami.Theme.backgroundColor
     border.width: 1
     border.color: root.theme ? root.theme.tooltipBorder : Kirigami.Theme.disabledTextColor
+
+    // Consume clicks anywhere on the card so they cannot fall through to the
+    // findings list behind the overlay.
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {}
+    }
 
     ColumnLayout {
         id: layout
@@ -149,6 +158,8 @@ Rectangle {
                     Rectangle {
                         id: originChip
 
+                        objectName: "originChip"
+
                         required property string modelData
 
                         readonly property var parts: Origins.splitNode(modelData)
@@ -189,6 +200,12 @@ Rectangle {
                                 font.family: Kirigami.Theme.smallFont.family
                                 font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
                             }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.originSelected(originChip.modelData)
                         }
                     }
                 }
