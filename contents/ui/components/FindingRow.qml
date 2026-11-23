@@ -497,16 +497,22 @@ PlasmaComponents3.ItemDelegate {
                         cursorShape: Qt.PointingHandCursor
                     }
 
-                    QQC2.ToolTip {
+                    QQC2.Popup {
                         id: originTip
 
                         visible: chainHover.hovered && root.hasOrigin
+                        width: originContent.implicitWidth
+                        height: originContent.implicitHeight
+                        x: Math.max(0, (parent.width - width) / 2)
+                        y: parent.height + Kirigami.Units.smallSpacing
                         padding: 0
-                        background: Rectangle {
-                            color: "transparent"
-                            border.width: 0
-                        }
+                        modal: false
+                        focus: false
+                        dim: false
+                        closePolicy: QQC2.Popup.NoAutoClose
+                        background: null
                         contentItem: OriginPopover {
+                            id: originContent
                             origin: root.originInfo
                             theme: root.theme
                             labels: root.labels
