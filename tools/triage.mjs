@@ -28,6 +28,7 @@
  * backend can later adopt the same rules and expose the verdict.
  */
 
+import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -163,6 +164,20 @@ const PACKAGE_ALIASES = {
 };
 
 /**
+ * Language bindings whose package version belongs to the binding, not to the
+ * C library named in the CVE. For these, compare the C library version the
+ * binding actually links against. Add entries here when a binding package
+ * collides with a C library CPE.
+ *
+ * `ecosystems` identifies the origin packages that use the binding; the
+ * version fallback (Hackage zlib is 0.x, the C library is 1.x) covers the
+ * cases where the closure walk does not keep the language tool's name.
+ */
+const LIBRARY_BINDINGS = {
+    zlib: { library: "zlib", ecosystems: ["haskell"] },
+};
+
+/**
  * Linux distribution vendors. Their CVEs describe a component *as shipped in
  * the distribution*, so a product mismatch with the component name proves
  * nothing: keep the finding for review instead of suppressing it.
@@ -273,6 +288,148 @@ export function compareVersions(left, right) {
         }
     }
     return 0;
+}
+
+/**
+ * Names of the packages that pulled a finding into the closure.
+ *
+ * @param {any} finding
+ * @returns {string[]}
+ */
+function originNamesOf(finding) {
+    const origins = finding?.origins ?? {};
+    const names = [];
+    for (const value of origins.introduced_by ?? []) {
+        names.push(String(value));
+    }
+    for (const value of origins.chain ?? []) {
+        names.push(String(value));
+    }
+    return names;
+}
+
+const HASKELL_ORIGIN_RE = /(^|-)haskell-language-server(-|$)|(^|-)ghc(-|$)/;
+
+/**
+ * Whether the finding is the language binding, not the C library itself.
+ *
+ * @param {any} finding
+ * @param {{library: string, ecosystems?: string[]}} binding
+ * @returns {boolean}
+ */
+function isLanguageBinding(finding, binding) {
+    if (!finding || !binding) {
+        return false;
+    }
+    if (stringOf(finding.package) !== binding.library) {
+        return false;
+    }
+    if (!(binding.ecosystems ?? []).includes("haskell")) {
+        return false;
+    }
+    if (originNamesOf(finding).some((name) => HASKELL_ORIGIN_RE.test(name))) {
+        return true;
+    }
+    // Hackage's zlib uses the 0.x line while the C library uses 1.x. Keep
+    // this fallback for closures where the Haskell tool is not the origin.
+    return binding.library === "zlib"
+        && /^0\./.test(stringOf(finding.version));
+}
+
+/**
+ * The binding table entry for this finding and CVE product, if any.
+ *
+ * @param {any} finding
+ * @param {AffectedProduct|undefined} product
+ * @returns {{library: string, ecosystems?: string[]}|null}
+ */
+function bindingFor(finding, product) {
+    const binding = LIBRARY_BINDINGS[stringOf(finding?.package)];
+    if (!binding || !product) {
+        return null;
+    }
+    if (tokens(product.product).join("") !== binding.library) {
+        return null;
+    }
+    const vendor = tokens(product.vendor).join("");
+    if (vendor.length > 0 && vendor !== binding.library) {
+        return null;
+    }
+    return isLanguageBinding(finding, binding) ? binding : null;
+}
+
+const STORE_PATH_RE = /^\/nix\/store\/[a-z0-9]{32}-(.+?)-([0-9][^/]*)$/;
+const PLAIN_VERSION_RE = /^[0-9]+(?:\.[0-9]+)*$/;
+const libraryVersionCache = new Map();
+
+/**
+ * The C library version a binding links against, read from the direct
+ * references of the finding's store paths (for example Hackage zlib 0.7.1.1
+ * references zlib 1.3.2). Returns "" when it cannot be resolved.
+ *
+ * @param {any} finding
+ * @param {string} library
+ * @returns {string}
+ */
+export function linkedLibraryVersion(finding, library) {
+    const storePaths = Array.isArray(finding?.origins?.store_paths)
+        ? finding.origins.store_paths
+        : [];
+    for (const storePath of storePaths) {
+        const key = `${library}|${storePath}`;
+        if (libraryVersionCache.has(key)) {
+            const cached = libraryVersionCache.get(key);
+            if (cached.length > 0) {
+                return cached;
+            }
+            continue;
+        }
+        if (!existsSync(storePath)) {
+            libraryVersionCache.set(key, "");
+            continue;
+        }
+        let output = "";
+        try {
+            output = execFileSync(process.env.SENTINEL_NIX_STORE || "nix-store",
+                ["-q", "--references", storePath], {
+                    encoding: "utf8",
+                    timeout: 5000,
+                    maxBuffer: 4 * 1024 * 1024,
+                });
+        } catch (error) {
+            libraryVersionCache.set(key, "");
+            continue;
+        }
+        const versions = [];
+        for (const line of output.split("\n")) {
+            const ref = line.trim();
+            if (ref.length === 0 || ref === storePath) {
+                continue;
+            }
+            const match = STORE_PATH_RE.exec(ref);
+            if (!match || match[1] !== library) {
+                continue;
+            }
+            if (!PLAIN_VERSION_RE.test(match[2])) {
+                continue;
+            }
+            versions.push(match[2]);
+        }
+        let selected = "";
+        for (const version of versions) {
+            const parsed = parseVersion(version);
+            const current = selected.length > 0 ? parseVersion(selected) : null;
+            if (selected.length === 0
+                    || (parsed && current && compareVersions(parsed, current) > 0)) {
+                selected = version;
+            }
+        }
+        libraryVersionCache.set(key, selected);
+        if (selected.length > 0) {
+            return selected;
+        }
+    }
+    return "";
 }
 
 /**
@@ -612,7 +769,8 @@ export function ignoreEntryOf(finding, ignore) {
  *
  * @param {any} finding
  * @param {CveMetadata|null} cve
- * @param {{osv?: boolean, ignore?: object|null}} [options]
+ * @param {{osv?: boolean, ignore?: object|null,
+ *   resolveLibraryVersion?: (finding: any, library: string) => string}} [options]
  * @returns {VerdictResult}
  */
 export function verdictFor(finding, cve, options = {}) {
@@ -680,7 +838,33 @@ export function verdictFor(finding, cve, options = {}) {
         return result("unverified", ["product-mismatch"], identity);
     }
 
-    // 4. Version gate.
+    // 4. Language bindings: the package version belongs to the binding, not
+    // to the C library in the CVE. Compare the library version the binding
+    // actually links against (from the store path references).
+    const binding = bindingFor(finding, best.product);
+    if (binding) {
+        let linked = "";
+        try {
+            linked = String(options.resolveLibraryVersion
+                ? (options.resolveLibraryVersion(finding, binding.library) ?? "")
+                : linkedLibraryVersion(finding, binding.library));
+        } catch (error) {
+            linked = "";
+        }
+        if (linked.length === 0) {
+            return result("unverified", ["binding-version-unknown"], identity);
+        }
+        const linkedResult = evaluateRanges(linked, best.product.ranges);
+        if (linkedResult === "not-affected") {
+            return result("suppressed", ["binding-library-unaffected"], identity);
+        }
+        if (linkedResult === "affected") {
+            return result("confirmed", ["binding-library-in-range"], identity);
+        }
+        return result("unverified", ["binding-version-incomparable"], identity);
+    }
+
+    // 5. Version gate.
     const versionResult = evaluateRanges(finding?.version ?? "", best.product.ranges);
     if (versionResult === "affected") {
         return result("confirmed", ["version-in-range"], identity);

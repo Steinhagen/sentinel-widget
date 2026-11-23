@@ -1147,6 +1147,22 @@ msgstr[0] "%1 ascuns"
 msgstr[1] "%1 ascunse"
 msgstr[2] "%1 de ascunse"
 
+#: contents/ui/components/Labels.qml
+msgid "The language binding links an unaffected version of the C library."
+msgstr "Binding-ul limbajului este legat de o versiune neafectată a bibliotecii C."
+
+#: contents/ui/components/Labels.qml
+msgid "The language binding links an affected version of the C library."
+msgstr "Binding-ul limbajului este legat de o versiune afectată a bibliotecii C."
+
+#: contents/ui/components/Labels.qml
+msgid "Could not determine which version of the C library the binding uses."
+msgstr "Nu s-a putut determina ce versiune a bibliotecii C folosește binding-ul."
+
+#: contents/ui/components/Labels.qml
+msgid "The linked C library version does not compare with the CVE's affected range."
+msgstr "Versiunea bibliotecii C legate nu se poate compara cu intervalul afectat din CVE."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

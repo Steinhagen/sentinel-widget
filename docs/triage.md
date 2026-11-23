@@ -47,11 +47,19 @@ can be reviewed and, later, adopted by the backend.
    `Google`, …) describe components *inside* their product. Those CVEs are
    `unverified` rather than suppressed, because the product name says nothing
    about the component.
+6. **Language bindings.** Some packages are bindings to a C library (Hackage
+   `zlib`, for example). Their package version is not the C library version.
+   When the CVE names the C library, the pass reads the library version the
+   binding links against from the finding's store paths (`nix-store
+   --references`) and compares that instead. It reports
+   `binding-library-unaffected`, `binding-library-in-range`,
+   `binding-version-unknown` or `binding-version-incomparable`.
 
 The alias tables (`PACKAGE_ALIASES`, `DISTRIBUTIONS`, `PLATFORMS` in the tool)
 are the maintenance point: when a real CVE is suppressed because two names mean
 the same software (`linux`/`kernel`, `libupnp`/`pupnp`), add an alias and a
-test.
+test. New language bindings go in `LIBRARY_BINDINGS`; the entry names the C
+library and the ecosystem whose origins identify the binding.
 
 ## Running it
 

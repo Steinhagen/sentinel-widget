@@ -56,7 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - The findings list, summary cards, counts and panel badge now honor triage
-  verdicts; `unverified` findings stay visible.
+  verdicts; the new **Unverified findings** setting (on by default) hides
+  `unverified` rows as well.
+- The triage pass now checks language bindings against the C library version
+  they link instead of the binding's package version. Hackage `zlib` 0.7.1.1 is
+  compared with the linked zlib 1.3.2, so CVE-2023-45853 and similar C zlib CVEs
+  are no longer confirmed against the Haskell binding.
 
 - Replaced the unused `Messages.sh` / `po/` stubs with the working `translate/`
   gettext setup.

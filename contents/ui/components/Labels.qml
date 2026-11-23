@@ -758,6 +758,18 @@ QtObject {
         if (reasons.indexOf("version-not-affected") >= 0) {
             return i18n("The installed version is outside the CVE's affected range.");
         }
+        if (reasons.indexOf("binding-library-unaffected") >= 0) {
+            return i18n("The language binding links an unaffected version of the C library.");
+        }
+        if (reasons.indexOf("binding-library-in-range") >= 0) {
+            return i18n("The language binding links an affected version of the C library.");
+        }
+        if (reasons.indexOf("binding-version-unknown") >= 0) {
+            return i18n("Could not determine which version of the C library the binding uses.");
+        }
+        if (reasons.indexOf("binding-version-incomparable") >= 0) {
+            return i18n("The linked C library version does not compare with the CVE's affected range.");
+        }
         if (reasons.indexOf("identity-mismatch") >= 0) {
             return i18n("The CVE does not describe this package.");
         }

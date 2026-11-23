@@ -45,6 +45,31 @@ const fidelis = parseCve({
     },
 });
 
+/** CVE-2023-45853: MiniZip in the C zlib library. */
+const zlibCve = parseCve({
+    cveMetadata: { cveId: "CVE-2023-45853" },
+    containers: {
+        adp: [{
+            affected: [{
+                vendor: "zlib",
+                product: "zlib",
+                versions: [{ version: "0", lessThan: "1.3", status: "affected" }],
+            }],
+        }],
+    },
+});
+
+const haskellZlib = {
+    id: "CVE-2023-45853",
+    package: "zlib",
+    version: "0.7.1.1",
+    origins: {
+        introduced_by: ["haskell-language-server-2.13.0.0"],
+        chain: ["haskell-language-server-2.13.0.0", "zlib-0.7.1.1"],
+        store_paths: ["/nix/store/i0ann5d1v85kfvsz7jfm6agyqbrymdsq-zlib-0.7.1.1"],
+    },
+};
+
 test("tokens strip non-alphanumerics, trailing digits and filler words", () => {
     assert.deepEqual(tokens("Fidelis Cybersecurity"), ["fidelis", "cybersecurity"]);
     assert.deepEqual(tokens("python3.14"), ["python"]);
@@ -392,4 +417,55 @@ test("embedVerdicts writes the verdicts into the findings", () => {
     assert.equal(status.vulnerabilities[1].verdict, "confirmed");
     assert.equal("verdict_vendor" in status.vulnerabilities[1], false);
     assert.equal("verdict" in status.vulnerabilities[2], false);
+});
+
+test("a Haskell binding is checked against the linked C library version", () => {
+    const result = verdictFor(haskellZlib, zlibCve, {
+        resolveLibraryVersion: () => "1.3.2",
+    });
+    assert.equal(result.verdict, "suppressed");
+    assert.deepEqual(result.reasons, ["binding-library-unaffected"]);
+    assert.equal(result.vendor, "zlib");
+    assert.equal(result.product, "zlib");
+});
+
+test("a binding with an affected C library stays confirmed", () => {
+    const result = verdictFor(haskellZlib, zlibCve, {
+        resolveLibraryVersion: () => "1.2.13",
+    });
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["binding-library-in-range"]);
+});
+
+test("an unknown binding version is unverified", () => {
+    const result = verdictFor(haskellZlib, zlibCve, {
+        resolveLibraryVersion: () => "",
+    });
+    assert.equal(result.verdict, "unverified");
+    assert.deepEqual(result.reasons, ["binding-version-unknown"]);
+});
+
+test("the 0.x version fallback still recognises the Haskell binding", () => {
+    const result = verdictFor({
+        id: "CVE-2023-45853",
+        package: "zlib",
+        version: "0.7.1.1",
+    }, zlibCve, {
+        resolveLibraryVersion: () => "1.3.2",
+    });
+    assert.equal(result.verdict, "suppressed");
+});
+
+test("the C library finding keeps the normal version gate", () => {
+    const result = verdictFor({
+        id: "CVE-2023-45853",
+        package: "zlib",
+        version: "1.2.13",
+        origins: {
+            introduced_by: ["crossover-26.3.0"],
+            chain: ["zlib-1.2.13"],
+        },
+    }, zlibCve);
+    assert.equal(result.verdict, "confirmed");
+    assert.deepEqual(result.reasons, ["version-in-range"]);
 });
