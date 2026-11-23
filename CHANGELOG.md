@@ -32,8 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   identity from the CVE record and classifies it as `confirmed`, `unverified` or
   `suppressed`; documented in `docs/triage.md`.
 - Added `tests/tools/triage.test.mjs` to the `node --test` suite.
-- Added a **REVIEW** chip to unverified findings. Its tooltip names the CVE's
-  vendor and product, and the toolbar count now shows hidden entries as
+- Added a triage icon column: amber **!** for unverified findings, green
+  **✓** for confirmed ones, and red **⊘** for the suppressed false positives
+  shown when the setting is off. The header is sortable; the tooltip names the
+  CVE's vendor and product, and the toolbar count shows hidden entries as
   `(+ N false positives)`.
 - Added **Ignore this finding (false positive)** to the row context menu and
   an ignored-findings section in the settings page with **Restore all**. The

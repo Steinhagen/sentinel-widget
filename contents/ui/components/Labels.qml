@@ -707,6 +707,23 @@ QtObject {
         return i18n("Review");
     }
 
+    function triageHeaderText() {
+        return i18n("Triage");
+    }
+
+    function triageVerdictLabel(verdict) {
+        switch (verdict) {
+        case "unverified":
+            return reviewChipText();
+        case "suppressed":
+            return i18n("False positive");
+        case "confirmed":
+            return i18n("Confirmed");
+        default:
+            return "";
+        }
+    }
+
     function reviewTooltip(row) {
         if (!row) {
             return "";
@@ -733,6 +750,66 @@ QtObject {
         }
         parts.push(i18n("Right-click the row and choose “Ignore this finding” if it is a false positive."));
         return parts.join("\n");
+    }
+
+    function triageReasonText(row) {
+        const reasons = row && row.triageReasons ? row.triageReasons : [];
+        if (reasons.indexOf("version-not-affected") >= 0) {
+            return i18n("The installed version is outside the CVE's affected range.");
+        }
+        if (reasons.indexOf("identity-mismatch") >= 0) {
+            return i18n("The CVE does not describe this package.");
+        }
+        if (reasons.indexOf("tracker-rejected") >= 0) {
+            return i18n("The Nixpkgs tracker rejected this match.");
+        }
+        if (reasons.indexOf("tracker-unaffected") >= 0) {
+            return i18n("The Nixpkgs tracker says this version is unaffected.");
+        }
+        if (reasons.indexOf("manual-ignore") >= 0) {
+            return i18n("You ignored this finding.");
+        }
+        if (reasons.indexOf("version-in-range") >= 0) {
+            return i18n("The installed version is inside the CVE's affected range.");
+        }
+        if (reasons.indexOf("tracker-published") >= 0
+                || reasons.indexOf("tracker-accepted") >= 0) {
+            return i18n("The Nixpkgs tracker confirmed this match.");
+        }
+        if (reasons.indexOf("osv-advisory") >= 0) {
+            return i18n("An OSV advisory confirms this match.");
+        }
+        return "";
+    }
+
+    function triageTooltip(row) {
+        if (!row) {
+            return "";
+        }
+        const verdict = String(row.triageVerdict
+            || (row.needsReview ? "unverified" : ""));
+        const label = triageVerdictLabel(verdict);
+        if (label.length === 0) {
+            return "";
+        }
+        const lines = [label];
+        const reason = triageReasonText(row);
+        if (reason.length > 0) {
+            lines.push(reason);
+        } else if (verdict === "suppressed") {
+            lines.push(i18n("The triage pass classified this finding as a false positive."));
+        } else if (verdict === "confirmed") {
+            lines.push(i18n("The triage pass confirmed that this CVE describes the installed package."));
+        }
+        if (verdict === "unverified") {
+            const details = reviewTooltip(row);
+            if (details.length > 0) {
+                lines.push(details);
+            }
+        } else if (verdict === "suppressed") {
+            lines.push(i18n("Shown because triage verdicts are off; enable them to hide this finding."));
+        }
+        return lines.join("\n");
     }
 
     function ignoreFindingText() {

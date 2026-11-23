@@ -189,10 +189,12 @@ badge. The toolbar count shows them as `837 of 837 (+ 95 false positives)`;
 turning the setting off brings them back. `confirmed` and `unverified` findings
 are always shown.
 
-Unverified rows carry a **REVIEW** chip in its own column, between the package
-and the fix state. Hovering it explains
-why the row could not be confirmed and, for a product-name match, names the CVE's
-own vendor → product (`Fidelis Cybersecurity → Fidelis Network`). That is what
+The triage column between the package and the fix state uses compact icons:
+amber **!** for unverified rows, green **✓** for confirmed ones, and red **⊘**
+for suppressed false positives when the setting shows them. Hovering the icon
+explains why the row could not be confirmed, why it was suppressed, or that the
+match was confirmed; for a product-name match it names the CVE's own
+vendor → product (`Fidelis Cybersecurity → Fidelis Network`). That is what
 distinguishes a name collision from a real hit; the grouped review queue uses the
 same pair for its cluster headers.
 

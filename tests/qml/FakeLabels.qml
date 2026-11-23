@@ -17,6 +17,18 @@ QtObject {
         return origin && origin.names ? origin.names.join(",") : "";
     }
 
+    function triageHeaderText() {
+        return "Triage";
+    }
+
+    function triageVerdictLabel(verdict) {
+        return verdict;
+    }
+
+    function triageTooltip(row) {
+        return row && row.triageVerdict ? row.triageVerdict : "";
+    }
+
     function cveTooltip(id, hasUrl) {
         return id;
     }

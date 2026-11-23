@@ -1068,6 +1068,62 @@ msgstr "Construit din %1"
 msgid "Revision: %1"
 msgstr "Revizie: %1"
 
+#: contents/ui/components/Labels.qml
+msgid "Triage"
+msgstr "Triaj"
+
+#: contents/ui/components/Labels.qml
+msgid "False positive"
+msgstr "Fals pozitiv"
+
+#: contents/ui/components/Labels.qml
+msgid "Confirmed"
+msgstr "Confirmat"
+
+#: contents/ui/components/Labels.qml
+msgid "The installed version is outside the CVE's affected range."
+msgstr "Versiunea instalată nu este în intervalul afectat din CVE."
+
+#: contents/ui/components/Labels.qml
+msgid "The CVE does not describe this package."
+msgstr "CVE-ul nu descrie acest pachet."
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs tracker rejected this match."
+msgstr "Trackerul Nixpkgs a respins această potrivire."
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs tracker says this version is unaffected."
+msgstr "Trackerul Nixpkgs indică faptul că această versiune nu este afectată."
+
+#: contents/ui/components/Labels.qml
+msgid "You ignored this finding."
+msgstr "Ați ignorat această constatare."
+
+#: contents/ui/components/Labels.qml
+msgid "The installed version is inside the CVE's affected range."
+msgstr "Versiunea instalată este în intervalul afectat din CVE."
+
+#: contents/ui/components/Labels.qml
+msgid "The Nixpkgs tracker confirmed this match."
+msgstr "Trackerul Nixpkgs a confirmat această potrivire."
+
+#: contents/ui/components/Labels.qml
+msgid "An OSV advisory confirms this match."
+msgstr "Un aviz OSV confirmă această potrivire."
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass classified this finding as a false positive."
+msgstr "Trecerea de triaj a clasificat această constatare ca fals pozitiv."
+
+#: contents/ui/components/Labels.qml
+msgid "The triage pass confirmed that this CVE describes the installed package."
+msgstr "Trecerea de triaj a confirmat că acest CVE descrie pachetul instalat."
+
+#: contents/ui/components/Labels.qml
+msgid "Shown because triage verdicts are off; enable them to hide this finding."
+msgstr "Afișat pentru că verdictele de triaj sunt oprite; activați-le pentru a ascunde această constatare."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

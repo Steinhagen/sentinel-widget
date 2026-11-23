@@ -115,8 +115,8 @@ package and the fix state, with the CVE's vendor → product in its tooltip.
 [review-states.html](review-states.html) · [overview](review-states.png)
 explores five ways to show the triage state when the **Triage verdicts**
 setting is off, so suppressed false positives are visible alongside the
-needs-review rows. The current REVIEW chip is now a centered, sortable column
-(V1); the false-positive chip and the setting bar are not implemented yet.
+needs-review rows. The current triage column is now V2: icon-only, centered and
+sortable. The V4 setting bar is not implemented.
 
 | # | Design | What it is best at |
 |---|--------|--------------------|
@@ -126,5 +126,6 @@ needs-review rows. The current REVIEW chip is now a centered, sortable column
 | V4 | [Triage bar + inline suffix](review-states.png) | Explains when false positives are shown or hidden |
 | V5 | [Group by triage / review queue](review-states.png) | Bulk workflow for many findings |
 
-**Recommendation:** V1 for the column plus V4's bar for the setting state; V3
-if the package/origin width is the priority.
+**Implemented:** V2, the icon-only triage column. V4's bar remains the
+recommended follow-up for the setting state; V3 if the package/origin width is
+the priority.

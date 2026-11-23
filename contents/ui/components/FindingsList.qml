@@ -82,9 +82,9 @@ Rectangle {
         text: root.labels ? root.labels.fixText({ labelKey: "release", labelArg: "unstable" }) : "unstable"
     }
     TextMetrics {
-        id: metricReview
+        id: metricTriage
         font: Kirigami.Theme.smallFont
-        text: root.labels ? root.labels.reviewChipText() : "Review"
+        text: root.labels ? root.labels.triageHeaderText() : "Triage"
     }
 
     readonly property real fixPillWidth: Math.max(
@@ -97,10 +97,12 @@ Rectangle {
         metricNa.width,
         metricUnstable.width) + Kirigami.Units.smallSpacing * 2.2
 
-    // The chip only occupies text + 3 * spacing, so the rest of the column
-    // is the gap before the fix pill.
-    readonly property real reviewColumnWidth: root.triageAvailable
-        ? metricReview.width + Kirigami.Units.smallSpacing * 6
+    // The triage state is an icon, so the column only has to fit the header
+    // and the 18 px badge. This gives the package and source the width the
+    // old text chip used to reserve.
+    readonly property real triageColumnWidth: root.triageAvailable
+        ? Math.max(Kirigami.Units.gridUnit * 2.8,
+            metricTriage.width + Kirigami.Units.smallSpacing * 5)
         : 0
 
     // The CVE column also carries the package source on the second line, so
@@ -113,7 +115,7 @@ Rectangle {
         { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
         { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
         { key: "package", width: 0, fill: true, align: "left" },
-        { key: "review", width: root.reviewColumnWidth, fill: false, align: "center" },
+        { key: "review", width: root.triageColumnWidth, fill: false, align: "center" },
         { key: "master", width: root.fixPillWidth, fill: false, align: "center" }
     ]
 
@@ -126,7 +128,7 @@ Rectangle {
 
     function headerLabelFor(key) {
         if (key === "review") {
-            return root.labels ? root.labels.reviewChipText() : "Review";
+            return root.labels ? root.labels.triageHeaderText() : "Triage";
         }
         return root.labels ? root.labels.headerLabel(key) : key;
     }
@@ -273,7 +275,7 @@ Rectangle {
             systemChannel: root.systemChannel
             cveWidth: root.cveColumnWidth
             fixPillWidth: root.fixPillWidth
-            reviewWidth: root.reviewColumnWidth
+            triageWidth: root.triageColumnWidth
 
             onOpenFinding: (url) => root.openFinding(url)
             onFilterPackageRequested: (name) => root.filterPackageRequested(name)

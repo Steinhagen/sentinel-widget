@@ -15,7 +15,7 @@ PlasmaComponents3.ItemDelegate {
     property string systemChannel: ""
     property real cveWidth: Kirigami.Units.gridUnit * 11
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
-    property real reviewWidth: 0
+    property real triageWidth: 0
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
@@ -53,6 +53,14 @@ PlasmaComponents3.ItemDelegate {
     readonly property var sourceInfo: root.rowData ? root.rowData.source : null
     readonly property string sourceTooltip: root.labels && root.sourceInfo
         ? root.labels.sourceTooltip(root.sourceInfo) : ""
+    readonly property string triageVerdict: root.rowData
+        ? (root.rowData.triageVerdict
+            || (root.rowData.needsReview ? "unverified" : "")) : ""
+    readonly property string triageLabel: root.labels
+        && root.triageVerdict.length > 0
+        ? root.labels.triageVerdictLabel(root.triageVerdict) : ""
+    readonly property string triageTooltip: root.labels && root.rowData
+        ? root.labels.triageTooltip(root.rowData) : ""
     readonly property string fixUrl: root.fix ? root.fix.url : ""
 
     TextMetrics {
@@ -102,7 +110,13 @@ PlasmaComponents3.ItemDelegate {
     }
 
     background: Rectangle {
-        color: root.hovered && root.theme ? root.theme.rowHover : "transparent"
+        color: root.hovered && root.theme
+            ? root.theme.rowHover
+            : (root.triageVerdict === "unverified"
+                ? Qt.rgba(0.95, 0.84, 0.60, 0.035)
+                : (root.triageVerdict === "suppressed"
+                    ? Qt.rgba(0.95, 0.60, 0.60, 0.04)
+                    : "transparent"))
 
         Rectangle {
             anchors.left: parent.left
@@ -128,6 +142,9 @@ PlasmaComponents3.ItemDelegate {
         : ""
     Accessible.description: {
         const parts = [];
+        if (root.triageLabel.length > 0) {
+            parts.push(root.triageLabel);
+        }
         if (root.sourceText.length > 0) {
             parts.push(root.sourceText);
         }
@@ -200,6 +217,7 @@ PlasmaComponents3.ItemDelegate {
                         font.family: Kirigami.Theme.smallFont.family
                         font.pointSize: Kirigami.Theme.smallFont.pointSize
                         font.bold: true
+                        font.strikeout: root.triageVerdict === "suppressed"
                         elide: Text.ElideRight
                     }
 
@@ -236,50 +254,91 @@ PlasmaComponents3.ItemDelegate {
             }
 
             Item {
-                id: reviewColumn
+                id: triageColumn
 
-                Layout.preferredWidth: root.reviewWidth
-                Layout.minimumWidth: root.reviewWidth
-                Layout.maximumWidth: root.reviewWidth
+                readonly property color tone: {
+                    if (root.triageVerdict === "unverified") {
+                        return root.theme ? root.theme.reviewColor : "#f3d79a";
+                    }
+                    if (root.triageVerdict === "suppressed") {
+                        return root.theme ? root.theme.fixColor("none")
+                            : Kirigami.Theme.negativeTextColor;
+                    }
+                    if (root.triageVerdict === "confirmed") {
+                        return root.theme ? root.theme.fixColor("fixed")
+                            : Kirigami.Theme.positiveTextColor;
+                    }
+                    return Kirigami.Theme.disabledTextColor;
+                }
+
+                readonly property color surface: {
+                    if (root.triageVerdict === "unverified") {
+                        return root.theme ? root.theme.reviewSurface : "#3a2f16";
+                    }
+                    if (root.triageVerdict === "suppressed") {
+                        return root.theme ? root.theme.fixPillBackground("none")
+                            : Qt.rgba(0.95, 0.35, 0.35, 0.12);
+                    }
+                    if (root.triageVerdict === "confirmed") {
+                        return root.theme ? root.theme.fixPillBackground("fixed")
+                            : Qt.rgba(0.35, 0.8, 0.5, 0.12);
+                    }
+                    return "transparent";
+                }
+
+                readonly property color outline: {
+                    if (root.triageVerdict === "unverified") {
+                        return root.theme ? root.theme.reviewBorder : "#6b5624";
+                    }
+                    if (root.triageVerdict === "suppressed") {
+                        return root.theme ? root.theme.fixPillBorder("none")
+                            : Qt.rgba(0.95, 0.35, 0.35, 0.5);
+                    }
+                    if (root.triageVerdict === "confirmed") {
+                        return root.theme ? root.theme.fixPillBorder("fixed")
+                            : Qt.rgba(0.35, 0.8, 0.5, 0.5);
+                    }
+                    return "transparent";
+                }
+
+                Layout.preferredWidth: root.triageWidth
+                Layout.minimumWidth: root.triageWidth
+                Layout.maximumWidth: root.triageWidth
                 Layout.fillHeight: true
 
                 Rectangle {
-                    id: reviewChip
+                    id: triageIcon
 
-                    visible: root.rowData ? root.rowData.needsReview === true : false
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: reviewChipLabel.implicitWidth
-                        + Kirigami.Units.smallSpacing * 3
-                    height: reviewChipLabel.implicitHeight
-                        + Kirigami.Units.smallSpacing
-                    radius: 99
-                    color: root.theme ? root.theme.reviewSurface : "#3a2f16"
+                    visible: root.triageWidth > 0
+                        && root.triageVerdict.length > 0
+                    anchors.centerIn: parent
+                    width: 18
+                    height: 18
+                    radius: 9
+                    color: triageColumn.surface
                     border.width: 1
-                    border.color: root.theme ? root.theme.reviewBorder : "#6b5624"
+                    border.color: triageColumn.outline
 
                     PlasmaComponents3.Label {
-                        id: reviewChipLabel
-
                         anchors.centerIn: parent
-                        text: root.labels ? root.labels.reviewChipText() : "Review"
-                        color: root.theme ? root.theme.reviewColor : "#f3d79a"
+                        text: root.triageVerdict === "unverified" ? "!"
+                            : (root.triageVerdict === "suppressed" ? "⊘" : "✓")
+                        color: triageColumn.tone
                         font.family: Kirigami.Theme.smallFont.family
-                        font.pointSize: Kirigami.Theme.smallFont.pointSize
-                        font.capitalization: Font.AllUppercase
+                        font.pointSize: Math.max(7,
+                            Kirigami.Theme.smallFont.pointSize - 1)
+                        font.bold: true
                     }
-
-                    HoverHandler {
-                        id: reviewHover
-                        cursorShape: Qt.WhatsThisCursor
-                    }
-
-                    QQC2.ToolTip.text: root.labels && root.rowData
-                        ? root.labels.reviewTooltip(root.rowData)
-                        : ""
-                    QQC2.ToolTip.visible: reviewHover.hovered
-                        && QQC2.ToolTip.text.length > 0
                 }
+
+                HoverHandler {
+                    id: triageHover
+                    cursorShape: Qt.WhatsThisCursor
+                }
+
+                QQC2.ToolTip.text: root.triageTooltip
+                QQC2.ToolTip.visible: triageHover.hovered
+                    && QQC2.ToolTip.text.length > 0
             }
 
             Rectangle {

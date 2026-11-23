@@ -69,8 +69,8 @@ Legacy compatibility:
 | `source` | object | Optional per-finding override of the report source |
 | `verdict` | string | Optional triage verdict: `confirmed`, `unverified`, `suppressed` |
 | `verdict_reasons` | array | Optional reason tokens, e.g. `version-not-affected` |
-| `verdict_vendor` | string | CVE vendor, shown in the REVIEW tooltip |
-| `verdict_product` | string | CVE product, shown in the REVIEW tooltip |
+| `verdict_vendor` | string | CVE vendor, shown in the triage tooltip |
+| `verdict_product` | string | CVE product, shown in the triage tooltip |
 
 ### `source`
 
