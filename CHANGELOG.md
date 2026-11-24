@@ -146,6 +146,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Expanding or collapsing a group keeps the findings list at the same scroll
+  position instead of jumping back to the top.
 - Fixed the tracker pending count and the tracker polling gate.
 - Fixed stale tracker fingerprints being retained across scans.
 - Fixed the compact-layout inset.

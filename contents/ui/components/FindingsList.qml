@@ -16,6 +16,9 @@ Rectangle {
     property string sortKey: "severity"
     property bool sortDescending: true
     property string groupBy: "none"
+    // Captured before a group model change; the ListView resets contentY when
+    // its model array is replaced, so restore the pre-click position.
+    property real pendingScrollY: -1
     property bool groupsExpanded: true
     property string groupSortKey: ""
     property bool groupSortDescending: false
@@ -167,11 +170,14 @@ Rectangle {
 
     function handleRowsReset(preserveScroll) {
         if (preserveScroll) {
-            const saved = findingsList.contentY;
+            const saved = root.pendingScrollY >= 0
+                ? root.pendingScrollY : findingsList.contentY;
+            root.pendingScrollY = -1;
             Qt.callLater(function () {
                 findingsList.contentY = saved;
             });
         } else {
+            root.pendingScrollY = -1;
             Qt.callLater(function () {
                 findingsList.contentY = 0;
             });
@@ -278,7 +284,10 @@ Rectangle {
         GroupHeader {
             theme: root.theme
             labels: root.labels
-            onToggleRequested: (key) => root.groupToggleRequested(key)
+            onToggleRequested: (key) => {
+                root.pendingScrollY = findingsList.contentY;
+                root.groupToggleRequested(key);
+            }
         }
     }
 
