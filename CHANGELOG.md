@@ -144,6 +144,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored the list/group icon and normal toolbar font size on the grouping
   menu, and styled it as a flat button with a chevron.
 
+- The CVE and Package headers now carry sortable **Nixpkgs** and **Origin**
+  sub-labels next to them, so the source and dependency-origin fields can be
+  sorted without widening the table.
 - Six custom SVG severity shields (`sentinel-severity-*`) in
   `contents/icons`, installed into the hicolor icon theme. The panel icon
   shows critical/high/medium/low/secure/unknown with distinct colours and

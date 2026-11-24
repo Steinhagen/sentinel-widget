@@ -121,6 +121,8 @@ export function valueOf(row, key) {
         return row.package;
     case "origin":
         return row.originSearch;
+    case "source":
+        return row.sourceText || "";
     case "version":
         return row.version;
     case "review":

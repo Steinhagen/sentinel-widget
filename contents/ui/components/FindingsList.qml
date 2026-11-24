@@ -118,8 +118,20 @@ Rectangle {
     readonly property var headerColumns: {
         const columns = [
             { key: "severity", width: Kirigami.Units.gridUnit * 2, fill: false, align: "center" },
-            { key: "cve", width: root.cveColumnWidth, fill: false, align: "left" },
-            { key: "package", width: 0, fill: true, align: "left" }
+            {
+                key: "cve",
+                width: root.cveColumnWidth,
+                fill: false,
+                align: "left",
+                secondaryKey: "source"
+            },
+            {
+                key: "package",
+                width: 0,
+                fill: true,
+                align: "left",
+                secondaryKey: "origin"
+            }
         ];
         if (root.triageColumnVisible) {
             columns.push({
@@ -230,11 +242,97 @@ Rectangle {
                 Layout.preferredWidth: modelData.fill ? 0 : modelData.width
                 Layout.minimumWidth: modelData.fill ? 0 : modelData.width
                 Layout.fillWidth: modelData.fill
-                implicitHeight: headerTitle.implicitHeight
+                implicitHeight: Math.max(headerTitle.implicitHeight,
+                    headerPair.implicitHeight)
+
+                RowLayout {
+                    id: headerPair
+
+                    anchors.fill: parent
+                    spacing: Kirigami.Units.smallSpacing
+                    visible: modelData.secondaryKey !== undefined
+
+                    Item {
+                        Layout.preferredWidth: primaryTitle.implicitWidth
+                        Layout.fillHeight: true
+                        implicitHeight: primaryTitle.implicitHeight
+
+                        PlasmaComponents3.Label {
+                            id: primaryTitle
+
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: modelData.align === "center"
+                                ? Text.AlignHCenter : Text.AlignLeft
+                            text: root.headerText(modelData.key)
+                            color: root.sortKey === modelData.key
+                                ? Kirigami.Theme.textColor
+                                : (root.theme ? root.theme.faintText
+                                    : Kirigami.Theme.disabledTextColor)
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Math.max(6,
+                                Kirigami.Theme.smallFont.pointSize - 1)
+                            font.bold: root.sortKey === modelData.key
+                            elide: Text.ElideRight
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.sortRequested(modelData.key)
+
+                            QQC2.ToolTip.text: root.headerTooltip(modelData.key)
+                            QQC2.ToolTip.visible: containsMouse
+                        }
+                    }
+
+                    Item {
+                        Layout.preferredWidth: secondaryTitle.implicitWidth
+                        Layout.fillHeight: true
+                        implicitHeight: secondaryTitle.implicitHeight
+
+                        PlasmaComponents3.Label {
+                            id: secondaryTitle
+
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            horizontalAlignment: modelData.align === "center"
+                                ? Text.AlignHCenter : Text.AlignLeft
+                            text: root.headerText(modelData.secondaryKey)
+                            color: root.sortKey === modelData.secondaryKey
+                                ? Kirigami.Theme.textColor
+                                : (root.theme ? root.theme.faintText
+                                    : Kirigami.Theme.disabledTextColor)
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Math.max(6,
+                                Kirigami.Theme.smallFont.pointSize - 1)
+                            font.bold: root.sortKey === modelData.secondaryKey
+                            elide: Text.ElideRight
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.sortRequested(modelData.secondaryKey)
+
+                            QQC2.ToolTip.text: root.headerTooltip(modelData.secondaryKey)
+                            QQC2.ToolTip.visible: containsMouse
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+                }
 
                 PlasmaComponents3.Label {
                     id: headerTitle
 
+                    visible: modelData.secondaryKey === undefined
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
@@ -252,6 +350,7 @@ Rectangle {
                 }
 
                 MouseArea {
+                    visible: modelData.secondaryKey === undefined
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor

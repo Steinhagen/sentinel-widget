@@ -62,6 +62,10 @@ test("sorting handles numeric and text columns", () => {
     assert.ok(byCve[0].id <= byCve[byCve.length - 1].id);
     const byPackage = sortRows(rows.slice(), "package", false);
     assert.ok(byPackage[0].package <= byPackage[byPackage.length - 1].package);
+    const bySource = sortRows(rows.slice(), "source", false);
+    assert.ok(bySource[0].sourceText <= bySource[bySource.length - 1].sourceText);
+    const byOrigin = sortRows(rows.slice(), "origin", false);
+    assert.ok(byOrigin[0].originSearch <= byOrigin[byOrigin.length - 1].originSearch);
 });
 
 test("review sorting puts needs-review rows first", () => {
@@ -89,6 +93,7 @@ test("row values are stable for each column", () => {
     assert.equal(valueOf(row, "cve"), row.id);
     assert.equal(valueOf(row, "package"), row.package);
     assert.equal(valueOf(row, "origin"), row.originSearch);
+    assert.equal(valueOf(row, "source"), row.sourceText);
     assert.equal(valueOf(row, "version"), row.version);
     assert.equal(valueOf(row, "nope"), "");
     assert.equal(compareRows(row, row, "severity", true), 0);

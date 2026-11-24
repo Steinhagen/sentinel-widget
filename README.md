@@ -16,8 +16,8 @@ the same revision, so the two cannot drift apart.
 - Two-line findings list: CVSS score, CVE, package + version, fix status, with
   the dependency-origin chain aligned under the package and the Nixpkgs source
   (channel and revision, e.g. `nixos-unstable (2786a2a)`) under the CVE.
-- Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
-  direction arrow.
+- Compact click-to-sort header for CVSS, CVE, Package, Fix, Nixpkgs source
+  and dependency origin, with direction arrows.
 - Flat list by default, with a current-state **Group by** split button
   (Flat / Priority / Package / CVE / Origin), individually clickable group headers
   and a global expand/collapse control.

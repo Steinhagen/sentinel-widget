@@ -896,6 +896,10 @@ QtObject {
             return i18n("CVE");
         case "package":
             return i18n("Package");
+        case "source":
+            return i18n("Nixpkgs");
+        case "origin":
+            return i18n("Origin");
         case "master":
             return i18n("Fix");
         default:

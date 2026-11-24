@@ -179,6 +179,13 @@ TestCase {
         const packageHeaders = env.vm.rows.filter(row => row.rowType === "group");
         verify(packageHeaders.length > 0);
 
+        env.vm.toggleSort("source");
+        compare(env.vm.sortKey, "source");
+        env.vm.toggleSort("origin");
+        compare(env.vm.sortKey, "origin");
+        env.vm.toggleSort("severity");
+        compare(env.vm.sortKey, "severity");
+
         env.vm.setGroupBy("cve");
         compare(env.vm.rows[0].rowType, "group");
         compare(env.vm.rows[0].groupBy, "cve");
