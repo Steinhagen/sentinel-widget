@@ -147,7 +147,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Fix pill now opens a structured card with a package/state header, a
   compact per-branch table, a one-line summary and tracker/fix actions. The
   old plain-text tooltip is gone, and it no longer repeats the dependency
-  origin; the origin line has its own overlay.
+  origin; the origin line has its own overlay. Tracker and channel are shown
+  as separate labelled chips.
 - The CVE and Package headers now carry sortable **Nixpkgs** and **Origin**
   sub-labels next to them, so the source and dependency-origin fields can be
   sorted without widening the table.

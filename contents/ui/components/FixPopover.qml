@@ -19,20 +19,8 @@ Rectangle {
     readonly property var fix: row ? row.fix : null
     readonly property var branches: fix && fix.rows ? fix.rows : []
     readonly property string stateText: fix && labels ? labels.fixText(fix) : ""
-    readonly property string subText: {
-        const parts = [];
-        if (root.labels) {
-            const tracker = root.labels.fixTrackerPackage(root.fix);
-            if (tracker.length > 0) {
-                parts.push(tracker);
-            }
-            const channel = root.labels.fixChannel(root.systemChannel);
-            if (channel.length > 0) {
-                parts.push(channel);
-            }
-        }
-        return parts.join(" · ");
-    }
+    readonly property string trackerValue: root.fix ? root.fix.matchedPackage : ""
+    readonly property string channelValue: root.systemChannel
     readonly property color stateTone: root.theme && root.fix
         ? root.theme.fixColor(root.fix.bucket) : Kirigami.Theme.disabledTextColor
     readonly property color stateSurface: root.theme && root.fix
@@ -119,14 +107,84 @@ Rectangle {
                 }
             }
 
-            PlasmaComponents3.Label {
+            RowLayout {
                 Layout.fillWidth: true
-                visible: text.length > 0
-                text: root.subText
-                color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
-                elide: Text.ElideRight
+                spacing: Kirigami.Units.smallSpacing
+                visible: root.trackerValue.length > 0 || root.channelValue.length > 0
+
+                Rectangle {
+                    visible: root.trackerValue.length > 0
+                    Layout.preferredHeight: 20
+                    Layout.preferredWidth: trackerChipRow.implicitWidth + 12
+                    radius: 6
+                    color: root.theme ? root.theme.inputBackground : "transparent"
+                    border.width: 1
+                    border.color: root.theme ? root.theme.hairline : "transparent"
+
+                    RowLayout {
+                        id: trackerChipRow
+
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 4
+
+                        PlasmaComponents3.Label {
+                            text: root.labels ? root.labels.fixTrackerLabel() : "Tracker"
+                            color: root.theme ? root.theme.faintText
+                                : Kirigami.Theme.disabledTextColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                        }
+
+                        PlasmaComponents3.Label {
+                            Layout.fillWidth: true
+                            text: root.trackerValue
+                            color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                Rectangle {
+                    visible: root.channelValue.length > 0
+                    Layout.preferredHeight: 20
+                    Layout.preferredWidth: channelChipRow.implicitWidth + 12
+                    radius: 6
+                    color: root.theme ? root.theme.inputBackground : "transparent"
+                    border.width: 1
+                    border.color: root.theme ? root.theme.hairline : "transparent"
+
+                    RowLayout {
+                        id: channelChipRow
+
+                        anchors.fill: parent
+                        anchors.margins: 6
+                        spacing: 4
+
+                        PlasmaComponents3.Label {
+                            text: root.labels ? root.labels.fixChannelLabel() : "Channel"
+                            color: root.theme ? root.theme.faintText
+                                : Kirigami.Theme.disabledTextColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                        }
+
+                        PlasmaComponents3.Label {
+                            Layout.fillWidth: true
+                            text: root.channelValue
+                            color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize
+                            elide: Text.ElideRight
+                        }
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
             }
         }
 

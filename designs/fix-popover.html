@@ -52,6 +52,11 @@
   }
   .sub { margin-top: 5px; color: var(--muted); font-size: 10.5px; }
   .sub b { color: var(--text); font-weight: 600; }
+  .sub-chips { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .sub-chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 7px;
+    border-radius: 6px; background: #2b323c; border: 1px solid #39414c;
+    color: var(--text); font-size: 10px; }
+  .sub-chip .key { color: var(--muted); }
   .section { padding: 11px 15px 10px; border-bottom: 1px solid var(--line); }
   .section:last-of-type { border-bottom: 0; }
   .section-head { display: flex; align-items: baseline; gap: 7px; color: var(--faint); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 6px; }
@@ -108,7 +113,10 @@ Acest atribut de pachet este încă afectat
       <div class="head">
         <div class="eyebrow">Remediere</div>
         <div class="title">bison <span class="ver">3.8.2</span><span class="pill">Fără remediere</span></div>
-        <div class="sub">Tracker <b>bison</b> · canalul tău <b>nixos-unstable</b></div>
+        <div class="sub-chips">
+          <span class="sub-chip"><span class="key">Tracker</span> bison</span>
+          <span class="sub-chip"><span class="key">Canal</span> nixos-unstable</span>
+        </div>
       </div>
 
       <div class="section">

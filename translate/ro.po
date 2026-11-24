@@ -1298,6 +1298,14 @@ msgstr "Deschide tracker"
 msgid "Open fix"
 msgstr "Deschide remedierea"
 
+#: contents/ui/components/Labels.qml
+msgid "Tracker"
+msgstr "Tracker"
+
+#: contents/ui/components/Labels.qml
+msgid "Channel"
+msgstr "Canal"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

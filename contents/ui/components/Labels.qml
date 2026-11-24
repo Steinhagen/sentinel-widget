@@ -295,6 +295,14 @@ QtObject {
         return i18n("Fix");
     }
 
+    function fixTrackerLabel() {
+        return i18n("Tracker");
+    }
+
+    function fixChannelLabel() {
+        return i18n("Channel");
+    }
+
     function fixTrackerPackage(fix) {
         return fix && fix.matchedPackage
             ? i18n("Tracker package: %1", fix.matchedPackage) : "";

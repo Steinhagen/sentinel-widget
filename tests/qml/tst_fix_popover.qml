@@ -54,6 +54,8 @@ TestCase {
         id: fakeLabels
 
         function fixPopoverTitle() { return "Remediere"; }
+        function fixTrackerLabel() { return "Tracker"; }
+        function fixChannelLabel() { return "Channel"; }
         function fixTrackerPackage(fix) {
             return fix && fix.matchedPackage ? "Pachet tracker: " + fix.matchedPackage : "";
         }
