@@ -238,3 +238,14 @@ settings.
 
 **Not implemented yet** — a proposal. The branch names are currently hardcoded
 in `nix/backend/sentinel-status.py`.
+
+## Fix popover — origin-style theme
+
+[fix-popover-origin-theme.html](fix-popover-origin-theme.html) ·
+[overview](fix-popover-origin-theme.png) compares the current fix card with a
+version that follows the origin card's visual language: a header icon tile,
+eyebrow + package title, same chip styling and section hairline, and the
+origin-style footer surface with the ↗ action marker. It keeps the fix card's
+compact two-column branch grid. Width matches the origin card.
+
+**Not implemented yet** — a proposal.
