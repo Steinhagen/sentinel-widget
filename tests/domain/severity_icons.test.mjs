@@ -16,7 +16,11 @@ const expected = {
     unknown: "#94a3b8"
 };
 
-test("severity shield assets are present and coloured", () => {
+test("brand shield and severity shields are present", () => {
+    const logo = readFileSync(join(iconDir, "sentinel-shield.svg"), "utf8");
+    assert.match(logo, /<svg[\s>]/);
+    assert.ok(logo.includes("#ffffff"));
+
     for (const [name, color] of Object.entries(expected)) {
         const file = join(iconDir, `sentinel-severity-${name}.svg`);
         const svg = readFileSync(file, "utf8");

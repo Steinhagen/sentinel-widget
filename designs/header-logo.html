@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — logo header</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #1b1f25;
+    --line: #2b3038;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --blue: #3daee9;
+    --orange: #f97316;
+    --high: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 26px 28px 34px;
+    background: var(--bg); color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif; font-size: 13px;
+  }
+  h1 { margin: 0 0 4px; font-size: 19px; }
+  p.lede { margin: 0 0 18px; color: var(--muted); font-size: 12px; max-width: 1000px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; max-width: 1180px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+    padding: 16px; min-height: 260px;
+  }
+  .tag { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--faint); }
+  .title { font-size: 13px; font-weight: 700; margin: 3px 0 2px; }
+  .desc { color: var(--muted); font-size: 11px; margin-bottom: 14px; }
+  .header-preview {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 11px; border-radius: 10px; background: #15181d;
+    border: 1px solid #242a31;
+  }
+  .tile { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .tile.blue { background: var(--blue); }
+  .tile.tint { background: rgba(249,115,22,.16); border: 1px solid rgba(249,115,22,.38); }
+  .header-text { min-width: 0; }
+  .app { font-size: 13px; font-weight: 700; }
+  .pill {
+    display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 99px;
+    font-size: 9px; font-weight: 700; color: var(--orange); background: rgba(249,115,22,.13);
+    vertical-align: 1px;
+  }
+  .sub { color: var(--muted); font-size: 9.5px; margin-top: 2px; }
+  .big {
+    display: flex; align-items: center; gap: 14px; margin-top: 16px;
+    padding-top: 14px; border-top: 1px solid #242a31;
+  }
+  .big .tile { width: 72px; height: 72px; border-radius: 16px; }
+  .big .meta { color: var(--muted); font-size: 10.5px; line-height: 1.5; }
+  .big .meta b { color: var(--text); font-weight: 600; }
+  .swatches { margin-top: 10px; display: flex; gap: 6px; align-items: center; color: var(--faint); font-size: 10px; }
+  .swatches i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .note { max-width: 1180px; margin-top: 18px; color: var(--muted); font-size: 11px; border: 1px solid var(--line); border-radius: 10px; padding: 11px 13px; background: #14171c; }
+  .note b { color: var(--text); }
+  .recommend { color: var(--high); }
+</style>
+</head>
+<body>
+<h1>Logo-ul din header, după schimbarea scuturilor</h1>
+<p class="lede">Scutul colorat pe tile-ul albastru este singurul loc unde noile culori de severitate intră în conflict cu albastrul brandului. Trei variante, la dimensiunea reală și mărite.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="tag">Acum</div>
+    <div class="title">Scut colorat pe albastru</div>
+    <div class="desc">Portocaliul pe albastru concurează cu tile-ul de brand și scutul pare mic.</div>
+    <div class="header-preview">
+      <div class="tile blue">
+        <svg width="20" height="22" viewBox="0 0 48 52"><path fill="#f97316" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z"/><rect x="21" y="13.5" width="6" height="16" rx="2" fill="#fff"/><circle cx="24" cy="35.5" r="2.7" fill="#fff"/></svg>
+      </div>
+      <div class="header-text">
+        <div class="app">Sentinel <span class="pill">Vulnerabil</span></div>
+        <div class="sub">34 de pachete afectate · CVSS maxim 8.8</div>
+      </div>
+    </div>
+    <div class="big">
+      <div class="tile blue">
+        <svg width="40" height="44" viewBox="0 0 48 52"><path fill="#f97316" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z"/><rect x="21" y="13.5" width="6" height="16" rx="2" fill="#fff"/><circle cx="24" cy="35.5" r="2.7" fill="#fff"/></svg>
+      </div>
+      <div class="meta"><b>Contrast ridicat</b><br>albastru rece + portocaliu saturat</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag">Propus</div>
+    <div class="title">Logo alb pe albastru</div>
+    <div class="desc">Header-ul rămâne brand; severitatea este în panel, în scor și în pastila „Vulnerabil”.</div>
+    <div class="header-preview">
+      <div class="tile blue">
+        <svg width="20" height="22" viewBox="0 0 48 52"><path fill="#fff" fill-rule="evenodd" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z M21 13.5 H27 V29.5 H21 Z M21 33 H27 V37.5 H21 Z"/></svg>
+      </div>
+      <div class="header-text">
+        <div class="app">Sentinel <span class="pill">Vulnerabil</span></div>
+        <div class="sub">34 de pachete afectate · CVSS maxim 8.8</div>
+      </div>
+    </div>
+    <div class="big">
+      <div class="tile blue">
+        <svg width="40" height="44" viewBox="0 0 48 52"><path fill="#fff" fill-rule="evenodd" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z M21 13.5 H27 V29.5 H21 Z M21 33 H27 V37.5 H21 Z"/></svg>
+      </div>
+      <div class="meta"><b>O singură culoare de brand</b><br>scutul devine alb, exclamarea lasă albastrul să treacă</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="tag">Alternativă</div>
+    <div class="title">Tile nuanțat de severitate</div>
+    <div class="desc">Iconița din header devine un badge de status; brandul albastru dispare din colț.</div>
+    <div class="header-preview">
+      <div class="tile tint">
+        <svg width="20" height="22" viewBox="0 0 48 52"><path fill="#f97316" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z"/><rect x="21" y="13.5" width="6" height="16" rx="2" fill="#fff"/><circle cx="24" cy="35.5" r="2.7" fill="#fff"/></svg>
+      </div>
+      <div class="header-text">
+        <div class="app">Sentinel <span class="pill">Vulnerabil</span></div>
+        <div class="sub">34 de pachete afectate · CVSS maxim 8.8</div>
+      </div>
+    </div>
+    <div class="big">
+      <div class="tile tint">
+        <svg width="40" height="44" viewBox="0 0 48 52"><path fill="#f97316" d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z"/><rect x="21" y="13.5" width="6" height="16" rx="2" fill="#fff"/><circle cx="24" cy="35.5" r="2.7" fill="#fff"/></svg>
+      </div>
+      <div class="meta"><b>Portocaliu pe portocaliu</b><br>status imediat, dar pierde tile-ul albastru</div>
+    </div>
+  </div>
+</div>
+
+<div class="note"><b>Recomandarea:</b> varianta din mijloc — <span class="recommend">logo alb pe albastru</span>. Panelul și cardurile arată severitatea; header-ul rămâne recognoscibil ca brand. Scutul alb are exclamarea decupată, astfel încât albastrul tile-ului să se vadă prin ea.</div>
+</body>
+</html>

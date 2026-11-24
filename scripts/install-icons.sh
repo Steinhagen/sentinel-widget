@@ -10,7 +10,7 @@ data="${XDG_DATA_HOME:-$HOME/.local/share}/icons/hicolor"
 dest="$data/scalable/status"
 
 install -d "$dest"
-install -m 644 contents/icons/sentinel-severity-*.svg "$dest"/
+install -m 644 contents/icons/sentinel-*.svg "$dest"/
 
 cache_tool="$(command -v gtk-update-icon-cache || true)"
 if [ -z "$cache_tool" ]; then

@@ -85,8 +85,6 @@ PlasmaExtras.Representation {
         postureLabel: root.labels.postureLabel(root.vm.state, root.store.hasReport)
         stateSummary: root.labels.stateSummary(root.store.report,
             root.store.scanning, root.vm.affectedPackages, root.vm.maxSeverity)
-        stateIcon: root.labels.stateIcon(root.vm.state, root.store.hasReport,
-            root.vm.maxSeverity)
         stateColor: root.theme.stateColor(root.vm.state, root.store.hasReport)
         lastScanLabel: root.labels.lastScanLabel(root.vm.lastScanAge)
         lastScanTooltip: root.labels.lastScanTooltip(root.store.report

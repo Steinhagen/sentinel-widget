@@ -10,7 +10,7 @@ PlasmaExtras.PlasmoidHeading {
 
     property string postureLabel: ""
     property string stateSummary: ""
-    property string stateIcon: "security-medium"
+    property string brandIcon: "sentinel-shield"
     property color stateColor: Kirigami.Theme.disabledTextColor
     property string lastScanLabel: ""
     property string lastScanTooltip: ""
@@ -55,7 +55,7 @@ PlasmaExtras.PlasmoidHeading {
                     anchors.centerIn: parent
                     width: Math.round(parent.width * 0.55)
                     height: width
-                    source: root.stateIcon
+                    source: root.brandIcon
                 }
             }
 

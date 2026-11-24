@@ -25,7 +25,7 @@ stdenv.mkDerivation {
 
     iconDest=$out/share/icons/hicolor/scalable/status
     mkdir -p "$iconDest"
-    cp contents/icons/sentinel-severity-*.svg "$iconDest/"
+    cp contents/icons/sentinel-*.svg "$iconDest/"
     runHook postInstall
   '';
 

@@ -183,3 +183,13 @@ yellow keep them distinguishable.
 run `scripts/install-icons.sh` to copy them into the per-user hicolor theme;
 the Nix applet package installs them into `share/icons/hicolor/scalable/status`.
 `Plasmoid.icon` selects the file by the maximum severity.
+
+## Header logo
+
+[header-logo.html](header-logo.html) · [overview](header-logo.png) compares the
+coloured severity shield on the blue brand tile with a white brand shield and a
+severity-tinted tile.
+
+**Implemented:** the middle option — a white `sentinel-shield` logo on the blue
+tile, with the exclamation cut out so the tile colour shows through. The panel
+keeps the coloured severity shields; the header stays brand.
