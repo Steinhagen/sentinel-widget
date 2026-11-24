@@ -175,6 +175,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix-range evaluation is now release-line aware. A CVE with separate
+  affected ranges for several lines (for example OpenSSL `<4.1.1`,
+  `<3.5.10`, `<4.0.4`) no longer marks a newer 3.6.x version as affected by
+  comparing it against the 4.x ceiling. OpenSSL 3.6.5 is correctly seen as
+  fixed by the `<3.5.10` range, so the release-26.05 branch row becomes
+  `unaffected`.
 - The panel shield now uses the custom four-level severity set: red for
   critical, orange for high, yellow for medium, green for low; secure is a
   green check and unknown is grey. Previously every vulnerable report used

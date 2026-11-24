@@ -690,9 +690,66 @@ def product_constraints(products, package):
     return constraints
 
 
-def version_verdict(products, package, version):
-    """affected/unaffected for one version, from the CVE's affected ranges."""
+def _version_line(version):
+    """(major, minor) for a version string; None when it has no numbers."""
+    match = re.match(r"^\s*(\d+)(?:\.(\d+))?", str(version or ""))
+    if not match:
+        return None
+    return (int(match.group(1)), int(match.group(2) or 0))
+
+
+def _constraint_upper_bounds(constraint):
+    bounds = []
+    for part in (constraint or "").split(","):
+        match = re.match(r"^(<=|=<|<|=|==)\s*(\S+)$", part.strip())
+        if match:
+            bounds.append((match.group(1), match.group(2)))
+    return bounds
+
+
+def constraints_for_version(products, package, version):
+    """Affected ranges that apply to the version's major/minor line.
+
+    A CVE can list several ranges for different release lines, for example
+    ``<4.1.1``, ``<3.5.10`` and ``<4.0.4``.  Comparing a 3.6 version against
+    the 4.x ceilings would wrongly call it affected.  Pick the ranges for the
+    closest version line at or below the candidate; if there is no such line,
+    use the oldest listed line so an older branch is still checked.
+    """
     constraints = product_constraints(products, package)
+    if not constraints or not version:
+        return constraints
+    line = _version_line(version)
+    if line is None:
+        return constraints
+
+    candidates = []
+    for constraint in constraints:
+        bound_line = None
+        for _op, bound in _constraint_upper_bounds(constraint):
+            parsed = _version_line(bound)
+            if parsed is None or parsed[0] != line[0]:
+                continue
+            if bound_line is None or parsed > bound_line:
+                bound_line = parsed
+        if bound_line is not None:
+            candidates.append((bound_line, constraint))
+    if not candidates:
+        return []
+
+    below = [entry for entry in candidates if entry[0] <= line]
+    selected_line = (max(entry[0] for entry in below) if below
+                     else min(entry[0] for entry in candidates))
+    selected = []
+    for candidate_line, constraint in candidates:
+        if candidate_line == selected_line and constraint not in selected:
+            selected.append(constraint)
+    return selected
+
+
+def version_verdict(products, package, version):
+    """affected/unaffected for one version, from the applicable line ranges."""
+    constraints = constraints_for_version(products, package, version)
     if not constraints or not version:
         return None
     if any(_version_in_range(version, constraint) for constraint in constraints):
@@ -772,16 +829,19 @@ def fetch_ref_version(path, ref, deadline, stop):
     return matches[0], None
 
 
-def affected_ceiling(products, package):
-    """Highest version the CVE's affected ranges still cover, if bounded.
+def affected_ceiling(products, package, version=None):
+    """Highest version the CVE's applicable ranges still cover, if bounded.
 
     Returns (version, exclusive) or (None, False). Used to tell a real fix
     apart from an older branch that is outside the range only because the
     vulnerability was introduced later.
     """
+    constraints = (constraints_for_version(products, package, version)
+                   if version is not None
+                   else product_constraints(products, package))
     ceiling = None
     exclusive = False
-    for constraint in product_constraints(products, package):
+    for constraint in constraints:
         for part in constraint.split(","):
             part = part.strip()
             match = re.match(r"^(<=|=<|<|=|==)\s*(\S+)$", part)
@@ -797,7 +857,7 @@ def is_fixed_version(products, package, version):
     """True when this version is outside the affected range and newer than it."""
     if version_verdict(products, package, version) != "unaffected":
         return False
-    ceiling, exclusive = affected_ceiling(products, package)
+    ceiling, exclusive = affected_ceiling(products, package, version)
     if ceiling is None:
         return True
     comparison = _version_cmp(version, ceiling)

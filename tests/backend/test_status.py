@@ -174,5 +174,63 @@ class BranchRowsTests(unittest.TestCase):
         self.assertNotIn("staging-next", [row["name"] for row in rows])
 
 
+class LineAwareRangeTests(unittest.TestCase):
+    """A CVE can carry one affected range per release line."""
+
+    products = [{
+        "name": "OpenSSL",
+        "version_constraints": [
+            ["affected", "<4.1.1"],
+            ["affected", "<3.5.10"],
+            ["affected", "<4.0.4"],
+        ],
+    }]
+
+    def test_openssl_3_6_5_is_fixed_by_the_3_5_line(self):
+        self.assertEqual(
+            STATUS.version_verdict(self.products, "openssl", "3.5.9"),
+            "affected")
+        self.assertEqual(
+            STATUS.version_verdict(self.products, "openssl", "3.6.5"),
+            "unaffected")
+        self.assertEqual(
+            STATUS.version_verdict(self.products, "openssl", "4.0.3"),
+            "affected")
+        self.assertEqual(
+            STATUS.version_verdict(self.products, "openssl", "4.1.0"),
+            "affected")
+        self.assertTrue(
+            STATUS.is_fixed_version(self.products, "openssl", "3.6.5"))
+        self.assertEqual(
+            STATUS.ref_state(self.products, "openssl", "3.6.5", "unknown"),
+            "unaffected")
+
+        entry = {"affected_products": self.products}
+        branches = {
+            "master": {
+                "version": "3.5.9",
+                "status": "affected",
+                "src_position": OPENSSL_NIX,
+            },
+            "release-26.05": {
+                "version": "3.6.5",
+                "status": "unknown",
+                "src_position": OPENSSL_NIX,
+            },
+        }
+        rows, _ = STATUS.branch_rows(
+            entry, {"package": "openssl"}, branches, {})
+        states = {row["name"]: row["state"] for row in rows}
+        self.assertEqual(states["master"], "affected")
+        self.assertEqual(states["release-26.05"], "unaffected")
+
+        fix = STATUS.fix_in_progress(
+            entry, {"package": "openssl"}, branches, {}, None,
+            "nixos-unstable")
+        self.assertEqual(fix["fix_state"], "in-release")
+        self.assertEqual(fix["fix_branch"], "release-26.05")
+        self.assertEqual(fix["fix_version"], "3.6.5")
+
+
 if __name__ == "__main__":
     unittest.main()
