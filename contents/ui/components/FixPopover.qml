@@ -42,7 +42,7 @@ Rectangle {
     readonly property bool hasTracker: root.row && root.row.url
     readonly property bool hasFix: root.fix && root.fix.url
 
-    implicitWidth: Kirigami.Units.gridUnit * 20
+    implicitWidth: Kirigami.Units.gridUnit * 18
     implicitHeight: layout.implicitHeight
     radius: 14
     color: root.theme ? root.theme.tooltipBackground : Kirigami.Theme.backgroundColor
@@ -64,14 +64,14 @@ Rectangle {
 
         ColumnLayout {
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.gridUnit * 0.7
-            spacing: 5
+            Layout.margins: Kirigami.Units.gridUnit * 0.55
+            spacing: 4
 
             PlasmaComponents3.Label {
                 text: root.labels ? root.labels.fixPopoverTitle() : "Fix"
                 color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
                 font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 2)
+                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
                 font.letterSpacing: 0.8
             }
 
@@ -84,7 +84,7 @@ Rectangle {
                     text: root.row ? (root.row.package || "—") : "—"
                     color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
                     font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize + 1
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize + 2
                     font.bold: true
                     elide: Text.ElideRight
                 }
@@ -113,7 +113,7 @@ Rectangle {
                         text: root.stateText
                         color: root.stateTone
                         font.family: Kirigami.Theme.smallFont.family
-                        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                        font.pointSize: Kirigami.Theme.smallFont.pointSize
                         font.bold: true
                     }
                 }
@@ -125,7 +125,7 @@ Rectangle {
                 text: root.subText
                 color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
                 font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 elide: Text.ElideRight
             }
         }
@@ -139,7 +139,7 @@ Rectangle {
 
         ColumnLayout {
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.gridUnit * 0.7
+            Layout.margins: Kirigami.Units.gridUnit * 0.55
             spacing: 1
             visible: root.branches.length > 0
 
@@ -151,7 +151,7 @@ Rectangle {
                     text: root.labels ? root.labels.fixBranchesTitle() : "Nixpkgs branches"
                     color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
                     font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 2)
+                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
                     font.letterSpacing: 0.6
                 }
 
@@ -164,87 +164,85 @@ Rectangle {
                         ? root.labels.fixBranchCount(root.branches.length) : ""
                     color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
                     font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 2)
+                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
                 }
             }
 
-            Repeater {
-                model: root.branches
+            GridLayout {
+                Layout.fillWidth: true
+                columns: 2
+                columnSpacing: 6
+                rowSpacing: 1
 
-                delegate: Rectangle {
-                    id: branchRow
+                Repeater {
+                    model: root.branches
 
-                    required property var modelData
+                    delegate: Rectangle {
+                        id: branchRow
 
-                    readonly property bool current: modelData.name === root.systemChannel
+                        required property var modelData
 
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 20
-                    radius: 5
-                    color: current && root.theme
-                        ? Qt.rgba(root.theme.primaryColor.r, root.theme.primaryColor.g,
-                            root.theme.primaryColor.b, 0.10)
-                        : "transparent"
+                        readonly property bool current: modelData.name === root.systemChannel
 
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 6
-                        anchors.rightMargin: 6
-                        spacing: 6
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 22
+                        radius: 5
+                        color: current && root.theme
+                            ? Qt.rgba(root.theme.primaryColor.r, root.theme.primaryColor.g,
+                                root.theme.primaryColor.b, 0.10)
+                            : "transparent"
 
-                        PlasmaComponents3.Label {
-                            Layout.preferredWidth: 13
-                            horizontalAlignment: Text.AlignHCenter
-                            text: modelData.state === "unaffected" ? "✓"
-                                : (modelData.state === "affected" ? "✗" : "?")
-                            color: modelData.state === "unaffected"
-                                ? (root.theme ? root.theme.fixColor("fixed")
-                                    : Kirigami.Theme.positiveTextColor)
-                                : (modelData.state === "affected"
-                                    ? (root.theme ? root.theme.fixColor("none")
-                                        : Kirigami.Theme.negativeTextColor)
-                                    : (root.theme ? root.theme.faintText
-                                        : Kirigami.Theme.disabledTextColor))
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                            font.bold: true
-                        }
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 4
+                            anchors.rightMargin: 4
+                            spacing: 4
 
-                        PlasmaComponents3.Label {
-                            Layout.fillWidth: true
-                            text: modelData.name
-                            color: current
-                                ? (root.theme ? root.theme.textColor : Kirigami.Theme.textColor)
-                                : (root.theme ? root.theme.mutedText
-                                    : Kirigami.Theme.disabledTextColor)
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                            font.bold: current
-                            elide: Text.ElideRight
-                        }
+                            PlasmaComponents3.Label {
+                                Layout.preferredWidth: 12
+                                horizontalAlignment: Text.AlignHCenter
+                                text: modelData.state === "unaffected" ? "✓"
+                                    : (modelData.state === "affected" ? "✗" : "?")
+                                color: modelData.state === "unaffected"
+                                    ? (root.theme ? root.theme.fixColor("fixed")
+                                        : Kirigami.Theme.positiveTextColor)
+                                    : (modelData.state === "affected"
+                                        ? (root.theme ? root.theme.fixColor("none")
+                                            : Kirigami.Theme.negativeTextColor)
+                                        : (root.theme ? root.theme.faintText
+                                            : Kirigami.Theme.disabledTextColor))
+                                font.family: Kirigami.Theme.smallFont.family
+                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                font.bold: true
+                            }
 
-                        PlasmaComponents3.Label {
-                            visible: branchRow.current
-                            text: root.labels ? root.labels.fixYourChannelTag() : ""
-                            color: root.theme ? root.theme.faintText
-                                : Kirigami.Theme.disabledTextColor
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 3)
-                        }
+                            PlasmaComponents3.Label {
+                                Layout.fillWidth: true
+                                text: modelData.name
+                                color: current
+                                    ? (root.theme ? root.theme.textColor : Kirigami.Theme.textColor)
+                                    : (root.theme ? root.theme.mutedText
+                                        : Kirigami.Theme.disabledTextColor)
+                                font.family: Kirigami.Theme.smallFont.family
+                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                                font.bold: current
+                                elide: Text.ElideRight
+                            }
 
-                        PlasmaComponents3.Label {
-                            text: modelData.version || ""
-                            color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                        }
+                            PlasmaComponents3.Label {
+                                text: modelData.version || ""
+                                color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
+                                font.family: Kirigami.Theme.smallFont.family
+                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                            }
 
-                        PlasmaComponents3.Label {
-                            visible: branchRow.current
-                            text: "←"
-                            color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                            PlasmaComponents3.Label {
+                                visible: branchRow.current
+                                text: "←"
+                                color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
+                                font.family: Kirigami.Theme.smallFont.family
+                                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                            }
                         }
                     }
                 }
@@ -257,7 +255,7 @@ Rectangle {
                 text: root.labels ? root.labels.fixSummary(root.fix) : ""
                 color: root.stateTone
                 font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
                 elide: Text.ElideRight
             }
         }
@@ -271,15 +269,15 @@ Rectangle {
 
         RowLayout {
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.gridUnit * 0.55
-            spacing: Kirigami.Units.gridUnit * 0.7
+            Layout.margins: Kirigami.Units.gridUnit * 0.5
+            spacing: Kirigami.Units.gridUnit * 0.6
 
             PlasmaComponents3.Label {
                 visible: root.hasTracker
                 text: (root.labels ? root.labels.fixOpenTracker() : "Open tracker") + " ↗"
                 color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
                 font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
 
                 MouseArea {
                     anchors.fill: parent
@@ -293,7 +291,7 @@ Rectangle {
                 text: (root.labels ? root.labels.fixOpenFix() : "Open fix") + " ↗"
                 color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
                 font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
 
                 MouseArea {
                     anchors.fill: parent
