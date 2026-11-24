@@ -778,6 +778,14 @@ def package_file_path(src_position):
     return match.group(1) if match else None
 
 
+def package_file_line(src_position):
+    """Line anchor from a tracker GitHub permalink (#L123)."""
+    if not src_position or not isinstance(src_position, str):
+        return None
+    match = re.search(r"#L(\d+)", src_position)
+    return int(match.group(1)) if match else None
+
+
 def fetch_channel_rev(channel, deadline, stop):
     """Resolve a nixpkgs channel (nixos-unstable, nixos-26.05) to a git rev."""
     if stop.is_set() or time.monotonic() >= deadline:
@@ -806,7 +814,7 @@ def fetch_ref_version(path, ref, deadline, stop):
     rate-limited CVE budget.
     """
     if stop.is_set() or time.monotonic() >= deadline:
-        return None, "skipped"
+        return None, None, "skipped"
     url = "%s/%s/%s" % (
         NIXPKGS_RAW, urllib.parse.quote(ref, safe=""), urllib.parse.quote(path, safe="/")
     )
@@ -817,16 +825,17 @@ def fetch_ref_version(path, ref, deadline, stop):
         with urllib.request.urlopen(request, timeout=PROBE_TIMEOUT) as response:
             data = response.read(2 * 1024 * 1024).decode("utf-8", "replace")
     except urllib.error.HTTPError as error:
-        return None, "HTTP %d" % error.code
+        return None, None, "HTTP %d" % error.code
     except (urllib.error.URLError, TimeoutError, OSError, ValueError) as error:
-        return None, str(error)
+        return None, None, str(error)
 
     # Generated package sets (hackage-packages.nix, ...) contain thousands of
     # version assignments; a single one is the package's own version.
-    matches = VERSION_ASSIGN_RE.findall(data)
-    if len(matches) != 1 or not SIMPLE_VERSION_RE.match(matches[0]):
-        return None, "no version"
-    return matches[0], None
+    matches = list(VERSION_ASSIGN_RE.finditer(data))
+    if len(matches) != 1 or not SIMPLE_VERSION_RE.match(matches[0].group(1)):
+        return None, None, "no version"
+    line = data.count("\n", 0, matches[0].start()) + 1
+    return matches[0].group(1), line, None
 
 
 def affected_ceiling(products, package, version=None):
@@ -885,18 +894,20 @@ def branch_rows(entry, item, branches, probed):
 
     rows = []
 
-    def add(name, version, kind, ref=None, status=None):
+    def add(name, version, kind, ref=None, status=None, line=None):
         if not version:
             return
+        url = None
+        if ref and path:
+            url = "https://github.com/NixOS/nixpkgs/blob/%s/%s" % (ref, path)
+            if line:
+                url += "#L%d" % int(line)
         rows.append({
             "name": name,
             "version": version,
             "kind": kind,
             "state": ref_state(products, package, version, status),
-            "url": (
-                "https://github.com/NixOS/nixpkgs/blob/%s/%s" % (ref, path)
-                if ref and path else None
-            ),
+            "url": url,
         })
 
     # Channels first: they are what an update actually pulls. The probe reads
@@ -913,8 +924,10 @@ def branch_rows(entry, item, branches, probed):
                 and not _probe_matches(master_version, channel_version)):
             continue
         add(name, channel_version, "channel",
-            (readings[name] or {}).get("ref") or name)
-    add("master", master.get("version"), "branch", "master", master.get("status"))
+            (readings[name] or {}).get("ref") or name,
+            line=(readings[name] or {}).get("line"))
+    add("master", master.get("version"), "branch", "master", master.get("status"),
+        line=package_file_line(master.get("src_position")))
     for name in STAGING_BRANCHES:
         if name in readings:
             staging_version = (readings[name] or {}).get("version")
@@ -922,11 +935,13 @@ def branch_rows(entry, item, branches, probed):
                     and not _probe_matches(master_version, staging_version)):
                 continue
             add(name, staging_version, "staging",
-                (readings[name] or {}).get("ref") or name)
+                (readings[name] or {}).get("ref") or name,
+                line=(readings[name] or {}).get("line"))
     for name in sorted(branches):
         if name.startswith("release-"):
             add(name, (branches.get(name) or {}).get("version"), "release", name,
-                (branches.get(name) or {}).get("status"))
+                (branches.get(name) or {}).get("status"),
+                line=package_file_line((branches.get(name) or {}).get("src_position")))
 
     # A branch that is not newer than an affected source cannot carry a
     # version-based fix.  nixos-unstable and staging* follow master; a
@@ -1853,7 +1868,9 @@ def tracker_mode(status_path, cache_path):
         info = probe_cache.setdefault(path, {})
         if path in staging_paths:
             for name in STAGING_BRANCHES:
-                if now - int((info.get(name) or {}).get("checked_at", 0)) > PROBE_TTL:
+                cached = info.get(name) or {}
+                if (now - int(cached.get("checked_at", 0)) > PROBE_TTL
+                        or "line" not in cached):
                     probe_todo.append((path, name, name))
         for channel in channel_refs:
             revision = (channel_cache.get(channel) or {}).get("rev")
@@ -1861,7 +1878,8 @@ def tracker_mode(status_path, cache_path):
                 continue
             cached = info.get(channel) or {}
             if (cached.get("ref") != revision
-                    or now - int(cached.get("checked_at", 0)) > PROBE_TTL):
+                    or now - int(cached.get("checked_at", 0)) > PROBE_TTL
+                    or "line" not in cached):
                 probe_todo.append((path, channel, revision))
     probe_todo.sort()
 
@@ -1895,9 +1913,9 @@ def tracker_mode(status_path, cache_path):
             for future in concurrent.futures.as_completed(futures):
                 path, name, ref = futures[future]
                 try:
-                    version, error = future.result()
+                    version, line, error = future.result()
                 except Exception:
-                    version, error = None, "exception"
+                    version, line, error = None, None, "exception"
                 # A missing file is a real answer (the package is not on that
                 # ref); a network failure is not, so retry it next run.
                 if error is None or error == "HTTP 404":
@@ -1905,6 +1923,7 @@ def tracker_mode(status_path, cache_path):
                         "checked_at": now,
                         "ref": ref,
                         "version": version,
+                        "line": line,
                     }
                 probe_done += 1
                 if error:
@@ -1927,7 +1946,11 @@ def tracker_mode(status_path, cache_path):
     for path in needed_paths:
         info = probe_cache.get(path) or {}
         readings = {
-            name: {"version": entry.get("version"), "ref": entry.get("ref") or name}
+            name: {
+                "version": entry.get("version"),
+                "ref": entry.get("ref") or name,
+                "line": entry.get("line"),
+            }
             for name, entry in info.items()
             if entry.get("version")
         }

@@ -15,6 +15,7 @@ Rectangle {
 
     signal openTrackerRequested(string url)
     signal openFixRequested(string url)
+    signal openBranchRequested(string url)
 
     readonly property var fix: row ? row.fix : null
     readonly property var branches: fix && fix.rows ? fix.rows : []
@@ -290,6 +291,17 @@ Rectangle {
                             ? Qt.rgba(root.theme.primaryColor.r, root.theme.primaryColor.g,
                                 root.theme.primaryColor.b, 0.10)
                             : "transparent"
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (branchRow.modelData.url) {
+                                    root.openBranchRequested(branchRow.modelData.url);
+                                }
+                            }
+                        }
 
                         RowLayout {
                             anchors.fill: parent

@@ -175,6 +175,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Branch rows in the fix card are now clickable and open the package file at
+  the version line on the selected branch. Master/release rows use the
+  tracker's source-position anchor; channels and staging rows use the line
+  found by the branch probe.
 - The fix card now shares the origin card's visual language: a header icon
   tile, package title and state pill, the same section hairline and an
   origin-style footer surface with the ↗ action marker.

@@ -421,6 +421,12 @@ PlasmaExtras.Representation {
                     root.fixPreview = null;
                     root.store.openUrl(url);
                 }
+
+                onOpenBranchRequested: (url) => {
+                    fixPreviewTimer.stop();
+                    root.fixPreview = null;
+                    root.store.openUrl(url);
+                }
             }
         }
     }

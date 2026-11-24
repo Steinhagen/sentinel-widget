@@ -134,6 +134,7 @@ class BranchRowsTests(unittest.TestCase):
         self.assertNotIn("nixos-unstable", names)
         self.assertEqual(names, ["master", "release-26.05"])
         self.assertTrue(all(row["state"] == "affected" for row in rows))
+        self.assertTrue(all(row["url"].endswith("#L1076") for row in rows))
 
     def test_ffmpeg_8_has_no_fix_while_master_has_9(self):
         probed = {
@@ -150,7 +151,11 @@ class BranchRowsTests(unittest.TestCase):
     def test_probe_with_the_same_major_but_another_minor_is_ignored(self):
         probed = {
             "pkgs/development/libraries/openssl/default.nix": {
-                "nixos-unstable": {"version": "3.6.0", "ref": "deadbeef"},
+                "nixos-unstable": {
+                    "version": "3.6.0",
+                    "ref": "deadbeef",
+                    "line": 42,
+                },
             },
         }
         rows, _ = STATUS.branch_rows(
@@ -160,13 +165,18 @@ class BranchRowsTests(unittest.TestCase):
     def test_a_probe_with_the_same_major_and_minor_is_kept(self):
         probed = {
             "pkgs/development/libraries/openssl/default.nix": {
-                "nixos-unstable": {"version": "3.5.3", "ref": "deadbeef"},
+                "nixos-unstable": {
+                    "version": "3.5.3",
+                    "ref": "deadbeef",
+                    "line": 42,
+                },
             },
         }
         rows, _ = STATUS.branch_rows(
             OPENSSL_ENTRY, {"package": "openssl"}, OPENSSL_BRANCHES, probed)
         channel = [row for row in rows if row["name"] == "nixos-unstable"]
         self.assertEqual(len(channel), 1)
+        self.assertTrue(channel[0]["url"].endswith("#L42"))
 
     def test_staging_probe_for_another_major_is_ignored_too(self):
         probed = {
