@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="52" viewBox="0 0 48 52">
   <title>Sentinel severity: medium</title>
-  <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#facc15"/>
-  <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="#ffffff" stroke-opacity=".30" stroke-width="1.4"/>
-  <rect x="14" y="25" width="20" height="4.4" rx="2.2" fill="#ffffff"/>
+  <path d="M24 1 L46 8.5 V23 C46 36.5 36 46 24 51 C12 46 2 36.5 2 23 V8.5 Z" fill="#facc15"/>
+  <rect x="13" y="25" width="22" height="5" rx="2.5" fill="#ffffff"/>
 </svg>

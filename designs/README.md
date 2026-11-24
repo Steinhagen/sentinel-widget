@@ -168,12 +168,16 @@ Medium their own colours (orange and yellow).
 
 | State | Proposed colour | Symbol |
 | --- | --- | --- |
-| Critical | `#fb7185` red | exclamation |
+| Critical | `#e11d48` red | exclamation |
 | High | `#f97316` orange | exclamation |
 | Medium | `#facc15` yellow | dash |
 | Low | `#4ade80` green | dot |
 | Secure | `#22c55e` green | check |
 | Unknown | `#94a3b8` grey | question mark |
+
+[critical-compare.html](critical-compare.html) ·
+[critical comparison](critical-compare.png) shows the new critical shield next
+to a Breeze-like `security-low` reference.
 
 The gallery includes a 22 px panel strip and a current-vs-proposed comparison.
 High and Medium are the closest pair at panel size; the saturated orange and

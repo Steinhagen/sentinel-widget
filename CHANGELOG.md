@@ -150,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Six custom SVG severity shields (`sentinel-severity-*`) in
   `contents/icons`, installed into the hicolor icon theme. The panel icon
   shows critical/high/medium/low/secure/unknown with distinct colours and
-  symbols.
+  symbols. The shields use a bolder silhouette and symbol; critical uses a
+  deeper red for better white-symbol contrast.
 - The header tile is tinted with the severity colour and shows the matching
   severity shield; the white brand shield on the blue tile remains an
   alternative.

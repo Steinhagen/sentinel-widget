@@ -8,7 +8,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const iconDir = join(here, "..", "..", "contents", "icons");
 
 const expected = {
-    critical: "#fb7185",
+    critical: "#e11d48",
     high: "#f97316",
     medium: "#facc15",
     low: "#4ade80",
