@@ -453,13 +453,8 @@ QtObject {
     function fixTooltip(row, systemChannel) {
         const fix = row.fix;
         const lines = fixTooltipLines(fix, systemChannel);
-        const origin = originTooltip(row.origin);
         if (lines.length === 0) {
-            const fallback = masterTooltip(row, systemChannel);
-            if (origin.length === 0) {
-                return fallback;
-            }
-            return fallback.length > 0 ? fallback + "\n\n" + origin : origin;
+            return masterTooltip(row, systemChannel);
         }
         const text = [];
         if (row.version) {
@@ -468,12 +463,7 @@ QtObject {
         if (systemChannel) {
             text.push(i18n("Your channel: %1", systemChannel));
         }
-        const result = text.concat(lines);
-        if (origin.length > 0) {
-            result.push("");
-            result.push(origin);
-        }
-        return result.join("\n");
+        return text.concat(lines).join("\n");
     }
 
     function relativeTime(ageSeconds) {

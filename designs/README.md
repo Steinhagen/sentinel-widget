@@ -205,8 +205,9 @@ installed).
 structured card for the fix-pill tooltip: package/version/state header, a
 compact branch table with the current channel highlighted, a one-line
 affected/fixed summary, an origin row with chain chips, and a small action
-footer. The current tooltip is one plain-text block that mixes all of these.
+footer. The origin is deliberately **not** repeated in this card: it already has its
+own 1.5 s overlay on the origin line.
 
 **Not implemented yet** — it would become a `FixPopover.qml` rendered in the
-same in-applet overlay style as the origin popover, keeping the branch rows and
-origin interactive without relying on a separate tooltip window.
+same in-applet overlay style as the origin popover, keeping the branch rows
+interactive without relying on a separate tooltip window.

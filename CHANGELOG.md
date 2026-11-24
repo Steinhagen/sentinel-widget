@@ -144,6 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored the list/group icon and normal toolbar font size on the grouping
   menu, and styled it as a flat button with a chevron.
 
+- The fix tooltip no longer repeats the dependency-origin chain; the origin
+  line's own overlay is the single place for it.
 - The CVE and Package headers now carry sortable **Nixpkgs** and **Origin**
   sub-labels next to them, so the source and dependency-origin fields can be
   sorted without widening the table.
