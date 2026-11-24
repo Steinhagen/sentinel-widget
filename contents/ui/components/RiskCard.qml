@@ -95,6 +95,9 @@ Rectangle {
 
             PlasmaComponents3.Label {
                 objectName: "exposureTitle"
+
+                Layout.fillWidth: true
+                elide: Text.ElideRight
                 text: root.labels
                     ? root.labels.exposureTitle(root.severityBand)
                     : root.severityBand
@@ -115,28 +118,24 @@ Rectangle {
             }
 
             PlasmaComponents3.Label {
+                Layout.fillWidth: true
                 text: root.labels ? root.labels.potentialVulnerabilities() : "potential vulnerabilities"
                 color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
                 font.family: Kirigami.Theme.smallFont.family
                 font.pointSize: Kirigami.Theme.smallFont.pointSize
+                wrapMode: Text.WordWrap
             }
 
-            RowLayout {
-                spacing: Kirigami.Units.smallSpacing * 1.5
-
-                PlasmaComponents3.Label {
-                    text: root.labels ? root.labels.packagesText(root.affectedPackages) : ""
-                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                }
-
-                PlasmaComponents3.Label {
-                    text: root.labels ? root.labels.cvesText(root.uniqueCves) : ""
-                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                }
+            PlasmaComponents3.Label {
+                Layout.fillWidth: true
+                text: root.labels
+                    ? root.labels.packagesText(root.affectedPackages)
+                        + " · " + root.labels.cvesText(root.uniqueCves)
+                    : ""
+                color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                font.family: Kirigami.Theme.smallFont.family
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                wrapMode: Text.WordWrap
             }
         }
     }
