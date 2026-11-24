@@ -175,6 +175,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Branch status now follows the Nixpkgs fix flow: if master is affected and
+  `nixos-unstable`/`staging`/`staging-next` have the same or an older version,
+  they are affected too. A `nixos-XX.YY` channel follows its
+  `release-XX.YY` branch. This replaces "unknown" rows for bison 3.8.2 with
+  affected rows; a branch with a newer version stays unknown because a fix may
+  be in progress there.
 - The first summary card no longer shows the tracker's queried-CVE count
   (`tracker.cves`) as if it were the number of unique CVEs in the report. It
   counts distinct finding IDs among the visible findings; the tracker count

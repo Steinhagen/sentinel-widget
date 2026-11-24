@@ -927,6 +927,32 @@ def branch_rows(entry, item, branches, probed):
         if name.startswith("release-"):
             add(name, (branches.get(name) or {}).get("version"), "release", name,
                 (branches.get(name) or {}).get("status"))
+
+    # A branch that is not newer than an affected source cannot carry a
+    # version-based fix.  nixos-unstable and staging* follow master; a
+    # nixos-XX.YY channel follows its release-XX.YY branch.  This is how the
+    # Nixpkgs fix flow works: staging -> staging-next -> master -> unstable.
+    # The tracker only returns explicit master/release verdicts; the versions
+    # above were probed from the other refs.
+    master_row = next((row for row in rows if row["name"] == "master"), None)
+    if master_row and master_row["state"] == "affected":
+        master_version = master_row.get("version") or ""
+        for row in rows:
+            if row["state"] != "unknown" or not row.get("version"):
+                continue
+            if master_version and _version_cmp(row["version"], master_version) > 0:
+                continue
+            if row["kind"] == "channel" and row["name"] == UNSTABLE_CHANNEL:
+                row["state"] = "affected"
+            elif row["kind"] == "staging":
+                row["state"] = "affected"
+            elif row["kind"] == "channel" and row["name"].startswith("nixos-"):
+                release_name = "release-" + row["name"][len("nixos-"):]
+                source = next(
+                    (candidate for candidate in rows
+                     if candidate["name"] == release_name), None)
+                if source and source["state"] == "affected":
+                    row["state"] = "affected"
     return rows, path
 
 

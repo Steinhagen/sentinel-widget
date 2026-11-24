@@ -93,6 +93,11 @@ OPENSSL_NIX = (
     "https://github.com/NixOS/nixpkgs/blob/0123456789abcdef0123456789abcdef01234567/"
     "pkgs/development/libraries/openssl/default.nix#L1"
 )
+BISON_NIX = (
+    "https://github.com/NixOS/nixpkgs/blob/0123456789abcdef0123456789abcdef01234567/"
+    "pkgs/by-name/bi/bison/package.nix#L1"
+)
+
 OPENSSL_ENTRY = {
     "affected_products": [{
         "name": "OpenSSL",
@@ -230,6 +235,47 @@ class LineAwareRangeTests(unittest.TestCase):
         self.assertEqual(fix["fix_state"], "in-release")
         self.assertEqual(fix["fix_branch"], "release-26.05")
         self.assertEqual(fix["fix_version"], "3.6.5")
+
+
+class BranchInferenceTests(unittest.TestCase):
+    """Branches that cannot be newer than an affected master are affected."""
+
+    def test_affected_master_propagates_to_channels_and_staging(self):
+        entry = {"affected_products": []}
+        branches = {
+            "master": {
+                "version": "3.8.2",
+                "status": "affected",
+                "src_position": BISON_NIX,
+            },
+            "release-26.05": {
+                "version": "3.8.2",
+                "status": "affected",
+                "src_position": BISON_NIX,
+            },
+        }
+        probed = {
+            "pkgs/by-name/bi/bison/package.nix": {
+                "nixos-unstable": {"version": "3.8.2", "ref": "unstable"},
+                "nixos-26.05": {"version": "3.8.2", "ref": "release-26.05"},
+                "staging-next": {"version": "3.8.2", "ref": "staging-next"},
+                "staging": {"version": "3.8.2", "ref": "staging"},
+            },
+        }
+        rows, _ = STATUS.branch_rows(
+            entry, {"package": "bison"}, branches, probed)
+        states = {row["name"]: row["state"] for row in rows}
+        self.assertEqual(states["master"], "affected")
+        self.assertEqual(states["nixos-unstable"], "affected")
+        self.assertEqual(states["nixos-26.05"], "affected")
+        self.assertEqual(states["staging-next"], "affected")
+        self.assertEqual(states["staging"], "affected")
+        self.assertEqual(states["release-26.05"], "affected")
+
+        fix = STATUS.fix_in_progress(
+            entry, {"package": "bison"}, branches, probed, None,
+            "nixos-unstable")
+        self.assertIsNone(fix["fix_state"])
 
 
 if __name__ == "__main__":
