@@ -144,11 +144,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored the list/group icon and normal toolbar font size on the grouping
   menu, and styled it as a flat button with a chevron.
 
+- Six custom SVG severity shields (`sentinel-severity-*`) in
+  `contents/icons`, installed into the hicolor icon theme. The panel icon and
+  header show critical/high/medium/low/secure/unknown with distinct colours
+  and symbols.
+
 ### Fixed
 
-- The panel shield now follows the highest severity: red for critical,
-  orange for high/medium, green for low and secure. Previously every
-  vulnerable report used the red `security-low` shield.
+- The panel shield now uses the custom four-level severity set: red for
+  critical, orange for high, yellow for medium, green for low; secure is a
+  green check and unknown is grey. Previously every vulnerable report used
+  the red `security-low` shield.
 - Expanding or collapsing a group keeps the findings list at the same scroll
   position instead of jumping back to the top.
 - Fixed the tracker pending count and the tracker polling gate.

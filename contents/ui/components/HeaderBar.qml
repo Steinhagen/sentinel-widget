@@ -56,7 +56,6 @@ PlasmaExtras.PlasmoidHeading {
                     width: Math.round(parent.width * 0.55)
                     height: width
                     source: root.stateIcon
-                    color: root.theme ? root.theme.primaryText : Kirigami.Theme.highlightedTextColor
                 }
             }
 

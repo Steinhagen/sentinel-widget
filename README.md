@@ -85,16 +85,20 @@ access is rate-limited.
 git clone git@github.com:Steinhagen/sentinel-widget.git sentinel-widget
 cd sentinel-widget
 kpackagetool6 --type Plasma/Applet --install .
+./scripts/install-icons.sh
 ```
 
 To update an existing source installation:
 
 ```bash
 kpackagetool6 --type Plasma/Applet --upgrade .
+./scripts/install-icons.sh
 ```
 
-Then right-click the desktop or panel, choose **Add Widgets**, and search for
-**Sentinel**.
+The second command installs the six severity shields into your per-user
+hicolor icon theme; run it after every update that changes the SVGs. The Nix
+module installs them automatically. Then right-click the desktop or panel,
+choose **Add Widgets**, and search for **Sentinel**.
 
 ### Build a `.plasmoid`
 

@@ -162,9 +162,9 @@ or interactive.
 ## Severity shields
 
 [severity-shields.html](severity-shields.html) · [overview](severity-shields.png)
-shows a custom SVG shield set with four severity colours, plus secure and
-unknown. The current Breeze mapping only has three security shields, so High
-and Medium share `security-medium` (orange).
+shows the custom SVG shield set with four severity colours, plus secure and
+unknown. Breeze only ships three security shields; this set gives High and
+Medium their own colours (orange and yellow).
 
 | State | Proposed colour | Symbol |
 | --- | --- | --- |
@@ -179,5 +179,7 @@ The gallery includes a 22 px panel strip and a current-vs-proposed comparison.
 High and Medium are the closest pair at panel size; the saturated orange and
 yellow keep them distinguishable.
 
-**Not implemented yet** — this needs six SVG files shipped with the applet or
-an icon theme, selected by the maximum severity in `Plasmoid.icon`.
+**Implemented** in `contents/icons/sentinel-severity-*.svg`. Source installs
+run `scripts/install-icons.sh` to copy them into the per-user hicolor theme;
+the Nix applet package installs them into `share/icons/hicolor/scalable/status`.
+`Plasmoid.icon` selects the file by the maximum severity.

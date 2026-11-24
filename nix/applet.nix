@@ -22,6 +22,10 @@ stdenv.mkDerivation {
     dest=$out/share/plasma/plasmoids/${pluginId}
     mkdir -p "$dest"
     cp -r metadata.json contents "$dest/"
+
+    iconDest=$out/share/icons/hicolor/scalable/status
+    mkdir -p "$iconDest"
+    cp contents/icons/sentinel-severity-*.svg "$iconDest/"
     runHook postInstall
   '';
 

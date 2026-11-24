@@ -30,24 +30,27 @@ QtObject {
 
     function stateIcon(state, hasReport, maxSeverity) {
         if (!hasReport) {
-            return "security-medium";
+            return "sentinel-severity-unknown";
         }
         if (state === "secure") {
-            return "security-high";
+            return "sentinel-severity-secure";
         }
         if (state === "vulnerable" || state === "warn") {
             const severity = Number(maxSeverity) || 0;
             if (severity >= 9) {
-                return "security-low";
+                return "sentinel-severity-critical";
+            }
+            if (severity >= 7) {
+                return "sentinel-severity-high";
             }
             if (severity >= 4) {
-                return "security-medium";
+                return "sentinel-severity-medium";
             }
             if (severity > 0) {
-                return "security-high";
+                return "sentinel-severity-low";
             }
         }
-        return "security-medium";
+        return "sentinel-severity-unknown";
     }
 
     function stateSummary(report, scanning, affectedPackages, maxSeverity) {
