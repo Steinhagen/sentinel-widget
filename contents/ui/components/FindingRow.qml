@@ -16,6 +16,8 @@ PlasmaComponents3.ItemDelegate {
     property real cveWidth: Kirigami.Units.gridUnit * 11
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
     property real triageWidth: 0
+    // Both hover cards (origin trails and fix details) use the same delay.
+    readonly property int previewDelay: 1500
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
@@ -387,7 +389,7 @@ PlasmaComponents3.ItemDelegate {
                 Timer {
                     id: fixHoverTimer
 
-                    interval: 400
+                    interval: root.previewDelay
                     repeat: false
                     onTriggered: {
                         if (!fixPillMouse.containsMouse || !root.rowData) {
@@ -523,7 +525,7 @@ PlasmaComponents3.ItemDelegate {
                     Timer {
                         id: originHoverTimer
 
-                        interval: 1500
+                        interval: root.previewDelay
                         repeat: false
                         onTriggered: {
                             if (!chainHover.hovered || !root.originInfo) {
