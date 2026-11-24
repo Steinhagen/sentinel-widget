@@ -144,9 +144,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored the list/group icon and normal toolbar font size on the grouping
   menu, and styled it as a flat button with a chevron.
 
-- The origin hover card is more compact: the large header icon was removed,
-  the trails count moved into the header, and the cards, chips and footer use
-  tighter padding and a narrower width.
+- The origin hover card is more compact without losing the header icon or the
+  richer step chips: the origin label and trail count share the header row,
+  trail numbers are inline instead of a separate column, and the cards, chips
+  and footer use tighter padding and a narrower width.
 - The Fix pill now opens a structured card with a package/state header, a
   compact per-branch table, a one-line summary and tracker/fix actions. The
   old plain-text tooltip is gone, and it no longer repeats the dependency

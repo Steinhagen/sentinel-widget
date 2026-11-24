@@ -16,11 +16,11 @@ Rectangle {
 
     readonly property var parts: Origins.splitNode(root.node)
 
-    implicitWidth: stepRow.implicitWidth + 8
-    implicitHeight: stepRow.implicitHeight + 4
+    implicitWidth: stepRow.implicitWidth + 12
+    implicitHeight: stepRow.implicitHeight + 6
     width: implicitWidth
     height: implicitHeight
-    radius: 5
+    radius: 6
     color: root.last
         ? (root.theme
             ? Qt.rgba(root.theme.criticalColor.r,
@@ -41,7 +41,7 @@ Rectangle {
         id: stepRow
 
         anchors.centerIn: parent
-        spacing: 3
+        spacing: 4
 
         PlasmaComponents3.Label {
             text: root.parts.name

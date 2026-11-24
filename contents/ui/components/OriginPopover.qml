@@ -92,10 +92,35 @@ Rectangle {
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 8
+                spacing: 6
+
+                Rectangle {
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+                    Layout.preferredHeight: Layout.preferredWidth
+                    radius: 8
+                    color: root.theme
+                        ? Qt.rgba(root.theme.primaryColor.r,
+                            root.theme.primaryColor.g,
+                            root.theme.primaryColor.b, 0.12)
+                        : "transparent"
+                    border.width: 1
+                    border.color: root.theme
+                        ? Qt.rgba(root.theme.primaryColor.r,
+                            root.theme.primaryColor.g,
+                            root.theme.primaryColor.b, 0.28)
+                        : "transparent"
+
+                    PlasmaComponents3.Label {
+                        anchors.centerIn: parent
+                        text: "↳"
+                        color: root.theme ? root.theme.primaryColor : Kirigami.Theme.highlightColor
+                        font.bold: true
+                        font.pointSize: Math.max(8,
+                            Math.round(Kirigami.Theme.defaultFont.pointSize * 1.1))
+                    }
+                }
 
                 ColumnLayout {
-                    Layout.fillWidth: true
                     spacing: 0
 
                     PlasmaComponents3.Label {
@@ -117,6 +142,70 @@ Rectangle {
                         font.family: Kirigami.Theme.defaultFont.family
                         font.pointSize: Math.max(9,
                             Math.round(Kirigami.Theme.defaultFont.pointSize * 1.05))
+                    }
+                }
+
+                Flow {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: implicitHeight
+                    spacing: 5
+
+                    Repeater {
+                        model: root.originNames
+
+                        Rectangle {
+                            id: originChip
+
+                            objectName: "originChip"
+
+                            required property string modelData
+
+                            readonly property var parts: Origins.splitNode(modelData)
+
+                            width: chipRow.implicitWidth + 16
+                            height: chipRow.implicitHeight + 10
+                            radius: 8
+                            color: root.theme
+                                ? Qt.rgba(root.theme.primaryColor.r,
+                                    root.theme.primaryColor.g,
+                                    root.theme.primaryColor.b, 0.09)
+                                : "transparent"
+                            border.width: 1
+                            border.color: root.theme
+                                ? Qt.rgba(root.theme.primaryColor.r,
+                                    root.theme.primaryColor.g,
+                                    root.theme.primaryColor.b, 0.32)
+                                : "transparent"
+
+                            RowLayout {
+                                id: chipRow
+
+                                anchors.centerIn: parent
+                                spacing: 5
+
+                                PlasmaComponents3.Label {
+                                    text: originChip.parts.name
+                                    color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
+                                    font.bold: true
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
+                                }
+
+                                PlasmaComponents3.Label {
+                                    visible: text.length > 0
+                                    text: originChip.parts.version
+                                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                                    font.family: Kirigami.Theme.smallFont.family
+                                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.originSelected(originChip.modelData)
+                            }
+                        }
                     }
                 }
 
@@ -154,70 +243,6 @@ Rectangle {
                 }
             }
 
-            Flow {
-                Layout.fillWidth: true
-                Layout.preferredHeight: implicitHeight
-                spacing: 5
-
-                Repeater {
-                    model: root.originNames
-
-                    Rectangle {
-                        id: originChip
-
-                        objectName: "originChip"
-
-                        required property string modelData
-
-                        readonly property var parts: Origins.splitNode(modelData)
-
-                        width: chipRow.implicitWidth + 12
-                        height: chipRow.implicitHeight + 6
-                        radius: 6
-                        color: root.theme
-                            ? Qt.rgba(root.theme.primaryColor.r,
-                                root.theme.primaryColor.g,
-                                root.theme.primaryColor.b, 0.09)
-                            : "transparent"
-                        border.width: 1
-                        border.color: root.theme
-                            ? Qt.rgba(root.theme.primaryColor.r,
-                                root.theme.primaryColor.g,
-                                root.theme.primaryColor.b, 0.32)
-                            : "transparent"
-
-                        RowLayout {
-                            id: chipRow
-
-                            anchors.centerIn: parent
-                            spacing: 4
-
-                            PlasmaComponents3.Label {
-                                text: originChip.parts.name
-                                color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
-                                font.bold: true
-                                font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
-                            }
-
-                            PlasmaComponents3.Label {
-                                visible: text.length > 0
-                                text: originChip.parts.version
-                                color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                                font.family: Kirigami.Theme.smallFont.family
-                                font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                            }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: root.originSelected(originChip.modelData)
-                        }
-                    }
-                }
-            }
-
             ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 5
@@ -245,21 +270,13 @@ Rectangle {
                             anchors.margins: 5
                             spacing: 6
 
-                            Rectangle {
-                                Layout.preferredWidth: 16
-                                Layout.preferredHeight: 16
+                            PlasmaComponents3.Label {
                                 Layout.alignment: Qt.AlignTop
-                                radius: 8
-                                color: root.theme ? root.theme.chipBackground : "transparent"
-
-                                PlasmaComponents3.Label {
-                                    anchors.centerIn: parent
-                                    text: chainCard.modelData.index + 1
-                                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                                    font.bold: true
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                                }
+                                text: chainCard.modelData.index + 1
+                                color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                                font.bold: true
+                                font.family: Kirigami.Theme.smallFont.family
+                                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
                             }
 
                             Flow {
@@ -269,7 +286,7 @@ Rectangle {
 
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: implicitHeight
-                                spacing: 3
+                                spacing: 4
 
                                 Repeater {
                                     model: chainFlow.nodes.slice(0, -1)
