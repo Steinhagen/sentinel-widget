@@ -212,3 +212,14 @@ own 1.5 s overlay on the origin line.
 style as the origin popover. The Fix pill opens it after a short hover delay;
 the card consumes clicks, closes on background click, and exposes tracker/fix
 actions.
+
+## Origin popover — flat trails
+
+[origin-compact.html](origin-compact.html) · [overview](origin-compact.png)
+proposes a quieter origin card: remove the duplicate origin chips from the
+header (the trails already start with them), replace the count with
+"2 origins · 3 trails", and draw the trails as flat rows separated by hairlines
+instead of nested cards. The small inline trail number stays; every chip stays
+clickable and the vulnerable destination keeps its red outline.
+
+**Not implemented yet** — this is a layout proposal.

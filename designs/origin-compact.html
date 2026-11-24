@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — origin popover</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #20242b;
+    --line: #2b3038;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --critical: #fb7185;
+    --blue: #3daee9;
+    --chip: #2b323c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 26px 30px 36px;
+    background: var(--bg); color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif; font-size: 12px;
+  }
+  h1 { margin: 0 0 4px; font-size: 19px; }
+  p.lede { margin: 0 0 20px; color: var(--muted); font-size: 12px; max-width: 1000px; }
+  .grid { display: flex; gap: 20px; align-items: flex-start; }
+  .label { color: var(--faint); font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; margin-bottom: 7px; }
+  .card { width: 368px; border-radius: 14px; background: var(--card); border: 1px solid #353b45; overflow: hidden; }
+  .head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  .head .icon { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--blue); background: rgba(61,174,233,.12); border: 1px solid rgba(61,174,233,.28); font-weight: 700; }
+  .head .eyebrow { color: var(--faint); font-size: 8.5px; letter-spacing: .1em; }
+  .head .title { font-weight: 700; font-size: 14px; }
+  .head .count { margin-left: auto; color: var(--muted); font-size: 9.5px; }
+  .origins { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 12px 9px; }
+  .origin { padding: 2px 7px; border-radius: 7px; background: rgba(61,174,233,.09); border: 1px solid rgba(61,174,233,.32); font-size: 10px; font-weight: 600; }
+  .origin small { color: var(--muted); font-weight: 400; margin-left: 3px; }
+  .trails { padding: 2px 0; }
+  .trail { display: flex; align-items: flex-start; gap: 7px; padding: 7px 12px; border-top: 1px solid #242a31; }
+  .trail:first-child { border-top: 0; }
+  .num { width: 12px; color: var(--faint); font-size: 10px; font-weight: 700; padding-top: 3px; }
+  .chain { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; row-gap: 5px; }
+  .chip { padding: 2px 6px; border-radius: 6px; background: var(--chip); border: 1px solid #39414c; color: var(--text); font-size: 9.5px; font-weight: 600; white-space: nowrap; }
+  .chip small { color: var(--muted); font-weight: 400; margin-left: 3px; font-size: 8.5px; }
+  .chip.red { color: var(--critical); background: rgba(251,113,133,.08); border-color: rgba(251,113,133,.45); }
+  .arrow { color: var(--faint); font-size: 9px; }
+  .foot { display: flex; align-items: center; gap: 5px; padding: 8px 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 9.5px; }
+  .foot .mark { color: var(--blue); }
+  .compare { display: flex; gap: 20px; }
+  .note { max-width: 1000px; margin-top: 18px; color: var(--muted); font-size: 11px; border: 1px solid var(--line); border-radius: 10px; padding: 10px 13px; background: #14171c; }
+  .note b { color: var(--text); }
+</style>
+</head>
+<body>
+<h1>Pop-up-ul de origine</h1>
+<p class="lede">Aceleași informații, fără chip-urile de origine duplicate din header și fără cardurile grele de pe fiecare traseu.</p>
+
+<div class="compare">
+  <div>
+    <div class="label">Acum</div>
+    <div class="card">
+      <div class="head">
+        <div class="icon">↳</div>
+        <div><div class="eyebrow">ORIGINE</div><div class="title">Introdus de</div></div>
+        <div class="count">TRASEE 3</div>
+      </div>
+      <div class="origins">
+        <span class="origin">calibre <small>9.17.0</small></span>
+        <span class="origin">open-webui <small>0.13.3</small></span>
+      </div>
+      <div class="trails">
+        <div class="trail" style="border-top:0">
+          <div class="num">1</div>
+          <div class="chain"><span class="chip">calibre <small>9.17.0</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-lib <small>9.0.2</small></span></div>
+        </div>
+        <div class="trail">
+          <div class="num">2</div>
+          <div class="chain"><span class="chip">calibre <small>9.17.0</small></span><span class="arrow">→</span><span class="chip">ffmpeg-lib <small>9.0.2</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-data <small>9.0.2</small></span></div>
+        </div>
+        <div class="trail">
+          <div class="num">3</div>
+          <div class="chain"><span class="chip">open-webui <small>0.13.3</small></span><span class="arrow">→</span><span class="chip">python3.14-pydub <small>0.25.1</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-bin <small>9.0.2</small></span></div>
+        </div>
+      </div>
+      <div class="foot"><span class="mark">↗</span> Click pe o origine pentru a filtra toate constatările.</div>
+    </div>
+  </div>
+
+  <div>
+    <div class="label">Propus</div>
+    <div class="card">
+      <div class="head">
+        <div class="icon">↳</div>
+        <div><div class="eyebrow">ORIGINE</div><div class="title">Introdus de</div></div>
+        <div class="count">2 origini · 3 trasee</div>
+      </div>
+      <div class="trails">
+        <div class="trail" style="border-top:0">
+          <div class="num">1</div>
+          <div class="chain"><span class="chip">calibre <small>9.17.0</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-lib <small>9.0.2</small></span></div>
+        </div>
+        <div class="trail">
+          <div class="num">2</div>
+          <div class="chain"><span class="chip">calibre <small>9.17.0</small></span><span class="arrow">→</span><span class="chip">ffmpeg-lib <small>9.0.2</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-data <small>9.0.2</small></span></div>
+        </div>
+        <div class="trail">
+          <div class="num">3</div>
+          <div class="chain"><span class="chip">open-webui <small>0.13.3</small></span><span class="arrow">→</span><span class="chip">python3.14-pydub <small>0.25.1</small></span><span class="arrow">→</span><span class="chip red">ffmpeg-bin <small>9.0.2</small></span></div>
+        </div>
+      </div>
+      <div class="foot"><span class="mark">↗</span> Click pe o origine pentru a filtra toate constatările.</div>
+    </div>
+  </div>
+</div>
+
+<div class="note"><b>Ideea:</b> originile sunt deja primele chip-uri din fiecare traseu, deci chip-urile lor din header sunt duplicate. Le scoatem și punem doar un rezumat „2 origini · 3 trasee”. Traseele devin rânduri plate, separate de linii fine, nu carduri în interiorul cardului; numărul rămâne mic, în stânga. Rezultatul are mai puține cutii, mai puțină înălțime și aceleași click-uri.</div>
+</body>
+</html>
