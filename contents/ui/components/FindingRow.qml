@@ -20,6 +20,7 @@ PlasmaComponents3.ItemDelegate {
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
     signal originPreviewRequested(var origin, var anchor)
+    signal fixPreviewRequested(var row, var anchor)
     signal openFixRequested(string url)
     signal trackerRequested(var finding)
     signal copyRequested(string text)
@@ -383,7 +384,28 @@ PlasmaComponents3.ItemDelegate {
                     font.pointSize: Kirigami.Theme.smallFont.pointSize
                 }
 
+                Timer {
+                    id: fixHoverTimer
+
+                    interval: 400
+                    repeat: false
+                    onTriggered: {
+                        if (!fixPillMouse.containsMouse || !root.rowData) {
+                            return;
+                        }
+                        const point = fixPill.mapToItem(null, 0, 0);
+                        root.fixPreviewRequested(root.rowData, {
+                            x: point.x,
+                            y: point.y,
+                            width: fixPill.width,
+                            height: fixPill.height
+                        });
+                    }
+                }
+
                 MouseArea {
+                    id: fixPillMouse
+
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: root.fixUrl ? Qt.PointingHandCursor : Qt.ArrowCursor
@@ -393,11 +415,13 @@ PlasmaComponents3.ItemDelegate {
                         }
                     }
 
-                    QQC2.ToolTip.text: root.labels && root.rowData
-                        ? root.labels.fixTooltip(root.rowData, root.systemChannel)
-                        : ""
-                    QQC2.ToolTip.visible: containsMouse
-                        && QQC2.ToolTip.text.length > 0
+                    onContainsMouseChanged: {
+                        if (containsMouse && root.rowData) {
+                            fixHoverTimer.restart();
+                        } else {
+                            fixHoverTimer.stop();
+                        }
+                    }
                 }
             }
         }

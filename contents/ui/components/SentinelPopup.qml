@@ -12,6 +12,8 @@ PlasmaExtras.Representation {
     property var labels: null
     property var originPreview: null
     property var originPreviewAnchor: null
+    property var fixPreview: null
+    property var fixPreviewAnchor: null
 
     signal scanRequested()
     signal settingsRequested()
@@ -216,8 +218,17 @@ PlasmaExtras.Representation {
                 onFilterOriginRequested: (name) => root.vm.showOrigin(name)
                 onOriginPreviewRequested: (origin, anchor) => {
                     originPreviewTimer.stop();
+                    fixPreviewTimer.stop();
+                    root.fixPreview = null;
                     root.originPreview = origin;
                     root.originPreviewAnchor = anchor;
+                }
+                onFixPreviewRequested: (row, anchor) => {
+                    originPreviewTimer.stop();
+                    fixPreviewTimer.stop();
+                    root.originPreview = null;
+                    root.fixPreview = row;
+                    root.fixPreviewAnchor = anchor;
                 }
                 onOpenFixRequested: (url) => root.store.openUrl(url)
                 onTrackerRequested: (finding) => root.store.openTracker(finding)
@@ -255,6 +266,13 @@ PlasmaExtras.Representation {
 
             interval: 160
             onTriggered: root.originPreview = null
+        }
+
+        Timer {
+            id: fixPreviewTimer
+
+            interval: 160
+            onTriggered: root.fixPreview = null
         }
 
         Item {
@@ -324,6 +342,84 @@ PlasmaExtras.Representation {
                     originPreviewTimer.stop();
                     root.originPreview = null;
                     root.vm.showOrigin(name);
+                }
+            }
+        }
+
+        Item {
+            id: fixOverlay
+
+            readonly property var anchorPoint: root.fixPreviewAnchor
+                ? fixOverlay.mapFromItem(null,
+                    root.fixPreviewAnchor.x, root.fixPreviewAnchor.y)
+                : Qt.point(0, 0)
+            readonly property var anchorSize: root.fixPreviewAnchor || {
+                width: 0,
+                height: 0
+            }
+
+            anchors.fill: parent
+            z: 1001
+            visible: root.fixPreview !== null
+
+            Rectangle {
+                anchors.fill: parent
+                color: "transparent"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        fixPreviewTimer.stop();
+                        root.fixPreview = null;
+                    }
+                }
+            }
+
+            FixPopover {
+                id: fixPreviewCard
+
+                x: {
+                    const margin = 12;
+                    const point = fixOverlay.anchorPoint;
+                    return Math.max(margin, Math.min(
+                        point.x + (fixOverlay.anchorSize.width - width) / 2,
+                        fixOverlay.width - width - margin));
+                }
+                y: {
+                    const margin = 12;
+                    const point = fixOverlay.anchorPoint;
+                    return Math.max(margin, Math.min(
+                        point.y + fixOverlay.anchorSize.height / 2
+                            - height / 2,
+                        fixOverlay.height - height - margin));
+                }
+                width: Math.min(implicitWidth, fixOverlay.width - 24)
+                height: implicitHeight
+                row: root.fixPreview
+                theme: root.theme
+                labels: root.labels
+                systemChannel: root.store.systemChannel
+
+                HoverHandler {
+                    onHoveredChanged: {
+                        if (hovered) {
+                            fixPreviewTimer.stop();
+                        } else {
+                            fixPreviewTimer.restart();
+                        }
+                    }
+                }
+
+                onOpenTrackerRequested: (url) => {
+                    fixPreviewTimer.stop();
+                    root.fixPreview = null;
+                    root.store.openUrl(url);
+                }
+
+                onOpenFixRequested: (url) => {
+                    fixPreviewTimer.stop();
+                    root.fixPreview = null;
+                    root.store.openUrl(url);
                 }
             }
         }

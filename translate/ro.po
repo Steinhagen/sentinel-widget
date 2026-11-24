@@ -1263,6 +1263,41 @@ msgstr "A doua linie arată lanțul de dependențe care a introdus constatarea. 
 msgid "Nixpkgs"
 msgstr "Nixpkgs"
 
+#: contents/ui/components/Labels.qml
+msgid "Nixpkgs branches"
+msgstr "Ramuri Nixpkgs"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 branch checked"
+msgid_plural "%1 branches checked"
+msgstr[0] "%1 ramură verificată"
+msgstr[1] "%1 ramuri verificate"
+msgstr[2] "%1 de ramuri verificate"
+
+#: contents/ui/components/Labels.qml
+msgid "your channel"
+msgstr "canalul tău"
+
+#: contents/ui/components/Labels.qml
+msgid "Affected in all checked branches"
+msgstr "Afectat în toate ramurile verificate"
+
+#: contents/ui/components/Labels.qml
+msgid "Fixed in at least one checked branch"
+msgstr "Remediat în cel puțin o ramură verificată"
+
+#: contents/ui/components/Labels.qml
+msgid "Some branches have no verdict"
+msgstr "Unele ramuri nu au verdict"
+
+#: contents/ui/components/Labels.qml
+msgid "Open tracker"
+msgstr "Deschide tracker"
+
+#: contents/ui/components/Labels.qml
+msgid "Open fix"
+msgstr "Deschide remedierea"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

@@ -208,6 +208,7 @@ affected/fixed summary, an origin row with chain chips, and a small action
 footer. The origin is deliberately **not** repeated in this card: it already has its
 own 1.5 s overlay on the origin line.
 
-**Not implemented yet** — it would become a `FixPopover.qml` rendered in the
-same in-applet overlay style as the origin popover, keeping the branch rows
-interactive without relying on a separate tooltip window.
+**Implemented** as `FixPopover.qml`, rendered in the same in-applet overlay
+style as the origin popover. The Fix pill opens it after a short hover delay;
+the card consumes clicks, closes on background click, and exposes tracker/fix
+actions.

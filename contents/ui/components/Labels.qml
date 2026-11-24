@@ -291,6 +291,52 @@ QtObject {
         return i18n("Click an origin to filter all findings.");
     }
 
+    function fixPopoverTitle() {
+        return i18n("Fix");
+    }
+
+    function fixTrackerPackage(fix) {
+        return fix && fix.matchedPackage
+            ? i18n("Tracker package: %1", fix.matchedPackage) : "";
+    }
+
+    function fixChannel(channel) {
+        return channel ? i18n("Your channel: %1", channel) : "";
+    }
+
+    function fixBranchesTitle() {
+        return i18n("Nixpkgs branches");
+    }
+
+    function fixBranchCount(count) {
+        return i18np("%1 branch checked", "%1 branches checked", count);
+    }
+
+    function fixYourChannelTag() {
+        return i18n("your channel");
+    }
+
+    function fixSummary(fix) {
+        if (!fix || !fix.rows || fix.rows.length === 0) {
+            return "";
+        }
+        if (fix.rows.every((row) => row.state === "affected")) {
+            return i18n("Affected in all checked branches");
+        }
+        if (fix.rows.some((row) => row.state === "unaffected")) {
+            return i18n("Fixed in at least one checked branch");
+        }
+        return i18n("Some branches have no verdict");
+    }
+
+    function fixOpenTracker() {
+        return i18n("Open tracker");
+    }
+
+    function fixOpenFix() {
+        return i18n("Open fix");
+    }
+
     function originTooltip(origin) {
         if (!origin || !origin.names || origin.names.length === 0) {
             return "";
