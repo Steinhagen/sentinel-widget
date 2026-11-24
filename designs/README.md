@@ -248,7 +248,9 @@ eyebrow + package title, same chip styling and section hairline, and the
 origin-style footer surface with the ↗ action marker. It keeps the fix card's
 compact two-column branch grid. Width matches the origin card.
 
-**Not implemented yet** — a proposal.
+**Implemented** — the fix card now uses the origin-style header tile/chips
+and footer surface, with the previous small text status signs (the badge
+proposal was not adopted).
 
 ## Fix popover — status badges
 
@@ -258,4 +260,5 @@ compact two-column branch grid. Width matches the origin card.
 grey for unknown), used both in the branch rows and in the summary. This keeps
 the current compact two-column layout but makes the status legible at a glance.
 
-**Not implemented yet** — part of the origin-style fix card proposal.
+**Not adopted** — the badge version was considered too heavy; the fix card
+keeps the small text signs.

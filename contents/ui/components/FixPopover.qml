@@ -30,7 +30,7 @@ Rectangle {
     readonly property bool hasTracker: root.row && root.row.url
     readonly property bool hasFix: root.fix && root.fix.url
 
-    implicitWidth: Kirigami.Units.gridUnit * 18
+    implicitWidth: Kirigami.Units.gridUnit * 20
     implicitHeight: layout.implicitHeight
     radius: 14
     color: root.theme ? root.theme.tooltipBackground : Kirigami.Theme.backgroundColor
@@ -55,34 +55,69 @@ Rectangle {
             Layout.margins: Kirigami.Units.gridUnit * 0.55
             spacing: 4
 
-            PlasmaComponents3.Label {
-                text: root.labels ? root.labels.fixPopoverTitle() : "Fix"
-                color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
-                font.letterSpacing: 0.8
-            }
-
             RowLayout {
                 Layout.fillWidth: true
-                spacing: Kirigami.Units.smallSpacing
+                spacing: 6
 
-                PlasmaComponents3.Label {
-                    Layout.fillWidth: true
-                    text: root.row ? (root.row.package || "—") : "—"
-                    color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize + 2
-                    font.bold: true
-                    elide: Text.ElideRight
+                Rectangle {
+                    Layout.preferredWidth: Kirigami.Units.gridUnit * 1.5
+                    Layout.preferredHeight: Layout.preferredWidth
+                    radius: 8
+                    color: root.theme
+                        ? Qt.rgba(root.theme.primaryColor.r,
+                            root.theme.primaryColor.g,
+                            root.theme.primaryColor.b, 0.12)
+                        : "transparent"
+                    border.width: 1
+                    border.color: root.theme
+                        ? Qt.rgba(root.theme.primaryColor.r,
+                            root.theme.primaryColor.g,
+                            root.theme.primaryColor.b, 0.28)
+                        : "transparent"
+
+                    Kirigami.Icon {
+                        anchors.centerIn: parent
+                        width: Math.round(parent.width * 0.55)
+                        height: width
+                        source: "configure"
+                        color: root.theme ? root.theme.primaryColor : Kirigami.Theme.highlightColor
+                    }
                 }
 
-                PlasmaComponents3.Label {
-                    visible: text.length > 0
-                    text: root.row ? (root.row.version || "") : ""
-                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    spacing: 0
+
+                    PlasmaComponents3.Label {
+                        text: root.labels ? root.labels.fixPopoverTitle() : "Fix"
+                        color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
+                        font.letterSpacing: 0.8
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: Kirigami.Units.smallSpacing
+
+                        PlasmaComponents3.Label {
+                            Layout.fillWidth: true
+                            text: root.row ? (root.row.package || "—") : "—"
+                            color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize + 2
+                            font.bold: true
+                            elide: Text.ElideRight
+                        }
+
+                        PlasmaComponents3.Label {
+                            visible: text.length > 0
+                            text: root.row ? (root.row.version || "") : ""
+                            color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize
+                        }
+                    }
                 }
 
                 Rectangle {
@@ -326,46 +361,62 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 1
-            color: root.theme ? root.theme.hairline : "transparent"
+            Layout.preferredHeight: footerRow.implicitHeight + 12
             visible: root.hasTracker || root.hasFix
-        }
+            color: root.theme ? root.theme.originFooterBackground : "transparent"
 
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.gridUnit * 0.5
-            spacing: Kirigami.Units.gridUnit * 0.6
-
-            PlasmaComponents3.Label {
-                visible: root.hasTracker
-                text: (root.labels ? root.labels.fixOpenTracker() : "Open tracker") + " ↗"
-                color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.openTrackerRequested(root.row.url)
-                }
+            Rectangle {
+                anchors.top: parent.top
+                width: parent.width
+                height: 1
+                color: root.theme ? root.theme.tooltipBorder : Kirigami.Theme.disabledTextColor
             }
 
-            PlasmaComponents3.Label {
-                visible: root.hasFix
-                text: (root.labels ? root.labels.fixOpenFix() : "Open fix") + " ↗"
-                color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
-                font.family: Kirigami.Theme.smallFont.family
-                font.pointSize: Kirigami.Theme.smallFont.pointSize
+            RowLayout {
+                id: footerRow
 
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.openFixRequested(root.fix.url)
+                anchors.fill: parent
+                anchors.margins: 6
+                spacing: 8
+
+                PlasmaComponents3.Label {
+                    text: "↗"
+                    color: root.theme ? root.theme.primaryColor : Kirigami.Theme.highlightColor
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
                 }
-            }
 
-            Item {
-                Layout.fillWidth: true
+                PlasmaComponents3.Label {
+                    visible: root.hasTracker
+                    text: root.labels ? root.labels.fixOpenTracker() : "Open tracker"
+                    color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.openTrackerRequested(root.row.url)
+                    }
+                }
+
+                PlasmaComponents3.Label {
+                    visible: root.hasFix
+                    text: root.labels ? root.labels.fixOpenFix() : "Open fix"
+                    color: root.theme ? root.theme.highColor : Kirigami.Theme.linkColor
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: root.openFixRequested(root.fix.url)
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                }
             }
         }
     }

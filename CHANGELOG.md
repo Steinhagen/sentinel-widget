@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The fix card now shares the origin card's visual language: a header icon
+  tile, package title and state pill, the same section hairline and an
+  origin-style footer surface with the ↗ action marker.
 - Branch status now follows the Nixpkgs fix flow: if master is affected and
   `nixos-unstable`/`staging`/`staging-next` have the same or an older version,
   they are affected too. A `nixos-XX.YY` channel follows its

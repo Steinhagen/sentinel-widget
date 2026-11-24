@@ -36,6 +36,7 @@ TestCase {
         readonly property color hairline: "#2b3038"
         readonly property color highColor: "#fbbf24"
         readonly property color primaryColor: "#3daee9"
+        readonly property color originFooterBackground: "#1b1e24"
 
         function fixColor(bucket) {
             return bucket === "fixed" ? "#22c55e" : "#fb7185";
