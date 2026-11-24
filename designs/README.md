@@ -249,3 +249,13 @@ origin-style footer surface with the ↗ action marker. It keeps the fix card's
 compact two-column branch grid. Width matches the origin card.
 
 **Not implemented yet** — a proposal.
+
+## Fix popover — status badges
+
+[fix-popover-signs.html](fix-popover-signs.html) ·
+[overview](fix-popover-signs.png) improves the affected/fixed/unknown markers:
+16 px filled circular badges (deep red for affected, green for fixed, neutral
+grey for unknown), used both in the branch rows and in the summary. This keeps
+the current compact two-column layout but makes the status legible at a glance.
+
+**Not implemented yet** — part of the origin-style fix card proposal.
