@@ -14,6 +14,8 @@ Rectangle {
     property bool last: false
     property var theme: null
 
+    signal selected(string name)
+
     readonly property var parts: Origins.splitNode(root.node)
 
     implicitWidth: stepRow.implicitWidth + 12
@@ -60,5 +62,11 @@ Rectangle {
             font.family: Kirigami.Theme.smallFont.family
             font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
         }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.selected(root.node)
     }
 }

@@ -302,6 +302,7 @@ Rectangle {
                                             node: stepGroup.modelData.node
                                             last: false
                                             theme: root.theme
+                                            onSelected: (name) => root.originSelected(name)
                                         }
 
                                         PlasmaComponents3.Label {
@@ -318,6 +319,7 @@ Rectangle {
                                         ? chainFlow.nodes[chainFlow.nodes.length - 1].node : ""
                                     last: true
                                     theme: root.theme
+                                    onSelected: (name) => root.originSelected(name)
                                 }
                             }
                         }
