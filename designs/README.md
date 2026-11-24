@@ -225,3 +225,16 @@ clickable and the vulnerable destination keeps its red outline.
 **Implemented** — the duplicate header origin chips are gone, the header
 shows the origins/trails summary, and the trails are flat hairline-separated
 rows.
+
+## Releases settings
+
+[releases-settings.html](releases-settings.html) ·
+[overview](releases-settings.png) sketches a **Releases** section for the
+applet settings: the staging/master/channel pipeline, a Nixpkgs/custom preset,
+and fields for unstable channel, staging branches and release/channel
+prefixes. A note keeps fork endpoints (tracker and Nixpkgs URLs) in the Nix
+module, because they belong to the root service rather than per-user applet
+settings.
+
+**Not implemented yet** — a proposal. The branch names are currently hardcoded
+in `nix/backend/sentinel-status.py`.

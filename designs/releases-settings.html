@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — Releases settings</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card: #20242b;
+    --line: #2b3038;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --blue: #3daee9;
+    --chip: #2b323c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 26px 30px 36px;
+    background: var(--bg); color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif; font-size: 12px;
+  }
+  h1 { margin: 0 0 4px; font-size: 19px; }
+  p.lede { margin: 0 0 20px; color: var(--muted); font-size: 12px; max-width: 900px; }
+  .settings { width: 620px; border-radius: 14px; background: var(--card); border: 1px solid #353b45; overflow: hidden; }
+  .section { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .section:last-child { border-bottom: 0; }
+  .section-title { font-size: 13px; font-weight: 700; }
+  .section-desc { color: var(--muted); font-size: 10.5px; margin-top: 3px; line-height: 1.5; }
+  .pipeline { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-top: 10px; }
+  .row { color: var(--faint); font-size: 9px; text-transform: uppercase; letter-spacing: .1em; width: 52px; }
+  .chip { padding: 3px 7px; border-radius: 6px; background: var(--chip); border: 1px solid #39414c; font-size: 10px; }
+  .chip.main { color: var(--blue); border-color: rgba(61,174,233,.4); background: rgba(61,174,233,.08); }
+  .arrow { color: var(--faint); font-size: 10px; }
+  .form { display: grid; grid-template-columns: 160px 1fr; gap: 8px 12px; align-items: center; margin-top: 10px; }
+  .form label { color: var(--muted); font-size: 11px; }
+  .field { height: 26px; padding: 3px 8px; border-radius: 6px; background: #15181d; border: 1px solid #353b45; color: var(--text); font-size: 11px; display: flex; align-items: center; }
+  .field .hint { color: var(--faint); font-size: 9px; margin-left: 6px; }
+  .preset { display: inline-flex; gap: 6px; }
+  .pill { padding: 2px 8px; border-radius: 99px; background: rgba(61,174,233,.10); border: 1px solid rgba(61,174,233,.35); color: var(--text); font-size: 10px; }
+  .buttons { display: flex; gap: 8px; margin-top: 10px; }
+  .button { padding: 4px 9px; border-radius: 6px; border: 1px solid #3a424d; color: var(--text); background: #262c35; font-size: 10px; }
+  .button.primary { color: var(--blue); border-color: rgba(61,174,233,.45); background: rgba(61,174,233,.08); }
+  .note { margin-top: 10px; padding: 9px 10px; border-radius: 8px; background: #14171c; border: 1px solid #2b3038; color: var(--muted); font-size: 10px; line-height: 1.5; }
+  .note b { color: var(--text); }
+  .readonly { color: var(--faint); font-size: 9.5px; margin-top: 6px; }
+</style>
+</head>
+<body>
+<h1>Settings — Releases</h1>
+<p class="lede">A proposal for a dedicated Releases section: show the branch pipeline the backend uses, and let a custom fork describe its own branch names without losing the safe defaults.</p>
+
+<div class="settings">
+  <div class="section">
+    <div class="section-title">Releases</div>
+    <div class="section-desc">The pipeline used to decide whether a fix reached your channel, staging or a release branch. The defaults follow Nixpkgs.</div>
+    <div class="pipeline">
+      <span class="row">Flow</span>
+      <span class="chip">staging</span><span class="arrow">→</span><span class="chip">staging-next</span><span class="arrow">→</span><span class="chip">master</span><span class="arrow">→</span><span class="chip main">nixos-unstable</span>
+    </div>
+    <div class="pipeline">
+      <span class="row">Release</span>
+      <span class="chip">release-26.05</span><span class="arrow">→</span><span class="chip main">nixos-26.05</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="form">
+      <label>Preset</label>
+      <div class="preset"><span class="pill">Nixpkgs (default)</span><span class="field" style="height:24px;min-width:150px">Custom pipeline…</span></div>
+
+      <label>Unstable channel</label>
+      <div class="field">nixos-unstable <span class="hint">default</span></div>
+
+      <label>Staging branches</label>
+      <div class="field">staging-next, staging <span class="hint">comma separated</span></div>
+
+      <label>Release prefix</label>
+      <div class="field">release- <span class="hint">e.g. release-26.05</span></div>
+
+      <label>Channel prefix</label>
+      <div class="field">nixos- <span class="hint">e.g. nixos-26.05</span></div>
+    </div>
+    <div class="buttons">
+      <span class="button primary">Reset to Nixpkgs defaults</span>
+      <span class="button">Open module options</span>
+    </div>
+    <div class="readonly">Effective backend preset: Nixpkgs · last tracker pass 1 h ago</div>
+  </div>
+
+  <div class="section">
+    <div class="note"><b>Fork scope:</b> the applet can describe the branch pipeline, but a custom fork also needs its tracker and Nixpkgs endpoints in the Nix module — <b>services.sentinel</b> is the right place for repository URLs, not a per-user setting. The service remains the source of truth; the settings page shows what it uses.</div>
+  </div>
+</div>
+</body>
+</html>
