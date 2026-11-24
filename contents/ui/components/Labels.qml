@@ -1039,7 +1039,7 @@ QtObject {
     }
 
     function cvesText(count) {
-        return i18np("%1 CVE", "%1 CVEs", count);
+        return i18np("%1 unique CVE", "%1 unique CVEs", count);
     }
 
     function severityTitle() {

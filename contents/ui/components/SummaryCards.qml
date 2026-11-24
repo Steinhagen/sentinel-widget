@@ -8,7 +8,7 @@ RowLayout {
     property real maxSeverity: 0
     property int findings: 0
     property int affectedPackages: 0
-    property int trackedCves: 0
+    property int uniqueCves: 0
     property var severityBands: []
     property var fixBands: []
     property int fixTotal: 0
@@ -34,7 +34,7 @@ RowLayout {
         maxSeverity: root.maxSeverity
         findings: root.findings
         affectedPackages: root.affectedPackages
-        trackedCves: root.trackedCves
+        uniqueCves: root.uniqueCves
         theme: root.theme
         labels: root.labels
     }

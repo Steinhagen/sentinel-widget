@@ -1320,6 +1320,13 @@ msgstr[0] "%1 traseu"
 msgstr[1] "%1 trasee"
 msgstr[2] "%1 de trasee"
 
+#: contents/ui/components/Labels.qml
+msgid "%1 unique CVE"
+msgid_plural "%1 unique CVEs"
+msgstr[0] "%1 CVE unic"
+msgstr[1] "%1 CVE-uri unice"
+msgstr[2] "%1 de CVE-uri unice"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

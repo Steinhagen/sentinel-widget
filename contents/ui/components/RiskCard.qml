@@ -12,7 +12,7 @@ Rectangle {
     property real maxSeverity: 0
     property int findings: 0
     property int affectedPackages: 0
-    property int trackedCves: 0
+    property int uniqueCves: 0
     property var theme: null
     property var labels: null
 
@@ -132,7 +132,7 @@ Rectangle {
                 }
 
                 PlasmaComponents3.Label {
-                    text: root.labels ? root.labels.cvesText(root.trackedCves) : ""
+                    text: root.labels ? root.labels.cvesText(root.uniqueCves) : ""
                     color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
                     font.family: Kirigami.Theme.smallFont.family
                     font.pointSize: Kirigami.Theme.smallFont.pointSize

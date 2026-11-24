@@ -41,7 +41,7 @@ TestCase {
             maxSeverity: 8.8
             findings: 449
             affectedPackages: 34
-            trackedCves: 622
+            uniqueCves: 227
             severityBands: [
                 { key: "", count: 449 },
                 { key: "critical", count: 0 },

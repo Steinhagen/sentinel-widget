@@ -137,7 +137,7 @@ PlasmaExtras.Representation {
                 maxSeverity: root.vm.maxSeverity
                 findings: root.vm.totalCount
                 affectedPackages: root.vm.affectedPackages
-                trackedCves: root.vm.trackedCves
+                uniqueCves: root.vm.uniqueCves
                 severityBands: root.vm.severityBands
                 fixBands: root.vm.fixBands
                 fixTotal: root.vm.fixStateTotal

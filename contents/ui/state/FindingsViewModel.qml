@@ -152,8 +152,20 @@ QtObject {
         }
         return Object.keys(seen).length;
     }
-    readonly property int trackedCves: vm.store && vm.store.tracker
-        ? Number(vm.store.tracker.cves || 0) : 0
+    readonly property int uniqueCves: {
+        const revision = vm.triageRevision;
+        const list = vm.visibleFindings;
+        const seen = {};
+        let count = 0;
+        for (let i = 0; i < list.length; ++i) {
+            const id = String(list[i].id || "");
+            if (id.length > 0 && !seen[id]) {
+                seen[id] = true;
+                count += 1;
+            }
+        }
+        return revision < 0 ? 0 : count;
+    }
 
     readonly property var severityBands: {
         const counts = { critical: 0, high: 0, medium: 0, low: 0, unknown: 0 };

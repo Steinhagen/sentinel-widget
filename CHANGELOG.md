@@ -175,6 +175,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The first summary card no longer shows the tracker's queried-CVE count
+  (`tracker.cves`) as if it were the number of unique CVEs in the report. It
+  counts distinct finding IDs among the visible findings; the tracker count
+  stays a tracker-progress metric.
 - Fix-range evaluation is now release-line aware. A CVE with separate
   affected ranges for several lines (for example OpenSSL `<4.1.1`,
   `<3.5.10`, `<4.0.4`) no longer marks a newer 3.6.x version as affected by
