@@ -198,3 +198,15 @@ severity-tinted tile.
 colour and shows the matching severity shield. The white `sentinel-shield`
 logo on the blue tile remains an alternative (and its icon asset is still
 installed).
+
+## Fix popover
+
+[fix-popover.html](fix-popover.html) · [overview](fix-popover.png) proposes a
+structured card for the fix-pill tooltip: package/version/state header, a
+compact branch table with the current channel highlighted, a one-line
+affected/fixed summary, an origin row with chain chips, and a small action
+footer. The current tooltip is one plain-text block that mixes all of these.
+
+**Not implemented yet** — it would become a `FixPopover.qml` rendered in the
+same in-applet overlay style as the origin popover, keeping the branch rows and
+origin interactive without relying on a separate tooltip window.
