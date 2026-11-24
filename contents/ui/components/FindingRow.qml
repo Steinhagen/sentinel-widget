@@ -499,7 +499,7 @@ PlasmaComponents3.ItemDelegate {
                     Timer {
                         id: originHoverTimer
 
-                        interval: 3000
+                        interval: 1500
                         repeat: false
                         onTriggered: {
                             if (!chainHover.hovered || !root.originInfo) {
