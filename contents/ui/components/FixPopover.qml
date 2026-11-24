@@ -114,7 +114,7 @@ Rectangle {
 
                 Rectangle {
                     visible: root.trackerValue.length > 0
-                    Layout.preferredHeight: 20
+                    Layout.preferredHeight: 22
                     Layout.preferredWidth: trackerChipRow.implicitWidth + 12
                     radius: 6
                     color: root.theme ? root.theme.inputBackground : "transparent"
@@ -125,10 +125,12 @@ Rectangle {
                         id: trackerChipRow
 
                         anchors.fill: parent
-                        anchors.margins: 6
+                        anchors.leftMargin: 6
+                        anchors.rightMargin: 6
                         spacing: 4
 
                         PlasmaComponents3.Label {
+                            Layout.alignment: Qt.AlignVCenter
                             text: root.labels ? root.labels.fixTrackerLabel() : "Tracker"
                             color: root.theme ? root.theme.faintText
                                 : Kirigami.Theme.disabledTextColor
@@ -138,6 +140,7 @@ Rectangle {
 
                         PlasmaComponents3.Label {
                             Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
                             text: root.trackerValue
                             color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
                             font.family: Kirigami.Theme.smallFont.family
@@ -149,7 +152,7 @@ Rectangle {
 
                 Rectangle {
                     visible: root.channelValue.length > 0
-                    Layout.preferredHeight: 20
+                    Layout.preferredHeight: 22
                     Layout.preferredWidth: channelChipRow.implicitWidth + 12
                     radius: 6
                     color: root.theme ? root.theme.inputBackground : "transparent"
@@ -160,10 +163,12 @@ Rectangle {
                         id: channelChipRow
 
                         anchors.fill: parent
-                        anchors.margins: 6
+                        anchors.leftMargin: 6
+                        anchors.rightMargin: 6
                         spacing: 4
 
                         PlasmaComponents3.Label {
+                            Layout.alignment: Qt.AlignVCenter
                             text: root.labels ? root.labels.fixChannelLabel() : "Channel"
                             color: root.theme ? root.theme.faintText
                                 : Kirigami.Theme.disabledTextColor
@@ -173,6 +178,7 @@ Rectangle {
 
                         PlasmaComponents3.Label {
                             Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
                             text: root.channelValue
                             color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
                             font.family: Kirigami.Theme.smallFont.family
