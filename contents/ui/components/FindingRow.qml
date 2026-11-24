@@ -17,7 +17,7 @@ PlasmaComponents3.ItemDelegate {
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
     property real triageWidth: 0
     // Both hover cards (origin trails and fix details) use the same delay.
-    readonly property int previewDelay: 1500
+    readonly property int previewDelay: 1200
     signal openFinding(string url)
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
