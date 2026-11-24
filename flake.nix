@@ -36,12 +36,18 @@
           kde.qtdeclarative
           kde.kirigami
           kde.plasma-workspace
+          kde.plasma5support
           kde.plasma-sdk
           kde.kpackage
         ];
 
         shellHook = ''
           export QML2_IMPORT_PATH="${kde.qtdeclarative}/lib/qt-6/qml:${kde.kirigami}/lib/qt-6/qml:${kde.plasma-workspace}/lib/qt-6/qml''${QML2_IMPORT_PATH:+:$QML2_IMPORT_PATH}"
+          # KF6 looks up the plasma5support dataengines (executable, etc.)
+          # through the Qt plugin path. A desktop session exports it, but a
+          # headless shell does not, so QML tests that run commands through
+          # Plasma5Support would otherwise fail on CI.
+          export QT_PLUGIN_PATH="${kde.plasma5support}/lib/qt-6/plugins''${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
           export QML_XHR_ALLOW_FILE_READ=1
           echo "Sentinel dev shell: run ./scripts/check.sh"
         '';
