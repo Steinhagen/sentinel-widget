@@ -146,6 +146,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The panel shield now follows the highest severity: red for critical,
+  orange for high/medium, green for low and secure. Previously every
+  vulnerable report used the red `security-low` shield.
 - Expanding or collapsing a group keeps the findings list at the same scroll
   position instead of jumping back to the top.
 - Fixed the tracker pending count and the tracker polling gate.

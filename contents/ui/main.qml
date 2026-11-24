@@ -78,7 +78,8 @@ PlasmoidItem {
     }
 
     Plasmoid.title: i18n("Sentinel")
-    Plasmoid.icon: sentinelLabels.stateIcon(viewModel.state, scanStore.hasReport)
+    Plasmoid.icon: sentinelLabels.stateIcon(viewModel.state,
+        scanStore.hasReport, viewModel.maxSeverity)
     Plasmoid.busy: scanStore.scanning
 
     // The shell's default compact representation uses this badge.

@@ -8,7 +8,9 @@ import "../domain/tracker.mjs" as Tracker
 QtObject {
     id: labels
 
-    readonly property string masterHelpText: i18n("The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n\n• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n• 26.05 — fixed on another line; it is not on the way to this system's channel.\n• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n• no fix — still affected in every branch that was checked.\n• unknown / n/a / — — no verdict, no coverage, or no data.\n\nHover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs.")
+    function masterHelpText() {
+        return i18n("The Fix pill names the stage the fix currently sits in, and “fixed” once it reached the channel this system updates from (nixos-unstable or nixos-XX.YY):\n\n• fixed — the system's channel has a fixed version. Updating the channel fixes the finding.\n• staging — merged into staging-next/staging; it lands in master when the next staging cycle is merged.\n• master — master has it; the channel picks it up with the next channel bump (on a stable system a backport is still needed).\n• 26.05 — fixed on another line; it is not on the way to this system's channel.\n• issue — nothing is merged yet, but the Nixpkgs security issue is open.\n• no fix — still affected in every branch that was checked.\n• unknown / n/a / — — no verdict, no coverage, or no data.\n\nHover the Fix pill for the per-branch table (✓ fixed, ✗ affected, ? unknown), the next step, and ← marking the channel this system runs.");
+    }
 
     function postureLabel(state, hasReport) {
         if (!hasReport) {
@@ -26,18 +28,26 @@ QtObject {
         }
     }
 
-    function stateIcon(state, hasReport) {
+    function stateIcon(state, hasReport, maxSeverity) {
         if (!hasReport) {
             return "security-medium";
         }
-        switch (state) {
-        case "secure":
+        if (state === "secure") {
             return "security-high";
-        case "vulnerable":
-            return "security-low";
-        default:
-            return "security-medium";
         }
+        if (state === "vulnerable" || state === "warn") {
+            const severity = Number(maxSeverity) || 0;
+            if (severity >= 9) {
+                return "security-low";
+            }
+            if (severity >= 4) {
+                return "security-medium";
+            }
+            if (severity > 0) {
+                return "security-high";
+            }
+        }
+        return "security-medium";
     }
 
     function stateSummary(report, scanning, affectedPackages, maxSeverity) {
@@ -66,8 +76,8 @@ QtObject {
             : i18n("scanned %1", relative);
     }
 
-    function emptyIcon(state, hasReport) {
-        return stateIcon(state, hasReport);
+    function emptyIcon(state, hasReport, maxSeverity) {
+        return stateIcon(state, hasReport, maxSeverity);
     }
 
     function emptyTitle(state, hasReport) {
@@ -616,7 +626,7 @@ QtObject {
         }
         parts.push(i18n("Scores and versions come from the scanned system; NixOS may already carry a backported fix."));
         parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package, CVE or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
-        parts.push(masterHelpText);
+        parts.push(masterHelpText());
         parts.push(i18n("The CSV report and scan log are available from the widget's context menu."));
         return parts.join("\n\n");
     }
