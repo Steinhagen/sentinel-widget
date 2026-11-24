@@ -1306,6 +1306,20 @@ msgstr "Tracker"
 msgid "Channel"
 msgstr "Canal"
 
+#: contents/ui/components/Labels.qml
+msgid "%1 origin"
+msgid_plural "%1 origins"
+msgstr[0] "%1 origine"
+msgstr[1] "%1 origini"
+msgstr[2] "%1 de origini"
+
+#: contents/ui/components/Labels.qml
+msgid "%1 trail"
+msgid_plural "%1 trails"
+msgstr[0] "%1 traseu"
+msgstr[1] "%1 trasee"
+msgstr[2] "%1 de trasee"
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

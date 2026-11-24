@@ -145,112 +145,30 @@ Rectangle {
                     }
                 }
 
-                Flow {
+                Item {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: implicitHeight
-                    spacing: 5
-
-                    Repeater {
-                        model: root.originNames
-
-                        Rectangle {
-                            id: originChip
-
-                            objectName: "originChip"
-
-                            required property string modelData
-
-                            readonly property var parts: Origins.splitNode(modelData)
-
-                            width: chipRow.implicitWidth + 16
-                            height: chipRow.implicitHeight + 10
-                            radius: 8
-                            color: root.theme
-                                ? Qt.rgba(root.theme.primaryColor.r,
-                                    root.theme.primaryColor.g,
-                                    root.theme.primaryColor.b, 0.09)
-                                : "transparent"
-                            border.width: 1
-                            border.color: root.theme
-                                ? Qt.rgba(root.theme.primaryColor.r,
-                                    root.theme.primaryColor.g,
-                                    root.theme.primaryColor.b, 0.32)
-                                : "transparent"
-
-                            RowLayout {
-                                id: chipRow
-
-                                anchors.centerIn: parent
-                                spacing: 5
-
-                                PlasmaComponents3.Label {
-                                    text: originChip.parts.name
-                                    color: root.theme ? root.theme.textColor : Kirigami.Theme.textColor
-                                    font.bold: true
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize)
-                                }
-
-                                PlasmaComponents3.Label {
-                                    visible: text.length > 0
-                                    text: originChip.parts.version
-                                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                                    font.family: Kirigami.Theme.smallFont.family
-                                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                                }
-                            }
-
-                            MouseArea {
-                                anchors.fill: parent
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: root.originSelected(originChip.parts.name)
-                            }
-                        }
-                    }
                 }
 
-                RowLayout {
-                    spacing: 5
+                PlasmaComponents3.Label {
+                    objectName: "originSummary"
 
-                    PlasmaComponents3.Label {
-                        text: root.labels ? root.labels.originTrails() : "TRAILS"
-                        color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
-                        font.bold: true
-                        font.family: Kirigami.Theme.smallFont.family
-                        font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
-                        font.letterSpacing: 0.8
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: Math.max(16, countLabel.implicitWidth + 10)
-                        Layout.preferredHeight: 16
-                        radius: 8
-                        color: root.theme ? root.theme.chipBackground : "transparent"
-
-                        PlasmaComponents3.Label {
-                            id: countLabel
-
-                            objectName: "originChainCount"
-
-                            anchors.centerIn: parent
-                            text: root.chainCount
-                            color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                            font.bold: true
-                            font.family: Kirigami.Theme.smallFont.family
-                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                        }
-                    }
+                    text: root.labels
+                        ? root.labels.originSummary(root.originNames.length, root.chainCount)
+                        : ""
+                    color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
                 }
             }
 
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 5
+                spacing: 0
 
                 Repeater {
                     model: root.chains
 
-                    Rectangle {
+                    Item {
                         id: chainCard
 
                         required property var modelData
@@ -258,10 +176,6 @@ Rectangle {
 
                         Layout.fillWidth: true
                         implicitHeight: chainRow.implicitHeight + 10
-                        radius: 8
-                        color: root.theme ? root.theme.originRowBackground : "transparent"
-                        border.width: 1
-                        border.color: root.theme ? root.theme.hairline : "transparent"
 
                         RowLayout {
                             id: chainRow
@@ -323,6 +237,14 @@ Rectangle {
                                 }
                             }
                         }
+
+                        Rectangle {
+                            anchors.bottom: parent.bottom
+                            width: parent.width
+                            height: 1
+                            color: root.theme ? root.theme.hairline : "transparent"
+                            visible: chainCard.index < root.chainCount - 1
+                        }
                     }
                 }
             }
@@ -331,7 +253,7 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: hintRow.implicitHeight + 12
-            color: root.theme ? root.theme.originFooterBackground : "transparent"
+            color: "transparent"
 
             Rectangle {
                 anchors.top: parent.top

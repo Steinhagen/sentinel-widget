@@ -222,4 +222,6 @@ header (the trails already start with them), replace the count with
 instead of nested cards. The small inline trail number stays; every chip stays
 clickable and the vulnerable destination keeps its red outline.
 
-**Not implemented yet** — this is a layout proposal.
+**Implemented** — the duplicate header origin chips are gone, the header
+shows the origins/trails summary, and the trails are flat hairline-separated
+rows.

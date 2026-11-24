@@ -287,6 +287,12 @@ QtObject {
         return i18n("TRAILS");
     }
 
+    function originSummary(origins, trails) {
+        return i18np("%1 origin", "%1 origins", origins)
+            + " · "
+            + i18np("%1 trail", "%1 trails", trails);
+    }
+
     function originHint() {
         return i18n("Click an origin to filter all findings.");
     }

@@ -14,6 +14,9 @@ TestCase {
         function originIntroducedBy() { return "Introdus de"; }
         function originTrails() { return "TRASEE"; }
         function originHint() { return "Click pe rândul de origine pentru a filtra toate constatările."; }
+        function originSummary(origins, trails) {
+            return origins + " origini · " + trails + " trasee";
+        }
     }
 
     readonly property var origin: ({
@@ -49,8 +52,8 @@ TestCase {
         const title = findChild(window, "originTitle");
         verify(title);
         compare(title.text, "Introdus de");
-        const count = findChild(window, "originChainCount");
-        verify(count);
-        compare(count.text, "3");
+        const summary = findChild(window, "originSummary");
+        verify(summary);
+        compare(summary.text, "2 origini · 3 trasee");
     }
 }

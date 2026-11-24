@@ -149,6 +149,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   The origin search index now includes every raw and version-less chain node,
   so a trail chip matches all findings whose paths contain it instead of only
   findings whose origin name happens to match.
+- The origin card no longer repeats the origin chips in the header; it shows
+  an origins/trails summary instead, and the trails are flat rows separated by
+  hairlines rather than nested cards.
 - The origin hover card is more compact without losing the header icon or the
   richer step chips: the origin label and trail count share the header row,
   trail numbers are inline instead of a separate column, and the cards, chips
