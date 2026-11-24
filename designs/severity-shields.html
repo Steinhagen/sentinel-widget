@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — scuturi de severitate</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --surface: #15181d;
+    --card: #20242b;
+    --card2: #262c35;
+    --line: #2b3038;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+    --faint: #6f7680;
+    --critical: #fb7185;
+    --high: #f97316;
+    --medium: #facc15;
+    --low: #4ade80;
+    --secure: #22c55e;
+    --unknown: #94a3b8;
+    --plasma-low: #da4453;
+    --plasma-medium: #f67400;
+    --plasma-high: #27ae60;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 30px 38px;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Noto Sans", "DejaVu Sans", sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  h1 { margin: 0 0 5px; font-size: 21px; font-weight: 700; letter-spacing: -0.2px; }
+  h2 { margin: 26px 0 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.02em; }
+  h2 .sub { color: var(--muted); font-weight: 400; margin-left: 7px; font-size: 11.5px; }
+  .lede { margin: 0 0 6px; max-width: 980px; color: var(--muted); font-size: 12px; }
+  .lede b { color: var(--text); font-weight: 600; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 1000px;
+  }
+  .shield-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 132px;
+    padding: 15px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--surface);
+  }
+  .shield-card .art { flex: none; width: 82px; height: 90px; }
+  .shield-card .meta { min-width: 0; }
+  .shield-card .name { font-size: 13px; font-weight: 700; margin-bottom: 1px; }
+  .shield-card .range { color: var(--muted); font-size: 11px; margin-bottom: 7px; }
+  .swatch { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 10.5px; }
+  .swatch i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+  .skull { color: var(--faint); font-size: 10.5px; margin-top: 5px; }
+
+  .panel {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    max-width: 1000px;
+    min-height: 92px;
+    padding: 18px 22px;
+    border: 1px solid #2c3138;
+    border-radius: 12px;
+    background: #1b1e24;
+  }
+  .slot { display: flex; flex-direction: column; align-items: center; gap: 7px; min-width: 64px; }
+  .slot .icon { width: 22px; height: 24px; }
+  .slot .caption { color: var(--muted); font-size: 9.5px; white-space: nowrap; }
+  .slot.current .caption { color: var(--faint); }
+  .divider { width: 1px; height: 44px; background: #2b3038; }
+  .panel-label { color: var(--faint); font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; margin-right: 2px; }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    max-width: 1000px;
+  }
+  .compare .box {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    padding: 13px 15px;
+  }
+  .compare h3 { margin: 0 0 2px; font-size: 12px; }
+  .compare p { margin: 0 0 10px; color: var(--muted); font-size: 10.8px; }
+  .row { display: flex; align-items: center; gap: 10px; margin-top: 7px; color: var(--muted); font-size: 10.8px; }
+  .row .icon { width: 22px; height: 24px; flex: none; }
+  .row .pill { margin-left: auto; font-size: 9.5px; color: var(--faint); }
+  .note {
+    max-width: 1000px;
+    margin-top: 18px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #14171c;
+    color: var(--muted);
+    font-size: 11.2px;
+  }
+  .note b { color: var(--text); }
+  .note .warn { color: var(--medium); }
+</style>
+</head>
+<body>
+<h1>Sentinel — scuturi de severitate</h1>
+<p class="lede">Ce ar însemna un set propriu, cu <b>patru culori distincte</b> pentru Critic / Ridicat / Mediu / Scăzut, plus Secure și Necunoscut. Comparație cu cele trei scuturi Plasma existente și o previzualizare la dimensiunea din panel.</p>
+
+<h2>Propunere <span class="sub">patru niveluri + secure/unknown</span></h2>
+<div class="grid">
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#fb7185"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/>
+        <circle cx="24" cy="35" r="2.7" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Critic</div>
+      <div class="range">CVSS 9.0–10.0</div>
+      <div class="swatch"><i style="background:#fb7185"></i>#fb7185</div>
+      <div class="skull">exclamare</div>
+    </div>
+  </div>
+
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#f97316"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/>
+        <circle cx="24" cy="35" r="2.7" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Ridicat</div>
+      <div class="range">CVSS 7.0–8.9</div>
+      <div class="swatch"><i style="background:#f97316"></i>#f97316</div>
+      <div class="skull">exclamare</div>
+    </div>
+  </div>
+
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#facc15"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <rect x="14" y="25" width="20" height="4.4" rx="2.2" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Mediu</div>
+      <div class="range">CVSS 4.0–6.9</div>
+      <div class="swatch"><i style="background:#facc15"></i>#facc15</div>
+      <div class="skull">linie</div>
+    </div>
+  </div>
+
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#4ade80"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <circle cx="24" cy="26" r="3.2" fill="#fff"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Scăzut</div>
+      <div class="range">CVSS 0.1–3.9</div>
+      <div class="swatch"><i style="background:#4ade80"></i>#4ade80</div>
+      <div class="skull">punct</div>
+    </div>
+  </div>
+
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#22c55e"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <path d="M15 26 L21 32 L33 19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Secure</div>
+      <div class="range">fără vulnerabilități</div>
+      <div class="swatch"><i style="background:#22c55e"></i>#22c55e</div>
+      <div class="skull">bifă</div>
+    </div>
+  </div>
+
+  <div class="shield-card">
+    <div class="art">
+      <svg viewBox="0 0 48 52" width="82" height="90" aria-hidden="true">
+        <path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#94a3b8"/>
+        <path d="M24 7 L38 12 V23 C38 33 32 40 24 44 C16 40 10 33 10 23 V12 Z" fill="none" stroke="rgba(255,255,255,.30)" stroke-width="1.4"/>
+        <text x="24" y="34" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="20" font-weight="700" fill="#fff">?</text>
+      </svg>
+    </div>
+    <div class="meta">
+      <div class="name">Necunoscut</div>
+      <div class="range">fără date / fără scanare</div>
+      <div class="swatch"><i style="background:#94a3b8"></i>#94a3b8</div>
+      <div class="skull">semn de întrebare</div>
+    </div>
+  </div>
+</div>
+
+<h2>La dimensiunea din panel <span class="sub">22 px, pe fundalul panelului</span></h2>
+<div class="panel">
+  <span class="panel-label">Propus</span>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#fb7185"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>
+    <span class="caption">Critic</span>
+  </div>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#f97316"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>
+    <span class="caption">Ridicat</span>
+  </div>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#facc15"/><rect x="14" y="25" width="20" height="4.4" rx="2.2" fill="#fff"/></svg>
+    <span class="caption">Mediu</span>
+  </div>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#4ade80"/><circle cx="24" cy="26" r="3.2" fill="#fff"/></svg>
+    <span class="caption">Scăzut</span>
+  </div>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#22c55e"/><path d="M15 26 L21 32 L33 19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="caption">Secure</span>
+  </div>
+  <div class="slot">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#94a3b8"/><text x="24" y="34" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="20" font-weight="700" fill="#fff">?</text></svg>
+    <span class="caption">Necunoscut</span>
+  </div>
+  <div class="divider"></div>
+  <span class="panel-label">Acum</span>
+  <div class="slot current">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#da4453"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>
+    <span class="caption">security-low</span>
+  </div>
+  <div class="slot current">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#f67400"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>
+    <span class="caption">security-medium</span>
+  </div>
+  <div class="slot current">
+    <svg class="icon" viewBox="0 0 48 52" aria-hidden="true"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#27ae60"/><path d="M15 26 L21 32 L33 19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span class="caption">security-high</span>
+  </div>
+</div>
+
+<h2>Comparație</h2>
+<div class="compare">
+  <div class="box">
+    <h3>Acum — 3 niveluri Plasma</h3>
+    <p>Doar trei scuturi; Ridicat și Mediu folosesc aceeași culoare.</p>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#da4453"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>Critic <span class="pill">security-low</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#f67400"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>Ridicat + Mediu <span class="pill">security-medium</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#27ae60"/><path d="M15 26 L21 32 L33 19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>Scăzut + Secure <span class="pill">security-high</span></div>
+  </div>
+  <div class="box">
+    <h3>Propus — 4 niveluri + secure/unknown</h3>
+    <p>Fiecare bandă are propria culoare; forme diferite pentru accesibilitate.</p>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#fb7185"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>Critic <span class="pill">#fb7185</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#f97316"/><rect x="21.8" y="13.5" width="4.4" height="16" rx="2.2" fill="#fff"/><circle cx="24" cy="35" r="2.7" fill="#fff"/></svg>Ridicat <span class="pill">#f97316</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#facc15"/><rect x="14" y="25" width="20" height="4.4" rx="2.2" fill="#fff"/></svg>Mediu <span class="pill">#facc15</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#4ade80"/><circle cx="24" cy="26" r="3.2" fill="#fff"/></svg>Scăzut <span class="pill">#4ade80</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#22c55e"/><path d="M15 26 L21 32 L33 19" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>Secure <span class="pill">#22c55e</span></div>
+    <div class="row"><svg class="icon" viewBox="0 0 48 52"><path d="M24 2 L44 9 V23 C44 36 35 45 24 50 C13 45 4 36 4 23 V9 Z" fill="#94a3b8"/><text x="24" y="34" text-anchor="middle" font-family="Noto Sans, sans-serif" font-size="20" font-weight="700" fill="#fff">?</text></svg>Necunoscut <span class="pill">#94a3b8</span></div>
+  </div>
+</div>
+
+<div class="note">
+  <b>Notă:</b> acestea sunt iconițe SVG proprii. `Plasmoid.icon` primește un nume de iconiță, deci implementarea ar însemna să livrăm cele șase SVG-uri în pachetul appletului sau în tema de iconițe, apoi să alegem numele în funcție de bandă. <span class="warn">Ridicat</span> și <span class="warn">Mediu</span> sunt perechea cea mai apropiată la 22 px; dacă vrem separare maximă, păstrăm portocaliu saturat pentru Ridicat și galben pentru Mediu, ca în mockup.
+</div>
+</body>
+</html>

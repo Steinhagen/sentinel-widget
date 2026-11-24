@@ -158,3 +158,26 @@ package names dominate.
 vulnerable last step is outlined in the critical colour, and the hint sits in
 its own footer. 02 and 03 remain alternatives if the popup needs to be shorter
 or interactive.
+
+## Severity shields
+
+[severity-shields.html](severity-shields.html) · [overview](severity-shields.png)
+shows a custom SVG shield set with four severity colours, plus secure and
+unknown. The current Breeze mapping only has three security shields, so High
+and Medium share `security-medium` (orange).
+
+| State | Proposed colour | Symbol |
+| --- | --- | --- |
+| Critical | `#fb7185` red | exclamation |
+| High | `#f97316` orange | exclamation |
+| Medium | `#facc15` yellow | dash |
+| Low | `#4ade80` green | dot |
+| Secure | `#22c55e` green | check |
+| Unknown | `#94a3b8` grey | question mark |
+
+The gallery includes a 22 px panel strip and a current-vs-proposed comparison.
+High and Medium are the closest pair at panel size; the saturated orange and
+yellow keep them distinguishable.
+
+**Not implemented yet** — this needs six SVG files shipped with the applet or
+an icon theme, selected by the maximum severity in `Plasmoid.icon`.
