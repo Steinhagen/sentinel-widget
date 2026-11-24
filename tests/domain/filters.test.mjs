@@ -54,6 +54,8 @@ test("severity, fix and tracker filters compose", () => {
 test("package and origin drill-down use substrings", () => {
     assert.ok(apply(rows, { package: "brot" }).length >= 1);
     assert.ok(apply(rows, { origin: "imagemagick" }).length >= 1);
+    assert.ok(apply(rows, { origin: "sane-backends" }).length >= 1);
+    assert.ok(apply(rows, { origin: "ffmpeg-lib" }).length >= 1);
     assert.ok(apply(rows, { package: "brot", origin: "imagemagick" }).length >= 1);
 });
 

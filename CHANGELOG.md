@@ -145,7 +145,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   menu, and styled it as a flat button with a chevron.
 
 - Every package chip in an origin trail is clickable, not only the main
-  origin chip; clicking a step filters by that package and closes the overlay.
+  origin chip; clicking a step filters by that package's version-less name.
+  The origin search index now includes every raw and version-less chain node,
+  so a trail chip matches all findings whose paths contain it instead of only
+  findings whose origin name happens to match.
 - The origin hover card is more compact without losing the header icon or the
   richer step chips: the origin label and trail count share the header row,
   trail numbers are inline instead of a separate column, and the cards, chips

@@ -203,7 +203,7 @@ Rectangle {
                             MouseArea {
                                 anchors.fill: parent
                                 cursorShape: Qt.PointingHandCursor
-                                onClicked: root.originSelected(originChip.modelData)
+                                onClicked: root.originSelected(originChip.parts.name)
                             }
                         }
                     }

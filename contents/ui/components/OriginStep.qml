@@ -67,6 +67,6 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.selected(root.node)
+        onClicked: root.selected(root.parts.name)
     }
 }

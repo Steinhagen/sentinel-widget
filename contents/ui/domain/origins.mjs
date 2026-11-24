@@ -101,7 +101,35 @@ export function groupKeyOf(finding) {
 }
 
 export function searchTextOf(finding) {
-    return namesOf(finding).join(" ")
-        + " "
-        + chainText(finding);
+    const parts = [namesOf(finding).join(" "), chainText(finding)];
+
+    // Filtering a trail chip must match rows whose path contains that step.
+    // Index both the raw node and its version-less name, for every chain.
+    const chains = chainsOf(finding);
+    for (let c = 0; c < chains.length; ++c) {
+        const chain = chains[c];
+        if (!Array.isArray(chain)) {
+            continue;
+        }
+        for (let i = 0; i < chain.length; ++i) {
+            const node = String(chain[i] || "");
+            if (node.length === 0) {
+                continue;
+            }
+            parts.push(node);
+            parts.push(splitNode(node).name);
+        }
+    }
+
+    const normalized = normalizedChain(finding);
+    for (let i = 0; i < normalized.length; ++i) {
+        const node = normalized[i];
+        if (node.length === 0) {
+            continue;
+        }
+        parts.push(node);
+        parts.push(splitNode(node).name);
+    }
+
+    return parts.join(" ");
 }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chainText, groupKeyOf, namesOf, normalizedChain, primaryOf, splitNode } from "../../contents/ui/domain/origins.mjs";
+import { chainText, groupKeyOf, namesOf, normalizedChain, primaryOf, searchTextOf, splitNode } from "../../contents/ui/domain/origins.mjs";
 import { finding } from "../helpers/fixtures.mjs";
 
 test("missing origins are empty", () => {
@@ -50,4 +50,19 @@ test("origin step nodes split package names from versions", () => {
     assert.deepEqual(splitNode("python3.14-pydub-0.25.1"), { name: "python3.14-pydub", version: "0.25.1" });
     assert.deepEqual(splitNode("ffmpeg"), { name: "ffmpeg", version: "" });
     assert.deepEqual(splitNode("python3.14-pydub"), { name: "python3.14-pydub", version: "" });
+});
+
+test("origin search covers every raw and version-less trail step", () => {
+    const item = {
+        package: "ffmpeg",
+        version: "6.1.6",
+        origins: {
+            introduced_by: ["lutris-0.5.22"],
+            chain: ["lutris-0.5.22", "lutris-0.5.22-bwrap", "ffmpeg-6.1.6-lib"],
+            chains: [["lutris-0.5.22", "lutris-0.5.22-bwrap", "ffmpeg-6.1.6-lib"]]
+        }
+    };
+    const search = searchTextOf(item);
+    assert.ok(search.includes("lutris-0.5.22-bwrap"));
+    assert.ok(search.includes("ffmpeg-lib"));
 });
