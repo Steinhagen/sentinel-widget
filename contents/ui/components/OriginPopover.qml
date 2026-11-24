@@ -63,7 +63,7 @@ Rectangle {
         return Origins.splitNode(node).version;
     }
 
-    implicitWidth: Kirigami.Units.gridUnit * 22
+    implicitWidth: Kirigami.Units.gridUnit * 20
     implicitHeight: layout.implicitHeight
     radius: 14
     color: root.theme ? root.theme.tooltipBackground : Kirigami.Theme.backgroundColor
@@ -87,38 +87,12 @@ Rectangle {
             id: body
 
             Layout.fillWidth: true
-            Layout.margins: Kirigami.Units.gridUnit * 0.75
-            spacing: 10
+            Layout.margins: Kirigami.Units.gridUnit * 0.55
+            spacing: 7
 
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 10
-
-                Rectangle {
-                    Layout.preferredWidth: Kirigami.Units.gridUnit * 1.65
-                    Layout.preferredHeight: Layout.preferredWidth
-                    radius: 8
-                    color: root.theme
-                        ? Qt.rgba(root.theme.primaryColor.r,
-                            root.theme.primaryColor.g,
-                            root.theme.primaryColor.b, 0.12)
-                        : "transparent"
-                    border.width: 1
-                    border.color: root.theme
-                        ? Qt.rgba(root.theme.primaryColor.r,
-                            root.theme.primaryColor.g,
-                            root.theme.primaryColor.b, 0.28)
-                        : "transparent"
-
-                    PlasmaComponents3.Label {
-                        anchors.centerIn: parent
-                        text: "↳"
-                        color: root.theme ? root.theme.primaryColor : Kirigami.Theme.highlightColor
-                        font.bold: true
-                        font.pointSize: Math.max(9,
-                            Math.round(Kirigami.Theme.defaultFont.pointSize * 1.2))
-                    }
-                }
+                spacing: 8
 
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -145,12 +119,45 @@ Rectangle {
                             Math.round(Kirigami.Theme.defaultFont.pointSize * 1.05))
                     }
                 }
+
+                RowLayout {
+                    spacing: 5
+
+                    PlasmaComponents3.Label {
+                        text: root.labels ? root.labels.originTrails() : "TRAILS"
+                        color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
+                        font.bold: true
+                        font.family: Kirigami.Theme.smallFont.family
+                        font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
+                        font.letterSpacing: 0.8
+                    }
+
+                    Rectangle {
+                        Layout.preferredWidth: Math.max(16, countLabel.implicitWidth + 10)
+                        Layout.preferredHeight: 16
+                        radius: 8
+                        color: root.theme ? root.theme.chipBackground : "transparent"
+
+                        PlasmaComponents3.Label {
+                            id: countLabel
+
+                            objectName: "originChainCount"
+
+                            anchors.centerIn: parent
+                            text: root.chainCount
+                            color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
+                            font.bold: true
+                            font.family: Kirigami.Theme.smallFont.family
+                            font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
+                        }
+                    }
+                }
             }
 
             Flow {
                 Layout.fillWidth: true
                 Layout.preferredHeight: implicitHeight
-                spacing: 6
+                spacing: 5
 
                 Repeater {
                     model: root.originNames
@@ -164,9 +171,9 @@ Rectangle {
 
                         readonly property var parts: Origins.splitNode(modelData)
 
-                        width: chipRow.implicitWidth + 16
-                        height: chipRow.implicitHeight + 10
-                        radius: 8
+                        width: chipRow.implicitWidth + 12
+                        height: chipRow.implicitHeight + 6
+                        radius: 6
                         color: root.theme
                             ? Qt.rgba(root.theme.primaryColor.r,
                                 root.theme.primaryColor.g,
@@ -183,7 +190,7 @@ Rectangle {
                             id: chipRow
 
                             anchors.centerIn: parent
-                            spacing: 5
+                            spacing: 4
 
                             PlasmaComponents3.Label {
                                 text: originChip.parts.name
@@ -211,43 +218,9 @@ Rectangle {
                 }
             }
 
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 7
-
-                PlasmaComponents3.Label {
-                    text: root.labels ? root.labels.originTrails() : "TRAILS"
-                    color: root.theme ? root.theme.faintText : Kirigami.Theme.disabledTextColor
-                    font.bold: true
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Math.max(7, Kirigami.Theme.smallFont.pointSize - 1)
-                    font.letterSpacing: 0.8
-                }
-
-                Rectangle {
-                    Layout.preferredWidth: Math.max(16, countLabel.implicitWidth + 10)
-                    Layout.preferredHeight: 16
-                    radius: 8
-                    color: root.theme ? root.theme.chipBackground : "transparent"
-
-                    PlasmaComponents3.Label {
-                        id: countLabel
-
-                        objectName: "originChainCount"
-
-                        anchors.centerIn: parent
-                        text: root.chainCount
-                        color: root.theme ? root.theme.mutedText : Kirigami.Theme.disabledTextColor
-                        font.bold: true
-                        font.family: Kirigami.Theme.smallFont.family
-                        font.pointSize: Math.max(6, Kirigami.Theme.smallFont.pointSize - 1)
-                    }
-                }
-            }
-
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 7
+                spacing: 5
 
                 Repeater {
                     model: root.chains
@@ -259,8 +232,8 @@ Rectangle {
                         required property int index
 
                         Layout.fillWidth: true
-                        implicitHeight: chainRow.implicitHeight + 14
-                        radius: 9
+                        implicitHeight: chainRow.implicitHeight + 10
+                        radius: 8
                         color: root.theme ? root.theme.originRowBackground : "transparent"
                         border.width: 1
                         border.color: root.theme ? root.theme.hairline : "transparent"
@@ -269,14 +242,14 @@ Rectangle {
                             id: chainRow
 
                             anchors.fill: parent
-                            anchors.margins: 7
-                            spacing: 8
+                            anchors.margins: 5
+                            spacing: 6
 
                             Rectangle {
-                                Layout.preferredWidth: 18
-                                Layout.preferredHeight: 18
+                                Layout.preferredWidth: 16
+                                Layout.preferredHeight: 16
                                 Layout.alignment: Qt.AlignTop
-                                radius: 9
+                                radius: 8
                                 color: root.theme ? root.theme.chipBackground : "transparent"
 
                                 PlasmaComponents3.Label {
@@ -296,7 +269,7 @@ Rectangle {
 
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: implicitHeight
-                                spacing: 4
+                                spacing: 3
 
                                 Repeater {
                                     model: chainFlow.nodes.slice(0, -1)
@@ -338,7 +311,7 @@ Rectangle {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: hintRow.implicitHeight + 18
+            Layout.preferredHeight: hintRow.implicitHeight + 12
             color: root.theme ? root.theme.originFooterBackground : "transparent"
 
             Rectangle {
@@ -352,8 +325,8 @@ Rectangle {
                 id: hintRow
 
                 anchors.fill: parent
-                anchors.margins: 9
-                spacing: 7
+                anchors.margins: 6
+                spacing: 5
 
                 PlasmaComponents3.Label {
                     text: "↗"
