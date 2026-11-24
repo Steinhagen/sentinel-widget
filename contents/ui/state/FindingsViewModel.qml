@@ -393,7 +393,7 @@ QtObject {
     }
 
     function setGroupBy(mode) {
-        const value = ["none", "priority", "package", "origin"].indexOf(mode) >= 0
+        const value = ["none", "priority", "package", "cve", "origin"].indexOf(mode) >= 0
             ? mode : "none";
         if (vm.groupBy === value) {
             return;

@@ -615,7 +615,7 @@ QtObject {
             parts.push(summary);
         }
         parts.push(i18n("Scores and versions come from the scanned system; NixOS may already carry a backported fix."));
-        parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
+        parts.push(i18n("The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package, CVE or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."));
         parts.push(masterHelpText);
         parts.push(i18n("The CSV report and scan log are available from the widget's context menu."));
         return parts.join("\n\n");
@@ -900,6 +900,8 @@ QtObject {
             return i18n("Priority");
         case "package":
             return i18n("Package");
+        case "cve":
+            return i18n("CVE");
         case "origin":
             return i18n("Origin");
         default:
@@ -927,6 +929,8 @@ QtObject {
             return severityBandLabel(key || "unknown");
         case "package":
             return key && key.length > 0 ? key : i18n("Unknown package");
+        case "cve":
+            return key && key.length > 0 ? key : i18n("Unknown CVE");
         case "origin":
             return groupLabel(key);
         default:
@@ -1105,6 +1109,7 @@ QtObject {
         switch (groupBy) {
         case "priority":
         case "package":
+        case "cve":
         case "origin":
             return i18n("Group by: %1", groupColumnLabel(groupBy));
         default:
@@ -1118,10 +1123,12 @@ QtObject {
             return i18n("Grouped by priority");
         case "package":
             return i18n("Grouped by package");
+        case "cve":
+            return i18n("Grouped by CVE");
         case "origin":
             return i18n("Grouped by origin");
         default:
-            return i18n("Group findings by priority, package or origin");
+            return i18n("Group findings by priority, package, CVE or origin");
         }
     }
 
@@ -1135,6 +1142,10 @@ QtObject {
 
     function groupPackage() {
         return i18n("Package");
+    }
+
+    function groupCve() {
+        return i18n("CVE");
     }
 
     function groupOrigin() {

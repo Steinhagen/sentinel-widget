@@ -101,6 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   arrow showing the active sort direction.
 - Added a grouped findings view with Priority, Package and Origin section
   headers. Each finding keeps the two-line row layout.
+- Added a **CVE** grouping mode: findings with the same CVE (or OSV) id are
+  shown under one header, with the usual expand/collapse and group sorting.
 - Added a current-state **Group by** menu button, individually collapsible
   group headers, a global expand/collapse control, and a sortable group column
   bar.

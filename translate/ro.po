@@ -1243,6 +1243,22 @@ msgstr "Click pe rândul de origine pentru a filtra toate constatările."
 msgid "Click an origin to filter all findings."
 msgstr "Click pe o origine pentru a filtra toate constatările."
 
+#: contents/ui/components/Labels.qml
+msgid "Unknown CVE"
+msgstr "CVE necunoscut"
+
+#: contents/ui/components/Labels.qml
+msgid "Grouped by CVE"
+msgstr "Grupat după CVE"
+
+#: contents/ui/components/Labels.qml
+msgid "Group findings by priority, package, CVE or origin"
+msgstr "Grupează constatările după prioritate, pachet, CVE sau origine"
+
+#: contents/ui/components/Labels.qml
+msgid "The second line shows the dependency chain that introduced the finding. Click it to filter to that origin, or use the “Group by” menu to group the list by priority, package, CVE or origin. Right-click a row for tracker, fix and copy actions. Origin data is written by the scan service."
+msgstr "A doua linie arată lanțul de dependențe care a introdus constatarea. Click pe el pentru a filtra după acea origine sau folosește meniul „Grupează” pentru a grupa lista după prioritate, pachet, CVE sau origine. Click dreapta pe un rând pentru acțiuni de tracker, remediere și copiere. Datele de origine sunt scrise de serviciul de scanare."
+
 #~ msgid "%1 false positive hidden"
 #~ msgid_plural "%1 false positives hidden"
 #~ msgstr[0] "%1 pozitiv fals ascuns"

@@ -179,6 +179,14 @@ TestCase {
         const packageHeaders = env.vm.rows.filter(row => row.rowType === "group");
         verify(packageHeaders.length > 0);
 
+        env.vm.setGroupBy("cve");
+        compare(env.vm.rows[0].rowType, "group");
+        compare(env.vm.rows[0].groupBy, "cve");
+        const cveHeaders = env.vm.rows.filter(row => row.rowType === "group");
+        verify(cveHeaders.length > 0);
+        verify(cveHeaders.every(row => row.key.length > 0));
+        compare(env.vm.visibleCount, 13);
+
         const reset = testCase.spy(env.vm, "rowsReset");
         env.vm.toggleGroupsExpanded();
         compare(env.vm.groupsExpanded, false);

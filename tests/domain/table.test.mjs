@@ -143,6 +143,17 @@ test("grouping modes use priority, package and origin keys", () => {
     const origins = flattenGroups(rows, "origin", true);
     assert.ok(origins.filter((entry) => entry.rowType === "group")
         .every((entry) => entry.groupBy === "origin"));
+
+    const cves = flattenGroups(rows, "cve", true);
+    const cveHeaders = cves.filter((entry) => entry.rowType === "group");
+    assert.ok(cveHeaders.length > 0);
+    assert.ok(cveHeaders.every((entry) => entry.groupBy === "cve"));
+    assert.equal(findingCount(cves), rows.length);
+    assert.ok(cves.filter((entry) => entry.rowType === "finding")
+        .every((entry) => {
+            const header = cveHeaders.find((item) => item.key === entry.id);
+            return header !== undefined;
+        }));
 });
 
 test("collapsed groups keep only headers and full counts", () => {

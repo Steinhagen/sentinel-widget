@@ -177,6 +177,8 @@ export function rowGroupKeyOf(row, groupBy) {
         return row.package || "";
     case "origin":
         return row.origin && row.origin.groupKey ? row.origin.groupKey : "";
+    case "cve":
+        return row.id || "";
     default:
         return "";
     }

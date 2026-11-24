@@ -19,7 +19,7 @@ the same revision, so the two cannot drift apart.
 - Compact click-to-sort header for CVSS, CVE, Package and Fix, with a
   direction arrow.
 - Flat list by default, with a current-state **Group by** split button
-  (Flat / Priority / Package / Origin), individually clickable group headers
+  (Flat / Priority / Package / CVE / Origin), individually clickable group headers
   and a global expand/collapse control.
 - The grouped view adds a second header bar for expand/collapse, group-name
   sorting and finding-count sorting.
@@ -168,7 +168,7 @@ Use the summary cards for quick severity and fix-state filtering, or the
 **Filter** popover to enter a CVE, package or origin manually. Clicking a
 package or origin in a finding uses the same filters. Every active filter is
 shown as a removable chip below the toolbar, with a **Clear filters** action.
-Use the **Group by** split button to choose Flat, Priority, Package or Origin.
+Use the **Group by** split button to choose Flat, Priority, Package, CVE or Origin.
 Click a section header to show or hide that group, or use the plus/minus
 control in the group bar to show or hide every group at once. The group bar
 also sorts groups by name or finding count.

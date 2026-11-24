@@ -151,6 +151,12 @@ RowLayout {
             onTriggered: root.groupBySelected("package")
         }
         QQC2.MenuItem {
+            text: root.labels ? root.labels.groupCve() : ""
+            checkable: true
+            checked: root.groupBy === "cve"
+            onTriggered: root.groupBySelected("cve")
+        }
+        QQC2.MenuItem {
             text: root.labels ? root.labels.groupOrigin() : ""
             checkable: true
             checked: root.groupBy === "origin"
