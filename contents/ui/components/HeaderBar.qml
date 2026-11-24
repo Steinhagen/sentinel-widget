@@ -10,8 +10,9 @@ PlasmaExtras.PlasmoidHeading {
 
     property string postureLabel: ""
     property string stateSummary: ""
-    property string brandIcon: "sentinel-shield"
+    property string stateIcon: "sentinel-severity-unknown"
     property color stateColor: Kirigami.Theme.disabledTextColor
+    property color shieldColor: Kirigami.Theme.disabledTextColor
     property string lastScanLabel: ""
     property string lastScanTooltip: ""
     property string detailTooltip: ""
@@ -49,13 +50,17 @@ PlasmaExtras.PlasmoidHeading {
                 Layout.preferredWidth: Kirigami.Units.gridUnit * 2
                 Layout.preferredHeight: Kirigami.Units.gridUnit * 2
                 radius: 10
-                color: root.theme ? root.theme.primaryColor : Kirigami.Theme.highlightColor
+                color: Qt.rgba(root.shieldColor.r, root.shieldColor.g,
+                    root.shieldColor.b, 0.16)
+                border.width: 1
+                border.color: Qt.rgba(root.shieldColor.r, root.shieldColor.g,
+                    root.shieldColor.b, 0.38)
 
                 Kirigami.Icon {
                     anchors.centerIn: parent
                     width: Math.round(parent.width * 0.55)
                     height: width
-                    source: root.brandIcon
+                    source: root.stateIcon
                 }
             }
 

@@ -148,8 +148,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `contents/icons`, installed into the hicolor icon theme. The panel icon
   shows critical/high/medium/low/secure/unknown with distinct colours and
   symbols.
-- The header keeps a white brand shield on the blue tile; severity stays in
-  the panel, the score and the posture pill.
+- The header tile is tinted with the severity colour and shows the matching
+  severity shield; the white brand shield on the blue tile remains an
+  alternative.
 
 ### Fixed
 
@@ -157,8 +158,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   critical, orange for high, yellow for medium, green for low; secure is a
   green check and unknown is grey. Previously every vulnerable report used
   the red `security-low` shield.
-- The header logo stays white on the blue brand tile instead of showing the
-  coloured severity shield, which clashed with the tile.
+- The header tile now uses a severity tint instead of the blue brand tile,
+  avoiding the clash between the coloured shield and the blue background.
 - Expanding or collapsing a group keeps the findings list at the same scroll
   position instead of jumping back to the top.
 - Fixed the tracker pending count and the tracker polling gate.

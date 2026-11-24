@@ -190,6 +190,7 @@ the Nix applet package installs them into `share/icons/hicolor/scalable/status`.
 coloured severity shield on the blue brand tile with a white brand shield and a
 severity-tinted tile.
 
-**Implemented:** the middle option — a white `sentinel-shield` logo on the blue
-tile, with the exclamation cut out so the tile colour shows through. The panel
-keeps the coloured severity shields; the header stays brand.
+**Implemented:** the third option — the header tile is tinted with the severity
+colour and shows the matching severity shield. The white `sentinel-shield`
+logo on the blue tile remains an alternative (and its icon asset is still
+installed).

@@ -85,7 +85,18 @@ PlasmaExtras.Representation {
         postureLabel: root.labels.postureLabel(root.vm.state, root.store.hasReport)
         stateSummary: root.labels.stateSummary(root.store.report,
             root.store.scanning, root.vm.affectedPackages, root.vm.maxSeverity)
+        stateIcon: root.labels.stateIcon(root.vm.state, root.store.hasReport,
+            root.vm.maxSeverity)
         stateColor: root.theme.stateColor(root.vm.state, root.store.hasReport)
+        shieldColor: {
+            if (!root.store.hasReport || root.vm.state === "unknown") {
+                return root.theme.unknownColor;
+            }
+            if (root.vm.state === "secure") {
+                return root.theme.lowColor;
+            }
+            return root.theme.severityColor(root.vm.maxSeverity);
+        }
         lastScanLabel: root.labels.lastScanLabel(root.vm.lastScanAge)
         lastScanTooltip: root.labels.lastScanTooltip(root.store.report
             ? root.store.report.scannedAtMs : null)
