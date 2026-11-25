@@ -13,7 +13,7 @@
     "Id": "io.github.steinhagen.sentinel",
     "License": "MIT",
     "Name": "Sentinel",
-    "Version": "0.2.0",
+    "Version": "0.3.0",
     "Website": "https://github.com/Steinhagen/sentinel-widget"
   },
   "X-Plasma-API-Minimum-Version": "6.0"

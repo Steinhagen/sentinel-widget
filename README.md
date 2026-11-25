@@ -122,7 +122,7 @@ The applet is published as **Sentinel**:
 
 - `KPlugin.Id`: `io.github.steinhagen.sentinel`
 - `KPlugin.Name`: `Sentinel`
-- `KPlugin.Version`: `0.2.0`
+- `KPlugin.Version`: `0.3.0`
 - Repository: `git@github.com:Steinhagen/sentinel-widget.git`
 
 `default.nix` installs the package under the matching
