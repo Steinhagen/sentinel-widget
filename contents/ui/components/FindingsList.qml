@@ -139,6 +139,12 @@ Rectangle {
                 secondaryKey: "origin"
             }
         ];
+        columns.push({
+            key: "master",
+            width: root.fixPillWidth,
+            fill: false,
+            align: "center"
+        });
         if (root.triageColumnVisible) {
             columns.push({
                 key: "review",
@@ -147,12 +153,6 @@ Rectangle {
                 align: "center"
             });
         }
-        columns.push({
-            key: "master",
-            width: root.fixPillWidth,
-            fill: false,
-            align: "center"
-        });
         return columns;
     }
 

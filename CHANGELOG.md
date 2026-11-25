@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The Remediation column now comes before the Triage column, placing the
+  triage badge next to the hide/restore eye. Both list headers and finding
+  rows use the same order.
 - The Triage column now stays visible in the normal findings view as well as
   the hidden view, so a restored finding keeps its verdict visible.
 - The hidden-findings count opens a dedicated hidden view. It lists the

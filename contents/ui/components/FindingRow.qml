@@ -269,6 +269,79 @@ PlasmaComponents3.ItemDelegate {
                 }
             }
 
+            Rectangle {
+                id: fixPill
+
+                readonly property color tone: root.theme && root.fix
+                    ? root.theme.fixColor(root.fix.bucket)
+                    : Kirigami.Theme.disabledTextColor
+
+                visible: root.fixText.length > 0
+                Layout.preferredHeight: fixPillLabel.implicitHeight
+                    + Kirigami.Units.smallSpacing
+                Layout.preferredWidth: root.fixPillWidth
+                Layout.minimumWidth: root.fixPillWidth
+                Layout.maximumWidth: root.fixPillWidth
+                radius: 99
+                color: root.theme && root.fix
+                    ? root.theme.fixPillBackground(root.fix.bucket)
+                    : "transparent"
+                border.width: 1
+                border.color: root.theme && root.fix
+                    ? root.theme.fixPillBorder(root.fix.bucket)
+                    : "transparent"
+
+                PlasmaComponents3.Label {
+                    id: fixPillLabel
+
+                    anchors.centerIn: parent
+                    text: root.fixText
+                    color: fixPill.tone
+                    font.family: Kirigami.Theme.smallFont.family
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                }
+
+                Timer {
+                    id: fixHoverTimer
+
+                    interval: root.previewDelay
+                    repeat: false
+                    onTriggered: {
+                        if (!fixPillMouse.containsMouse || !root.rowData) {
+                            return;
+                        }
+                        const point = fixPill.mapToItem(null, 0, 0);
+                        root.fixPreviewRequested(root.rowData, {
+                            x: point.x,
+                            y: point.y,
+                            width: fixPill.width,
+                            height: fixPill.height
+                        });
+                    }
+                }
+
+                MouseArea {
+                    id: fixPillMouse
+
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: root.fixUrl ? Qt.PointingHandCursor : Qt.ArrowCursor
+                    onClicked: {
+                        if (root.fixUrl) {
+                            root.openFixRequested(root.fixUrl);
+                        }
+                    }
+
+                    onContainsMouseChanged: {
+                        if (containsMouse && root.rowData) {
+                            fixHoverTimer.restart();
+                        } else {
+                            fixHoverTimer.stop();
+                        }
+                    }
+                }
+            }
+
             Item {
                 id: triageColumn
 
@@ -359,79 +432,6 @@ PlasmaComponents3.ItemDelegate {
                 QQC2.ToolTip.text: root.triageTooltip
                 QQC2.ToolTip.visible: triageHover.hovered
                     && QQC2.ToolTip.text.length > 0
-            }
-
-            Rectangle {
-                id: fixPill
-
-                readonly property color tone: root.theme && root.fix
-                    ? root.theme.fixColor(root.fix.bucket)
-                    : Kirigami.Theme.disabledTextColor
-
-                visible: root.fixText.length > 0
-                Layout.preferredHeight: fixPillLabel.implicitHeight
-                    + Kirigami.Units.smallSpacing
-                Layout.preferredWidth: root.fixPillWidth
-                Layout.minimumWidth: root.fixPillWidth
-                Layout.maximumWidth: root.fixPillWidth
-                radius: 99
-                color: root.theme && root.fix
-                    ? root.theme.fixPillBackground(root.fix.bucket)
-                    : "transparent"
-                border.width: 1
-                border.color: root.theme && root.fix
-                    ? root.theme.fixPillBorder(root.fix.bucket)
-                    : "transparent"
-
-                PlasmaComponents3.Label {
-                    id: fixPillLabel
-
-                    anchors.centerIn: parent
-                    text: root.fixText
-                    color: fixPill.tone
-                    font.family: Kirigami.Theme.smallFont.family
-                    font.pointSize: Kirigami.Theme.smallFont.pointSize
-                }
-
-                Timer {
-                    id: fixHoverTimer
-
-                    interval: root.previewDelay
-                    repeat: false
-                    onTriggered: {
-                        if (!fixPillMouse.containsMouse || !root.rowData) {
-                            return;
-                        }
-                        const point = fixPill.mapToItem(null, 0, 0);
-                        root.fixPreviewRequested(root.rowData, {
-                            x: point.x,
-                            y: point.y,
-                            width: fixPill.width,
-                            height: fixPill.height
-                        });
-                    }
-                }
-
-                MouseArea {
-                    id: fixPillMouse
-
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: root.fixUrl ? Qt.PointingHandCursor : Qt.ArrowCursor
-                    onClicked: {
-                        if (root.fixUrl) {
-                            root.openFixRequested(root.fixUrl);
-                        }
-                    }
-
-                    onContainsMouseChanged: {
-                        if (containsMouse && root.rowData) {
-                            fixHoverTimer.restart();
-                        } else {
-                            fixHoverTimer.stop();
-                        }
-                    }
-                }
             }
 
             PlasmaComponents3.ToolButton {
