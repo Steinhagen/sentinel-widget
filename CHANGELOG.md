@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Ignored findings now have their own settings category. The page lists every
+  CVE/package/version entry with a per-entry restore button, plus Restore all;
+  old versionless entries show “all versions”.
 - Restore a padded click target around the hide/restore eye so its hover and
   focus box no longer overlaps the icon. The triage column gets a matching
   left margin, keeping the two visual gaps around the badge equal.

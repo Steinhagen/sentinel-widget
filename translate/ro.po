@@ -1012,6 +1012,14 @@ msgstr "Ascunde constatările clasificate drept pozitive false"
 msgid "Findings whose CVE does not describe the installed package are hidden. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. Findings it could not verify stay visible."
 msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse. Verdictele provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Constatările pe care nu le-a putut verifica rămân vizibile."
 
+#: contents/config/config.qml
+msgid "Ignored findings"
+msgstr "Constatări ignorate"
+
+#: contents/ui/configIgnored.qml
+msgid "No ignored findings."
+msgstr "Nu există constatări ignorate."
+
 #: contents/ui/configGeneral.qml
 msgid "Ignored findings:"
 msgstr "Constatări ignorate:"
