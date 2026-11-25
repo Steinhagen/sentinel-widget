@@ -272,4 +272,5 @@ the remediation pill. It stays visible in a muted colour, brightens on hover
 and shows the “Ascunde ca fals pozitiv” tooltip; clicking it uses the same
 ignore action as the row context menu.
 
-**Not implemented yet** — proposal for review.
+**Implemented** — `FindingRow` now has the Breeze `view-hidden` quick action
+at the far right, and the header reserves the matching empty slot.

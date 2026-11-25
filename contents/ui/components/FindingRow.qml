@@ -16,6 +16,8 @@ PlasmaComponents3.ItemDelegate {
     property real cveWidth: Kirigami.Units.gridUnit * 11
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
     property real triageWidth: 0
+    property real hideActionWidth: Kirigami.Units.iconSizes.small
+        + Kirigami.Units.smallSpacing * 2
     // Both hover cards (origin trails and fix details) use the same delay.
     readonly property int previewDelay: 1200
     signal openFinding(string url)
@@ -29,6 +31,9 @@ PlasmaComponents3.ItemDelegate {
     signal openMasterSourceRequested(string url)
     signal nixpkgsSearchRequested(string packageName)
     signal ignoreRequested(var finding)
+
+    // Exposed for tests and keyboard/accessibility wiring.
+    readonly property alias hideButton: hideButton
 
     readonly property var fix: root.rowData ? root.rowData.fix : null
     readonly property string fixText: root.rowData && root.labels
@@ -425,6 +430,42 @@ PlasmaComponents3.ItemDelegate {
                         }
                     }
                 }
+            }
+
+            PlasmaComponents3.ToolButton {
+                id: hideButton
+
+                objectName: "hideFindingButton"
+                visible: !!(root.rowData && root.rowData.id && root.rowData.package)
+                Layout.preferredWidth: root.hideActionWidth
+                Layout.minimumWidth: root.hideActionWidth
+                Layout.maximumWidth: root.hideActionWidth
+                Layout.preferredHeight: root.hideActionWidth
+                Layout.minimumHeight: root.hideActionWidth
+                Layout.maximumHeight: root.hideActionWidth
+                flat: true
+                display: QQC2.AbstractButton.IconOnly
+                icon.name: "view-hidden"
+                icon.width: Kirigami.Units.iconSizes.small
+                icon.height: Kirigami.Units.iconSizes.small
+                icon.color: root.theme
+                    ? (hovered ? root.theme.textColor : root.theme.mutedText)
+                    : Kirigami.Theme.textColor
+                leftPadding: 0
+                rightPadding: 0
+                topPadding: 0
+                bottomPadding: 0
+                focusPolicy: Qt.NoFocus
+                Accessible.name: root.labels ? root.labels.ignoreFindingText() : ""
+                onClicked: {
+                    if (root.rowData) {
+                        root.ignoreRequested(root.rowData);
+                    }
+                }
+
+                QQC2.ToolTip.text: root.labels ? root.labels.ignoreFindingText() : ""
+                QQC2.ToolTip.visible: hovered
+                    && QQC2.ToolTip.text.length > 0
             }
         }
 

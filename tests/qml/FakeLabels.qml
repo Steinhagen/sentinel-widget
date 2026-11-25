@@ -120,6 +120,7 @@ QtObject {
     function copyCveText() { return "cve"; }
     function copyPackageText() { return "package"; }
     function copyFixUrlText() { return "fixurl"; }
+    function ignoreFindingText() { return "Ignore this finding (false positive)"; }
     function searchNixpkgsText(name) { return "search " + name; }
     function groupTitle(groupBy, key) {
         return key;

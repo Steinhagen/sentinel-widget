@@ -92,6 +92,9 @@ Rectangle {
         text: root.labels ? root.labels.triageHeaderText() : "Triage"
     }
 
+    readonly property real hideActionWidth: Kirigami.Units.iconSizes.small
+        + Kirigami.Units.smallSpacing * 2
+
     readonly property real fixPillWidth: Math.max(
         metricFixed.width,
         metricStaging.width,
@@ -364,6 +367,10 @@ Rectangle {
         }
 
         Item {
+            Layout.preferredWidth: root.hideActionWidth
+        }
+
+        Item {
             Layout.preferredWidth: findingsList.rightMargin
         }
     }
@@ -401,6 +408,7 @@ Rectangle {
             cveWidth: root.cveColumnWidth
             fixPillWidth: root.fixPillWidth
             triageWidth: root.triageColumnWidth
+            hideActionWidth: root.hideActionWidth
 
             onOpenFinding: (url) => root.openFinding(url)
             onFilterPackageRequested: (name) => root.filterPackageRequested(name)

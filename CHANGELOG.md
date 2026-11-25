@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Each finding row now has a `view-hidden` quick action at its far right.
+  It uses the same ignore path as the context menu and shows the existing
+  false-positive tooltip; the list header reserves the same empty slot.
 - The applet no longer shows the raw scan report while the tracker/triage pass
   is still running: a report is held back until its triage verdicts are
   embedded. The false "The last scan did not finish" warning is gone; tracker
