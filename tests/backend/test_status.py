@@ -93,6 +93,33 @@ OPENSSL_NIX = (
     "https://github.com/NixOS/nixpkgs/blob/0123456789abcdef0123456789abcdef01234567/"
     "pkgs/development/libraries/openssl/default.nix#L1"
 )
+ALSA_PATCH = "f84cd4ced7b36fddb8e4ee24404cf7c091d27020"
+ALSA_NIX = (
+    "https://github.com/NixOS/nixpkgs/blob/0123456789abcdef0123456789abcdef01234567/"
+    "pkgs/by-name/al/alsa-lib/package.nix#L50"
+)
+ALSA_ENTRY = {
+    "affected_products": [{
+        "name": "alsa-lib",
+        "version_constraints": [
+            ["affected", "=<1.2.16.1"],
+            ["unaffected", "==" + ALSA_PATCH],
+        ],
+    }],
+}
+ALSA_BRANCHES = {
+    "master": {
+        "version": "1.2.16.1",
+        "status": "unknown",
+        "src_position": ALSA_NIX,
+    },
+    "release-26.05": {
+        "version": "1.2.15.3",
+        "status": "unknown",
+        "src_position": ALSA_NIX,
+    },
+}
+
 BISON_NIX = (
     "https://github.com/NixOS/nixpkgs/blob/0123456789abcdef0123456789abcdef01234567/"
     "pkgs/by-name/bi/bison/package.nix#L1"
@@ -286,6 +313,44 @@ class BranchInferenceTests(unittest.TestCase):
             entry, {"package": "bison"}, branches, probed, None,
             "nixos-unstable")
         self.assertIsNone(fix["fix_state"])
+
+
+class PatchBackportTests(unittest.TestCase):
+    """A branch containing the upstream fix hash is fixed by backport."""
+
+    def test_master_patch_is_unaffected_while_release_is_not(self):
+        probed = {
+            "pkgs/by-name/al/alsa-lib/package.nix": {
+                "master": {
+                    "version": "1.2.16.1",
+                    "ref": "master",
+                    "line": 16,
+                    "hashes": [ALSA_PATCH],
+                },
+                "release-26.05": {
+                    "version": "1.2.15.3",
+                    "ref": "release-26.05",
+                    "line": 55,
+                    "hashes": [],
+                },
+            },
+        }
+        rows, _ = STATUS.branch_rows(
+            ALSA_ENTRY, {"package": "alsa-lib"}, ALSA_BRANCHES, probed)
+        master = next(row for row in rows if row["name"] == "master")
+        release = next(row for row in rows if row["name"] == "release-26.05")
+        self.assertTrue(master["patched"])
+        self.assertEqual(master["state"], "unaffected")
+        self.assertTrue(master["url"].endswith("#L16"))
+        self.assertFalse(release["patched"])
+        self.assertEqual(release["state"], "affected")
+        self.assertTrue(release["url"].endswith("#L55"))
+
+        fix = STATUS.fix_in_progress(
+            ALSA_ENTRY, {"package": "alsa-lib"}, ALSA_BRANCHES, probed,
+            None, "nixos-unstable")
+        self.assertEqual(fix["fix_state"], "in-master")
+        self.assertEqual(fix["fix_branch"], "master")
 
 
 if __name__ == "__main__":

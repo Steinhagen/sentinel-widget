@@ -175,6 +175,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Branch verification now detects upstream fix hashes in the Nixpkgs package's
+  `patches` list. A branch at the same version is `unaffected` when it carries
+  the tracker's fix commit, so `alsa-lib` master is fixed by a backport while
+  release-26.05 remains affected. Master and release branches are probed at
+  their current heads instead of trusting the tracker's stale `src_position`.
 - Branch rows in the fix card are now clickable and open the package file at
   the version line on the selected branch. Master/release rows use the
   tracker's source-position anchor; channels and staging rows use the line
