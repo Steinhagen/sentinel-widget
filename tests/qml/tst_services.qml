@@ -144,6 +144,20 @@ TestCase {
         compare(JSON.parse(ignores.withIgnoredPair("CVE-2026-1", "ffmpeg")).length, 2);
         ignores.destroy();
 
+        const versioned = testCase.createService("AppSettings.qml", {
+            triageIgnore: "[]"
+        });
+        const first = JSON.parse(versioned.withIgnoredPair(
+            "CVE-2026-1", "ffmpeg", "6.1.6"));
+        compare(first.length, 1);
+        compare(first[0].version, "6.1.6");
+        versioned.triageIgnore = JSON.stringify(first);
+        const second = JSON.parse(versioned.withIgnoredPair(
+            "CVE-2026-1", "ffmpeg", "6.1.7"));
+        compare(second.length, 2);
+        compare(second[1].version, "6.1.7");
+        versioned.destroy();
+
         const clock = testCase.createService("Clock.qml", { running: false });
         clock.now = 42;
         compare(clock.now, 42);

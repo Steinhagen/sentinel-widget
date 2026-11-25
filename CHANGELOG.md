@@ -175,6 +175,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Ignoring a finding now records its version, so hiding one `ffmpeg 6.1.6`
+  row no longer hides the 8.1.3 and 9.0.2 rows. A package bump makes the
+  finding visible again for review. Old versionless ignores stay package-wide,
+  and the settings page lists each entry with its version and a restore action.
 - Each finding row now has a `view-hidden` quick action at its far right.
   It uses the same ignore path as the context menu and shows the existing
   false-positive tooltip; the list header reserves the same empty slot.

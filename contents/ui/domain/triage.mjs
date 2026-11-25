@@ -152,11 +152,19 @@ export function isIgnored(finding, ignoredPairs) {
     }
     for (let i = 0; i < ignoredPairs.length; ++i) {
         const pair = ignoredPairs[i];
-        if (pair
-                && stringOf(pair.cve) === stringOf(finding.id)
-                && stringOf(pair.package) === stringOf(finding.package)) {
-            return true;
+        if (!pair
+                || stringOf(pair.cve) !== stringOf(finding.id)
+                || stringOf(pair.package) !== stringOf(finding.package)) {
+            continue;
         }
+        const wantedVersion = stringOf(pair.version);
+        if (wantedVersion.length > 0
+                && wantedVersion !== stringOf(finding.version)) {
+            // A versioned ignore only hides the exact row that was ignored.
+            // A package bump makes the finding visible again for review.
+            continue;
+        }
+        return true;
     }
     return false;
 }

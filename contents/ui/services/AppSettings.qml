@@ -10,7 +10,8 @@ QtObject {
     property bool triageEnabled: true
     property bool hideUnverified: true
     property bool hideOsv: true
-    // JSON array of { cve, package } pairs ignored from the applet.
+    // JSON array of { cve, package, version } entries ignored from the
+    // applet. Entries without a version are package-wide (old format).
     property string triageIgnore: "[]"
 
     readonly property var ignoredPairs: {
@@ -23,15 +24,25 @@ QtObject {
         }
     }
 
-    /** The ignore list with one pair appended, or the unchanged list. */
-    function withIgnoredPair(cve, packageName) {
+    /** The ignore list with one versioned entry appended, or unchanged. */
+    function withIgnoredPair(cve, packageName, version) {
         const list = settings.ignoredPairs.slice();
+        const wantedVersion = String(version || "");
         for (let i = 0; i < list.length; ++i) {
-            if (list[i] && list[i].cve === cve && list[i].package === packageName) {
+            const entry = list[i];
+            if (!entry || entry.cve !== cve || entry.package !== packageName) {
+                continue;
+            }
+            // An old package-wide entry already covers every version.
+            if (!entry.version || entry.version === wantedVersion) {
                 return settings.triageIgnore || "[]";
             }
         }
-        list.push({ cve: cve, package: packageName });
+        const entry = { cve: cve, package: packageName };
+        if (wantedVersion.length > 0) {
+            entry.version = wantedVersion;
+        }
+        list.push(entry);
         return JSON.stringify(list);
     }
 

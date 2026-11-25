@@ -1029,6 +1029,18 @@ msgid "Use “Ignore this finding” in a row's context menu to hide a finding t
 msgstr "Folosiți „Ignoră această constatare” din meniul contextual al unui rând pentru a ascunde o constatare pe care scanerele au asociat-o pachetului greșit. Constatările ignorate rămân ascunse până când le restaurați aici."
 
 #: contents/ui/configGeneral.qml
+msgid "Restore this finding"
+msgstr "Restaurează această constatare"
+
+#: contents/ui/configGeneral.qml
+msgid "all versions"
+msgstr "toate versiunile"
+
+#: contents/ui/configGeneral.qml
+msgid "Use “Ignore this finding” in a row's context menu or the crossed-eye action to hide a finding the scanners matched to the wrong package. A version-scoped ignore only hides that exact version; it reappears after a package bump so it can be reviewed again."
+msgstr "Folosiți „Ignore this finding” din meniul contextual sau acțiunea cu ochiul tăiat pentru a ascunde o constatare pe care scanerele au asociat-o greșit pachetului. O ignorare pe versiune ascunde doar versiunea exactă; constatarea reapare după o actualizare a pachetului, pentru a fi reverificată."
+
+#: contents/ui/configGeneral.qml
 msgid "Tracker API token:"
 msgstr "Token API pentru tracker:"
 

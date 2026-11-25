@@ -176,6 +176,22 @@ test("a pair ignored from the applet is suppressed without a report", () => {
     assert.equal(suppressedCount(findings, null, false, pairs), 1);
 });
 
+test("a versioned ignore only hides that exact version", () => {
+    const findings = [
+        { id: "CVE-2026-1", package: "ffmpeg", version: "6.1.6" },
+        { id: "CVE-2026-1", package: "ffmpeg", version: "6.1.7" },
+    ];
+    const versioned = [{ cve: "CVE-2026-1", package: "ffmpeg", version: "6.1.6" }];
+    assert.equal(isIgnored(findings[0], versioned), true);
+    assert.equal(isIgnored(findings[1], versioned), false);
+    assert.equal(visibleFindings(findings, null, true, versioned).length, 1);
+
+    // Old entries without a version keep the package-wide behaviour.
+    const legacy = [{ cve: "CVE-2026-1", package: "ffmpeg" }];
+    assert.equal(isIgnored(findings[0], legacy), true);
+    assert.equal(isIgnored(findings[1], legacy), true);
+});
+
 test("suppressedCount counts ignores but not disabled verdicts", () => {
     const parsed = parseTriageText(JSON.stringify(report));
     const pairs = [{ cve: "CVE-2021-24028", package: "thrift" }];

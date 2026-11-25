@@ -138,7 +138,7 @@ PlasmoidItem {
         }
         const config = Plasmoid.configuration;
         config.triageIgnore = appletSettings.withIgnoredPair(
-            String(finding.id), String(finding.package));
+            String(finding.id), String(finding.package), String(finding.version || ""));
         if (typeof config.writeConfig === "function") {
             config.writeConfig();
         }
