@@ -105,6 +105,32 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_holds_a_report_until_triage_is_ready() {
+        const env = testCase.makeStore();
+        env.source.deliver(testCase.loadText("status-v7.json"), "");
+        const before = env.store.report;
+        const raw = JSON.parse(testCase.loadText("status-v7.json"));
+        raw.scanned_at = "2026-11-22 17:06 EET";
+        raw.scanned_at_iso = "2026-11-22T17:06:35+02:00";
+        raw.scanned_at_epoch += 60;
+        raw.triage_ready = false;
+        raw.triage_failed = false;
+        env.source.deliver(JSON.stringify(raw), "");
+        compare(env.store.report, before);
+        verify(env.store.deferredReport !== null);
+        raw.triage_ready = true;
+        env.source.deliver(JSON.stringify(raw), "");
+        verify(env.store.report !== before);
+        compare(env.store.report.scannedAtMs, 1795359995000);
+        verify(env.store.deferredReport === null);
+
+        env.store.destroy();
+        env.source.destroy();
+        env.service.destroy();
+        env.client.destroy();
+        env.clock.destroy();
+    }
+
     function test_scan_start_and_finish() {
         const env = testCase.makeStore();
         const started = testCase.spy(env.store, "scanStarted");

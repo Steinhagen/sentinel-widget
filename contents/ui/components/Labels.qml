@@ -1274,8 +1274,8 @@ QtObject {
     }
 
     function trackerWarningText(store) {
-        if (store.trackerBusy && !store.serviceActive) {
-            return i18n("The last scan did not finish. Scan again to complete it.");
+        if (store.report && store.report.triageFailed) {
+            return i18n("The triage pass failed; showing the last verdicts.");
         }
         return trackerProgressText(store.progress);
     }

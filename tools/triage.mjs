@@ -1470,6 +1470,9 @@ async function main() {
         // never sees a half-written status.json.
         const raw = JSON.parse(await readFile(options.status, "utf8"));
         const updated = embedVerdicts(raw, results);
+        raw.triage_ready = true;
+        raw.triage_failed = false;
+        raw.triage_updated_at = new Date().toISOString();
         const temporary = `${options.status}.tmp`;
         await writeFile(temporary, `${JSON.stringify(raw, null, 2)}\n`);
         await rename(temporary, options.status);

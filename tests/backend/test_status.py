@@ -1,7 +1,9 @@
 """Backend rules that are easy to get wrong: tracker package matching."""
 
 import importlib.util
+import json
 import pathlib
+import tempfile
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -351,6 +353,22 @@ class PatchBackportTests(unittest.TestCase):
             None, "nixos-unstable")
         self.assertEqual(fix["fix_state"], "in-master")
         self.assertEqual(fix["fix_branch"], "master")
+
+
+class TriageStatusTests(unittest.TestCase):
+    def test_triage_failure_releases_the_report_with_a_warning(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / "status.json"
+            path.write_text(json.dumps({
+                "schema_version": 7,
+                "state": "vulnerable",
+                "triage_ready": False,
+                "triage_failed": False,
+            }))
+            self.assertEqual(STATUS.triage_failed_mode(str(path)), 0)
+            data = json.loads(path.read_text())
+            self.assertTrue(data["triage_ready"])
+            self.assertTrue(data["triage_failed"])
 
 
 if __name__ == "__main__":

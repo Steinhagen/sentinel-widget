@@ -175,6 +175,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The applet no longer shows the raw scan report while the tracker/triage pass
+  is still running: a report is held back until its triage verdicts are
+  embedded. The false "The last scan did not finish" warning is gone; tracker
+  progress is shown instead, and a triage failure is reported explicitly.
 - Branch verification now detects upstream fix hashes in the Nixpkgs package's
   `patches` list. A branch at the same version is `unaffected` when it carries
   the tracker's fix commit, so `alsa-lib` master is fixed by a backport while

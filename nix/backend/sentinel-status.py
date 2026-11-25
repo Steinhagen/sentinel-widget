@@ -1521,6 +1521,16 @@ def write_tracker_status(status_path, base_status, base_stamp, vulnerabilities,
     return True
 
 
+def triage_failed_mode(status_path):
+    status = load_status(status_path)
+    if status is None:
+        return 1
+    status["triage_ready"] = True
+    status["triage_failed"] = True
+    save_status(status_path, status)
+    return 0
+
+
 def tracker_mode(status_path, cache_path):
     status = load_status(status_path)
     if status is None:
@@ -2189,6 +2199,8 @@ def scan_mode(report, status, log, rc, evidence_path=""):
         "scanned_at_epoch": int(now.timestamp()),
         "exit_code": rc,
         "vulnerabilities": vulnerabilities,
+        "triage_ready": False,
+        "triage_failed": False,
     }
     error = scan_error(log, rc)
     if error:
@@ -2247,6 +2259,8 @@ def main():
     args = sys.argv[1:]
     if len(args) == 3 and args[0] == "tracker":
         return tracker_mode(args[1], args[2])
+    if len(args) == 2 and args[0] == "triage-failed":
+        return triage_failed_mode(args[1])
     if len(args) == 6 and args[0] == "report":
         return scan_mode(args[1], args[2], args[3], int(args[4]), args[5])
     if len(args) == 5 and args[0] == "report":

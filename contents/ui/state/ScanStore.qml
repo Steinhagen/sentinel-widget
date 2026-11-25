@@ -243,9 +243,15 @@ QtObject {
         }
 
         if (next.fingerprint !== store.reportFingerprint) {
-            if (store.holdUpdates && store.hasReport) {
+            // The scan report is written before the tracker/triage pass. Keep
+            // the previous complete report on screen until the new one has
+            // triage verdicts, otherwise suppressed findings briefly show up.
+            if (!next.triageReady) {
+                store.deferredReport = next;
+            } else if (store.holdUpdates && store.hasReport) {
                 store.deferredReport = next;
             } else {
+                store.deferredReport = null;
                 store.commit(next);
             }
         }
@@ -268,8 +274,8 @@ QtObject {
 
     function applyDeferred() {
         const pending = store.deferredReport;
-        store.deferredReport = null;
-        if (pending) {
+        if (pending && pending.triageReady) {
+            store.deferredReport = null;
             store.commit(pending);
         }
     }

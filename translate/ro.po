@@ -965,6 +965,10 @@ msgid "The last scan did not finish. Scan again to complete it."
 msgstr "Ultima scanare nu s-a încheiat. Scanați din nou pentru a o finaliza."
 
 #: contents/ui/components/Labels.qml
+msgid "The triage pass failed; showing the last verdicts."
+msgstr "Trecerea de triaj a eșuat; se afișează ultimele verdicturi."
+
+#: contents/ui/components/Labels.qml
 msgid "unknown CVE"
 msgstr "CVE necunoscut"
 

@@ -136,7 +136,7 @@ PlasmaExtras.PlasmoidHeading {
             ScanProgress {
                 id: headerProgress
 
-                active: root.scanning || (root.trackerBusy && root.serviceActive)
+                active: root.scanning || root.trackerBusy
                 indeterminate: (root.scanning && !root.trackerBusy)
                     || (root.trackerBusy && (!root.progress || root.progress.total <= 0))
                 ratio: root.progress
@@ -149,7 +149,7 @@ PlasmaExtras.PlasmoidHeading {
 
             Kirigami.Icon {
                 visible: !root.scanning
-                    && !(root.trackerBusy && root.serviceActive)
+                    && !root.trackerBusy
                     && root.trackerWarningText.length > 0
                 source: "dialog-warning"
                 Layout.preferredWidth: Kirigami.Units.iconSizes.small

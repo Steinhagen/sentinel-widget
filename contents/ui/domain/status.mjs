@@ -184,6 +184,8 @@ export function normalizeReport(raw) {
         stamp: stampOf(source),
         error: stringOf(source.error),
         source: normalizeSource(source.source),
+        triageReady: source.triage_ready !== false,
+        triageFailed: source.triage_failed === true,
         vulnerabilities: vulnerabilities,
         tracker: tracker
     };

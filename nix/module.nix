@@ -74,6 +74,8 @@ let
         --ignore ${stateDir}/triage-ignore.json \
         --embed >>"$log" 2>&1; then
       echo "WARN     triage pass failed, keeping the previous verdicts" >>"$log"
+      ${pkgs.python3}/bin/python3 ${./backend/sentinel-status.py} \
+        triage-failed ${stateDir}/status.json >>"$log" 2>&1 || true
     fi
   '';
 in
