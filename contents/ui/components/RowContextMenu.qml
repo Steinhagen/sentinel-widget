@@ -88,7 +88,7 @@ QQC2.Menu {
     QQC2.MenuItem {
         visible: !root.hiddenMode
         text: root.labels ? root.labels.ignoreFindingText() : ""
-        icon.name: "edit-delete"
+        icon.name: "view-hidden"
         enabled: !!(root.rowData && root.rowData.id && root.rowData.package)
         onTriggered: root.ignoreRequested(root.rowData)
     }

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Use the same crossed-eye (`view-hidden`) icon for “Ignore this finding” in
+  the context menu as the quick hide action on the row.
+
+
 ## [0.3.0] - 2026-11-26
 
 ### Added
