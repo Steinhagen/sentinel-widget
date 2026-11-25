@@ -61,8 +61,9 @@ QtObject {
         }
         return false;
     }
+    // Keep the verdict visible in both the normal and hidden views; restored
+    // rows otherwise lose the reason they had been hidden.
     readonly property bool triageColumnVisible: vm.triageAvailable
-        && !(vm.triageEnabled && vm.hideUnverified)
     readonly property bool hasFindings: vm.totalCount > 0
 
     readonly property var visibleFindings: {

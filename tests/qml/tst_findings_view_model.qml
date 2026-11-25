@@ -370,7 +370,7 @@ TestCase {
         compare(env.vm.hideUnverified, true);
         compare(env.vm.totalCount, 12);
         compare(env.vm.hiddenCount, 1);
-        compare(env.vm.triageColumnVisible, false);
+        compare(env.vm.triageColumnVisible, true);
 
         env.vm.hideUnverified = false;
         compare(env.vm.totalCount, 13);
@@ -435,7 +435,7 @@ TestCase {
         compare(env.vm.rows.length, 12);
         verify(!env.vm.rows.some(row => row.id === "CVE-2021-35049"));
         compare(env.vm.severityBands[1].count, 4);
-        compare(env.vm.triageColumnVisible, false);
+        compare(env.vm.triageColumnVisible, true);
 
         env.vm.triageEnabled = false;
         compare(env.vm.totalCount, 13);

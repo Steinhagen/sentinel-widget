@@ -175,6 +175,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The Triage column now stays visible in the normal findings view as well as
+  the hidden view, so a restored finding keeps its verdict visible.
 - The hidden-findings count opens a dedicated hidden view. It lists the
   findings hidden by triage, OSV or manual ignores, and the normal-eye action
   restores one to the main list (forced-visible override). Ignoring a restored

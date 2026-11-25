@@ -1041,6 +1041,10 @@ msgid "Use “Ignore this finding” in a row's context menu or the crossed-eye 
 msgstr "Folosiți „Ignore this finding” din meniul contextual sau acțiunea cu ochiul tăiat pentru a ascunde o constatare pe care scanerele au asociat-o greșit pachetului. O ignorare pe versiune ascunde doar versiunea exactă; constatarea reapare după o actualizare a pachetului, pentru a fi reverificată."
 
 #: contents/ui/configGeneral.qml
+msgid "Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”; OSV advisories are hidden by “OSV advisories”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. The Triage column remains visible so a restored finding keeps its verdict."
+msgstr "Constatările al căror CVE nu descrie pachetul instalat sunt ascunse de „Triage verdicts”; constatările pe care triajul nu le-a putut confirma sunt ascunse de „Unverified findings”; avizele OSV sunt ascunse de „OSV advisories”. Verdicturile provin din trecerea de triaj (tools/triage.mjs) sau din serviciul de scanare. Coloana Triage rămâne vizibilă, astfel încât o constatare restaurată să își păstreze verdictul."
+
+#: contents/ui/configGeneral.qml
 msgid "Tracker API token:"
 msgstr "Token API pentru tracker:"
 

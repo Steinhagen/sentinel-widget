@@ -95,7 +95,7 @@ KCM.SimpleKCM {
             wrapMode: Text.WordWrap
             opacity: 0.7
             font: Kirigami.Theme.smallFont
-            text: i18n("Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”; OSV advisories are hidden by “OSV advisories”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. When both triage options are on, the Triaj column is hidden too.")
+            text: i18n("Findings whose CVE does not describe the installed package are hidden by “Triage verdicts”; findings the triage pass could not confirm are hidden by “Unverified findings”; OSV advisories are hidden by “OSV advisories”. The verdicts come from the triage pass (tools/triage.mjs) or from the scan service. The Triage column remains visible so a restored finding keeps its verdict.")
         }
 
         RowLayout {
