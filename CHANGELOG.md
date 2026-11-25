@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Restore a padded click target around the hide/restore eye so its hover and
+  focus box no longer overlaps the icon. The triage column gets a matching
+  left margin, keeping the two visual gaps around the badge equal.
 - Tighten the gap around the Triage badge and the hide eye. The triage column
   keeps just enough width for its header, and the eye uses exactly its icon
   width, so the two gaps around the badge are equal.

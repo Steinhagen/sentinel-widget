@@ -95,6 +95,7 @@ Rectangle {
     }
 
     readonly property real hideActionWidth: Kirigami.Units.iconSizes.small
+        + Kirigami.Units.smallSpacing * 2
 
     readonly property real fixPillWidth: Math.max(
         metricFixed.width,
@@ -111,7 +112,7 @@ Rectangle {
     // old text chip used to reserve.
     readonly property real triageColumnWidth: root.triageColumnVisible
         ? Math.max(Kirigami.Units.gridUnit * 2.2,
-            metricTriage.width + Kirigami.Units.smallSpacing * 3)
+            metricTriage.width + Kirigami.Units.smallSpacing * 2)
         : 0
 
     // The CVE column also carries the package source on the second line, so
@@ -149,7 +150,8 @@ Rectangle {
                 key: "review",
                 width: root.triageColumnWidth,
                 fill: false,
-                align: "center"
+                align: "center",
+                leftMargin: Kirigami.Units.smallSpacing
             });
         }
         return columns;
@@ -246,6 +248,8 @@ Rectangle {
 
                 Layout.preferredWidth: modelData.fill ? 0 : modelData.width
                 Layout.minimumWidth: modelData.fill ? 0 : modelData.width
+                Layout.leftMargin: modelData.leftMargin !== undefined
+                    ? modelData.leftMargin : 0
                 Layout.fillWidth: modelData.fill
                 implicitHeight: Math.max(headerTitle.implicitHeight,
                     headerPair.implicitHeight)

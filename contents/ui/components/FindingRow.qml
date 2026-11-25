@@ -16,9 +16,10 @@ PlasmaComponents3.ItemDelegate {
     property real cveWidth: Kirigami.Units.gridUnit * 11
     property real fixPillWidth: Kirigami.Units.gridUnit * 4
     property real triageWidth: 0
-    // The eye owns exactly the icon width: together with the triage column
-    // padding this makes both gaps around the badge visually equal.
+    // Keep a padded click target around the eye; the triage column's left
+    // margin compensates so both visual gaps around the badge stay equal.
     property real hideActionWidth: Kirigami.Units.iconSizes.small
+        + Kirigami.Units.smallSpacing * 2
     property bool hiddenMode: false
     // Both hover cards (origin trails and fix details) use the same delay.
     readonly property int previewDelay: 1200
@@ -398,6 +399,7 @@ PlasmaComponents3.ItemDelegate {
                 Layout.preferredWidth: root.triageWidth
                 Layout.minimumWidth: root.triageWidth
                 Layout.maximumWidth: root.triageWidth
+                Layout.leftMargin: Kirigami.Units.smallSpacing
                 Layout.fillHeight: true
 
                 Rectangle {
