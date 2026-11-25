@@ -95,7 +95,6 @@ Rectangle {
     }
 
     readonly property real hideActionWidth: Kirigami.Units.iconSizes.small
-        + Kirigami.Units.smallSpacing * 2
 
     readonly property real fixPillWidth: Math.max(
         metricFixed.width,
@@ -111,8 +110,8 @@ Rectangle {
     // and the 18 px badge. This gives the package and source the width the
     // old text chip used to reserve.
     readonly property real triageColumnWidth: root.triageColumnVisible
-        ? Math.max(Kirigami.Units.gridUnit * 2.8,
-            metricTriage.width + Kirigami.Units.smallSpacing * 5)
+        ? Math.max(Kirigami.Units.gridUnit * 2.2,
+            metricTriage.width + Kirigami.Units.smallSpacing * 3)
         : 0
 
     // The CVE column also carries the package source on the second line, so

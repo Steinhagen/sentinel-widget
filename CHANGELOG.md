@@ -175,6 +175,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Tighten the gap around the Triage badge and the hide eye. The triage column
+  keeps just enough width for its header, and the eye uses exactly its icon
+  width, so the two gaps around the badge are equal.
 - The Remediation column now comes before the Triage column, placing the
   triage badge next to the hide/restore eye. Both list headers and finding
   rows use the same order.
