@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<title>Sentinel — hide finding row action</title>
+<style>
+  :root {
+    --bg:#0f1115; --card:#20242b; --line:#2b3038; --text:#e8eaed;
+    --muted:#9aa0a6; --faint:#6f7680; --critical:#fb7185; --high:#f97316;
+    --medium:#facc15; --low:#4ade80; --blue:#3daee9; --chip:#2b323c;
+    --footer:#1b1e24;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:26px 30px 34px; background:var(--bg); color:var(--text);
+    font-family:"Noto Sans","DejaVu Sans",sans-serif; font-size:12px; }
+  h1 { margin:0 0 4px; font-size:19px; }
+  p.lede { margin:0 0 20px; color:var(--muted); font-size:12px; max-width:1000px; }
+  .table { width:1000px; border:1px solid #353b45; border-radius:12px; overflow:hidden; background:var(--card); }
+  .thead { display:grid; grid-template-columns:34px 170px 1fr 220px 104px 30px; gap:8px;
+    padding:7px 11px 6px; color:var(--faint); font-size:9px; letter-spacing:.08em;
+    text-transform:uppercase; border-bottom:1px solid var(--line); }
+  .thead .r { text-align:right; }
+  .row { display:grid; grid-template-columns:34px 170px 1fr 220px 104px 30px; gap:8px;
+    align-items:center; padding:6px 11px; border-bottom:1px solid var(--line);
+    position:relative; min-height:44px; }
+  .row:last-child { border-bottom:0; }
+  .row.hover { background:#262b33; }
+  .sev { font-weight:700; font-size:11px; text-align:center; }
+  .cve { color:#7dd3fc; font-size:10.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pkg { min-width:0; }
+  .pkg .top { display:flex; align-items:baseline; gap:6px; white-space:nowrap; overflow:hidden; }
+  .pkg .name { font-weight:700; font-size:11.5px; overflow:hidden; text-overflow:ellipsis; }
+  .pkg .ver { color:var(--muted); font-size:10.5px; }
+  .orig { color:var(--muted); font-size:9.5px; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pill { justify-self:end; padding:2px 9px; border-radius:99px; font-size:9px; white-space:nowrap; }
+  .pill.none { color:var(--critical); background:rgba(251,113,133,.12); border:1px solid rgba(251,113,133,.32); }
+  .pill.unknown { color:#cbd5e1; background:#2b323c; border:1px solid #454d59; }
+  .hide { justify-self:center; width:24px; height:24px; border-radius:6px; display:flex;
+    align-items:center; justify-content:center; color:#8f98a3; cursor:pointer; }
+  .hide:hover, .row.hover .hide { color:#e8eaed; background:#343b45; }
+  .hide svg { width:16px; height:16px; }
+  .tip { position:absolute; right:12px; top:-31px; z-index:3; background:#11151b;
+    border:1px solid #4a5360; border-radius:6px; padding:4px 8px; color:#e8eaed;
+    font-size:10px; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.35); }
+  .tip:after { content:""; position:absolute; right:17px; bottom:-4px; width:7px; height:7px;
+    background:#11151b; border-right:1px solid #4a5360; border-bottom:1px solid #4a5360;
+    transform:rotate(45deg); }
+  .legend { display:flex; gap:24px; align-items:flex-start; margin-top:18px; }
+  .note { flex:1; border:1px solid var(--line); border-radius:10px; padding:10px 13px;
+    background:#14171c; color:var(--muted); font-size:11px; }
+  .note b { color:var(--text); }
+  .states { width:330px; border:1px solid var(--line); border-radius:10px; padding:10px 13px;
+    background:#14171c; }
+  .states .label { color:var(--faint); font-size:9px; text-transform:uppercase; letter-spacing:.1em; margin-bottom:8px; }
+  .state { display:flex; align-items:center; gap:9px; padding:4px 0; color:var(--muted); font-size:10px; }
+  .state .slot { width:24px; height:24px; border-radius:6px; display:flex; align-items:center;
+    justify-content:center; color:#8f98a3; }
+  .state.hover .slot { color:#e8eaed; background:#343b45; }
+  .state svg { width:16px; height:16px; }
+  .state .pilltip { color:#e8eaed; background:#11151b; border:1px solid #4a5360;
+    border-radius:5px; padding:3px 7px; font-size:9.5px; }
+</style>
+</head>
+<body>
+<h1>Ascunde o intrare din rând</h1>
+<p class="lede">O acțiune rapidă, în plus față de click dreapta: iconița KDE <b>view-hidden</b> (ochiul tăiat) la capătul din dreapta al rândului.</p>
+
+<div class="table">
+  <div class="thead">
+    <div></div><div>CVE</div><div>Pachet</div><div>Origine</div><div class="r">Remediere</div><div></div>
+  </div>
+
+  <div class="row">
+    <div class="sev" style="color:#fb7185">9.8</div>
+    <div class="cve">CVE-2026-111497</div>
+    <div class="pkg"><div class="top"><span class="name">brotli</span><span class="ver">1.2.1</span></div><div class="orig">↳ imageMagick-7.1.2-35 → brotli</div></div>
+    <div style="color:var(--muted);font-size:9.5px">imagemagick</div>
+    <span class="pill none">fără remediere</span>
+    <div class="hide" title="Ascunde ca fals pozitiv">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="sev" style="color:#fb7185">9.8</div>
+    <div class="cve">CVE-2023-45853</div>
+    <div class="pkg"><div class="top"><span class="name">zlib</span><span class="ver">0.7.1</span></div><div class="orig">↳ haskell-language-server-2.13.0.0 → zlib</div></div>
+    <div style="color:var(--muted);font-size:9.5px">haskell-language-server</div>
+    <span class="pill unknown">necunoscut</span>
+    <div class="hide" title="Ascunde ca fals pozitiv">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="sev" style="color:#fb7185">9.1</div>
+    <div class="cve">CVE-2024-13278</div>
+    <div class="pkg"><div class="top"><span class="name">Diff</span><span class="ver">1.0.2</span></div><div class="orig">↳ haskell-language-server-2.13.0.0 → Diff</div></div>
+    <div style="color:var(--muted);font-size:9.5px">haskell-language-server</div>
+    <span class="pill unknown">necunoscut</span>
+    <div class="hide"><svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg></div>
+  </div>
+
+  <div class="row hover">
+    <div class="sev" style="color:#fb7185">8.8</div>
+    <div class="cve">CVE-2026-8461</div>
+    <div class="pkg"><div class="top"><span class="name">ffmpeg</span><span class="ver">6.1.6</span></div><div class="orig">↳ lutris-0.5.22 → lutris-0.5.22-bwrap → ffmpeg</div></div>
+    <div style="color:var(--muted);font-size:9.5px">lutris</div>
+    <span class="pill none">fără remediere</span>
+    <div class="hide">
+      <svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg>
+    </div>
+    <div class="tip">Ascunde ca fals pozitiv</div>
+  </div>
+
+  <div class="row">
+    <div class="sev" style="color:#f97316">8.6</div>
+    <div class="cve">CVE-2026-56389</div>
+    <div class="pkg"><div class="top"><span class="name">bison</span><span class="ver">3.8.2</span></div><div class="orig">↳ kio-extras-kf5-24.02.2 → bison</div></div>
+    <div style="color:var(--muted);font-size:9.5px">kio-extras</div>
+    <span class="pill none">fără remediere</span>
+    <div class="hide"><svg viewBox="0 0 22 22" aria-hidden="true"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg></div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="note"><b>Comportament:</b> iconița este vizibilă discret pe fiecare rând, se aprinde la hover și are tooltip. Click-ul ocului tăiat ascunde intrarea imediat, exact ca „Ascunde” din meniul de click dreapta; meniul rămâne neschimbat. Rândul dispare, cu același comportament ca opțiunea din meniu.</div>
+  <div class="states">
+    <div class="label">Stări</div>
+    <div class="state"><span class="slot"><svg viewBox="0 0 22 22"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg></span>implicit, discret</div>
+    <div class="state hover"><span class="slot"><svg viewBox="0 0 22 22"><path fill="currentColor" d="M 18.292969 3 L 3 18.292969 L 3.7070312 19 L 19 3.7070312 L 18.292969 3 z M 11 6 A 10 9.9999781 0 0 0 2.2871094 11.119141 C 2.4663699 11.420241 2.7209984 11.668644 3.0273438 11.839844 A 9 8.99998 0 0 1 11 7 A 4 4 0 0 0 7 11 A 4 4 0 0 0 7.3574219 12.642578 L 8.1308594 11.869141 A 3 3 0 0 1 8 11 A 3 3 0 0 1 11 8 A 3 3 0 0 1 11.869141 8.1308594 L 12.640625 7.359375 A 4 4 0 0 0 11.34375 7.0175781 A 9 8.99998 0 0 1 12.796875 7.203125 L 13.640625 6.359375 A 10 9.9999781 0 0 0 11 6 z M 16.404297 7.5957031 L 15.675781 8.3242188 A 9 8.99998 0 0 1 18.974609 11.837891 C 19.282742 11.665091 19.539718 11.415428 19.71875 11.111328 A 10 9.9999781 0 0 0 16.404297 7.5957031 z M 11 9 A 2 2 0 0 0 9 11 L 11 9 z M 14.642578 9.3574219 L 13.869141 10.130859 A 3 3 0 0 1 14 11 A 3 3 0 0 1 11 14 A 3 3 0 0 1 10.130859 13.869141 L 9.3574219 14.642578 A 4 4 0 0 0 11 15 A 4 4 0 0 0 15 11 A 4 4 0 0 0 14.642578 9.3574219 z M 13 11 L 11 13 A 2 2 0 0 0 13 11 z M 1 13 C 0.33333333 19 0.66666667 16 1 13 z"/></svg></span>hover: iconiță aprinsă</div>
+    <div class="state"><span class="pilltip">Ascunde ca fals pozitiv</span></div>
+  </div>
+</div>
+</body>
+</html>

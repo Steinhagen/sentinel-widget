@@ -262,3 +262,14 @@ the current compact two-column layout but makes the status legible at a glance.
 
 **Not adopted** — the badge version was considered too heavy; the fix card
 keeps the small text signs.
+
+## Finding row — hide action
+
+[finding-row-hide.html](finding-row-hide.html) ·
+[overview](finding-row-hide.png) proposes a quick hide action on each finding
+row: the Breeze `view-hidden` icon (crossed-out eye) at the far right, after
+the remediation pill. It stays visible in a muted colour, brightens on hover
+and shows the “Ascunde ca fals pozitiv” tooltip; clicking it uses the same
+ignore action as the row context menu.
+
+**Not implemented yet** — proposal for review.
