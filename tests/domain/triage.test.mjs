@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
     detailsOf,
     hideOsvFindings,
+    isForcedVisible,
     isIgnored,
     isOsvFinding,
     isVerdict,
@@ -190,6 +191,21 @@ test("a versioned ignore only hides that exact version", () => {
     const legacy = [{ cve: "CVE-2026-1", package: "ffmpeg" }];
     assert.equal(isIgnored(findings[0], legacy), true);
     assert.equal(isIgnored(findings[1], legacy), true);
+});
+
+test("a forced-visible finding bypasses triage and OSV hiding", () => {
+    const parsed = parseTriageText(JSON.stringify(report));
+    const suppressed = report.findings.find((finding) => finding.verdict === "suppressed");
+    const forced = [{ cve: suppressed.id, package: suppressed.package, version: suppressed.version }];
+    assert.equal(isForcedVisible(suppressed, forced), true);
+    assert.equal(isForcedVisible({ ...suppressed, version: "other" }, forced), false);
+    assert.equal(visibleFindings(report.findings, parsed, true, [], false, forced)
+        .some((finding) => finding.id === suppressed.id), true);
+
+    const osv = { id: "OSV-2026-1", package: "a", version: "1" };
+    const osvForced = [{ cve: osv.id, package: osv.package, version: osv.version }];
+    assert.equal(hideOsvFindings([osv], true).length, 0);
+    assert.equal(hideOsvFindings([osv], true, osvForced).length, 1);
 });
 
 test("suppressedCount counts ignores but not disabled verdicts", () => {

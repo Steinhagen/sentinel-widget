@@ -121,6 +121,10 @@ QtObject {
     function copyPackageText() { return "package"; }
     function copyFixUrlText() { return "fixurl"; }
     function ignoreFindingText() { return "Ignore this finding (false positive)"; }
+    function restoreFindingText() { return "Restore this finding"; }
+    function showAllFindings() { return "Show all findings"; }
+    function hiddenCountLabel(count) { return count + " hidden findings"; }
+    function triageHiddenTooltip() { return "hidden"; }
     function searchNixpkgsText(name) { return "search " + name; }
     function groupTitle(groupBy, key) {
         return key;

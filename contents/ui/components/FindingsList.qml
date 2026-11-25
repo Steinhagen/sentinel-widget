@@ -14,6 +14,7 @@ Rectangle {
     property var labels: null
     property string systemChannel: ""
     property string sortKey: "severity"
+    property bool hiddenMode: false
     property bool sortDescending: true
     property string groupBy: "none"
     // Captured before a group model change; the ListView resets contentY when
@@ -35,6 +36,7 @@ Rectangle {
     signal openMasterSourceRequested(string url)
     signal nixpkgsSearchRequested(string packageName)
     signal ignoreRequested(var finding)
+    signal restoreFindingRequested(var finding)
     signal holdUpdatesChanged(bool held)
     signal sortRequested(string key)
     signal groupToggleRequested(string groupKey)
@@ -409,6 +411,7 @@ Rectangle {
             fixPillWidth: root.fixPillWidth
             triageWidth: root.triageColumnWidth
             hideActionWidth: root.hideActionWidth
+            hiddenMode: root.hiddenMode
 
             onOpenFinding: (url) => root.openFinding(url)
             onFilterPackageRequested: (name) => root.filterPackageRequested(name)
@@ -421,6 +424,7 @@ Rectangle {
             onOpenMasterSourceRequested: (url) => root.openMasterSourceRequested(url)
             onNixpkgsSearchRequested: (name) => root.nixpkgsSearchRequested(name)
             onIgnoreRequested: (finding) => root.ignoreRequested(finding)
+            onRestoreRequested: (finding) => root.restoreFindingRequested(finding)
         }
     }
 

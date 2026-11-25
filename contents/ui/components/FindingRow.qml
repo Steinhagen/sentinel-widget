@@ -18,6 +18,7 @@ PlasmaComponents3.ItemDelegate {
     property real triageWidth: 0
     property real hideActionWidth: Kirigami.Units.iconSizes.small
         + Kirigami.Units.smallSpacing * 2
+    property bool hiddenMode: false
     // Both hover cards (origin trails and fix details) use the same delay.
     readonly property int previewDelay: 1200
     signal openFinding(string url)
@@ -31,6 +32,7 @@ PlasmaComponents3.ItemDelegate {
     signal openMasterSourceRequested(string url)
     signal nixpkgsSearchRequested(string packageName)
     signal ignoreRequested(var finding)
+    signal restoreRequested(var finding)
 
     // Exposed for tests and keyboard/accessibility wiring.
     readonly property alias hideButton: hideButton
@@ -445,7 +447,7 @@ PlasmaComponents3.ItemDelegate {
                 Layout.maximumHeight: root.hideActionWidth
                 flat: true
                 display: QQC2.AbstractButton.IconOnly
-                icon.name: "view-hidden"
+                icon.name: root.hiddenMode ? "view-visible" : "view-hidden"
                 icon.width: Kirigami.Units.iconSizes.small
                 icon.height: Kirigami.Units.iconSizes.small
                 icon.color: root.theme
@@ -456,14 +458,27 @@ PlasmaComponents3.ItemDelegate {
                 topPadding: 0
                 bottomPadding: 0
                 focusPolicy: Qt.NoFocus
-                Accessible.name: root.labels ? root.labels.ignoreFindingText() : ""
+                Accessible.name: root.labels
+                    ? (root.hiddenMode
+                        ? root.labels.restoreFindingText()
+                        : root.labels.ignoreFindingText())
+                    : ""
                 onClicked: {
-                    if (root.rowData) {
+                    if (!root.rowData) {
+                        return;
+                    }
+                    if (root.hiddenMode) {
+                        root.restoreRequested(root.rowData);
+                    } else {
                         root.ignoreRequested(root.rowData);
                     }
                 }
 
-                QQC2.ToolTip.text: root.labels ? root.labels.ignoreFindingText() : ""
+                QQC2.ToolTip.text: root.labels
+                    ? (root.hiddenMode
+                        ? root.labels.restoreFindingText()
+                        : root.labels.ignoreFindingText())
+                    : ""
                 QQC2.ToolTip.visible: hovered
                     && QQC2.ToolTip.text.length > 0
             }
@@ -617,6 +632,7 @@ PlasmaComponents3.ItemDelegate {
         id: rowMenu
         rowData: root.rowData
         labels: root.labels
+        hiddenMode: root.hiddenMode
 
         onFilterPackageRequested: (packageName) => root.filterPackageRequested(packageName)
         onFilterOriginRequested: (originName) => root.filterOriginRequested(originName)
@@ -626,5 +642,6 @@ PlasmaComponents3.ItemDelegate {
         onCopyRequested: (text) => root.copyRequested(text)
         onNixpkgsSearchRequested: (packageName) => root.nixpkgsSearchRequested(packageName)
         onIgnoreRequested: (finding) => root.ignoreRequested(finding)
+        onRestoreRequested: (finding) => root.restoreRequested(finding)
     }
 }

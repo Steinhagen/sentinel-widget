@@ -158,6 +158,16 @@ TestCase {
         compare(second[1].version, "6.1.7");
         versioned.destroy();
 
+        const restored = testCase.createService("AppSettings.qml", { triageShow: "[]" });
+        const forced = JSON.parse(restored.withForcedVisible(
+            "CVE-2026-1", "ffmpeg", "6.1.6"));
+        compare(forced.length, 1);
+        compare(forced[0].version, "6.1.6");
+        restored.triageShow = JSON.stringify(forced);
+        compare(JSON.parse(restored.withoutForcedVisible(
+            "CVE-2026-1", "ffmpeg", "6.1.6")).length, 0);
+        restored.destroy();
+
         const clock = testCase.createService("Clock.qml", { running: false });
         clock.now = 42;
         compare(clock.now, 42);

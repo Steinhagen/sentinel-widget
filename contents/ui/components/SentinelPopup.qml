@@ -17,6 +17,7 @@ PlasmaExtras.Representation {
 
     signal scanRequested()
     signal settingsRequested()
+    signal restoreFindingRequested(var finding)
     signal ignoreFindingRequested(var finding)
 
     readonly property bool compactLayout: height < Kirigami.Units.gridUnit * 22
@@ -161,8 +162,9 @@ PlasmaExtras.Representation {
                 packageFilter: root.vm.packageFilter
                 originFilter: root.vm.originFilter
                 visibleCount: root.vm.visibleCount
-                totalCount: root.vm.totalCount
+                totalCount: root.vm.displayTotalCount
                 hiddenCount: root.vm.hiddenCount
+                hiddenMode: root.vm.showHidden
                 groupBy: root.vm.groupBy
                 cardsVisible: root.vm.hasFindings && !root.compactLayout
                 labels: root.labels
@@ -171,6 +173,7 @@ PlasmaExtras.Representation {
                     root.vm.applyFilters(cve, packageName, origin, severity, fix)
                 onClearFiltersRequested: root.vm.clearFilters()
                 onGroupBySelected: (mode) => root.vm.setGroupBy(mode)
+                onHiddenViewToggled: root.vm.toggleHiddenView()
             }
 
             ActiveFiltersBar {
@@ -202,7 +205,8 @@ PlasmaExtras.Representation {
                 theme: root.theme
                 labels: root.labels
                 systemChannel: root.store.systemChannel
-                triageColumnVisible: root.vm.triageColumnVisible
+                triageColumnVisible: root.vm.triageColumnVisible || root.vm.showHidden
+                hiddenMode: root.vm.showHidden
                 sortKey: root.vm.sortKey
                 sortDescending: root.vm.sortDescending
                 groupBy: root.vm.groupBy
@@ -213,6 +217,7 @@ PlasmaExtras.Representation {
                 onToggleGroupsExpandedRequested: root.vm.toggleGroupsExpanded()
                 onGroupSortRequested: (key) => root.vm.toggleGroupSort(key)
                 onGroupToggleRequested: (key) => root.vm.toggleGroup(key)
+                onRestoreFindingRequested: (finding) => root.restoreFindingRequested(finding)
                 onOpenFinding: (url) => root.store.openUrl(url)
                 onFilterPackageRequested: (name) => root.vm.showPackage(name)
                 onFilterOriginRequested: (name) => root.vm.showOrigin(name)

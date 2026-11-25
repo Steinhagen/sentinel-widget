@@ -22,6 +22,7 @@ PlasmoidItem {
         badgeMode: Plasmoid.configuration.badgeMode || "count"
         trackerToken: Plasmoid.configuration.sentinelTrackerToken || ""
         triageIgnore: Plasmoid.configuration.triageIgnore || "[]"
+        triageShow: Plasmoid.configuration.triageShow || "[]"
         triageEnabled: Plasmoid.configuration.triageEnabled !== false
         hideUnverified: Plasmoid.configuration.hideUnverified !== false
         hideOsv: Plasmoid.configuration.hideOsv !== false
@@ -75,6 +76,7 @@ PlasmoidItem {
         hideUnverified: appletSettings.hideUnverified
         hideOsv: appletSettings.hideOsv
         ignoredPairs: appletSettings.ignoredPairs
+        forcedVisible: appletSettings.forcedVisible
     }
 
     Plasmoid.title: i18n("Sentinel")
@@ -137,8 +139,31 @@ PlasmoidItem {
             return;
         }
         const config = Plasmoid.configuration;
+        const cve = String(finding.id);
+        const packageName = String(finding.package);
+        const version = String(finding.version || "");
+        config.triageShow = appletSettings.withoutForcedVisible(
+            cve, packageName, version);
         config.triageIgnore = appletSettings.withIgnoredPair(
-            String(finding.id), String(finding.package), String(finding.version || ""));
+            cve, packageName, version);
+        if (typeof config.writeConfig === "function") {
+            config.writeConfig();
+        }
+    }
+
+    // The eye in the hidden view restores a finding for the main list.
+    function restoreFinding(finding) {
+        if (!finding || !finding.id || !finding.package) {
+            return;
+        }
+        const config = Plasmoid.configuration;
+        const cve = String(finding.id);
+        const packageName = String(finding.package);
+        const version = String(finding.version || "");
+        config.triageIgnore = appletSettings.withoutIgnored(
+            cve, packageName, version);
+        config.triageShow = appletSettings.withForcedVisible(
+            cve, packageName, version);
         if (typeof config.writeConfig === "function") {
             config.writeConfig();
         }
@@ -152,6 +177,7 @@ PlasmoidItem {
 
         onScanRequested: scanStore.startScan()
         onIgnoreFindingRequested: (finding) => applet.ignoreFinding(finding)
+        onRestoreFindingRequested: (finding) => applet.restoreFinding(finding)
         onSettingsRequested: {
             const action = Plasmoid.internalAction("configure");
             if (action) {

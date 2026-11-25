@@ -18,6 +18,7 @@ RowLayout {
     property int hiddenCount: 0
     property string groupBy: "none"
     property bool cardsVisible: false
+    property bool hiddenMode: false
     property var labels: null
 
     signal searchChanged(string text)
@@ -25,6 +26,7 @@ RowLayout {
         string severity, string fixState)
     signal clearFiltersRequested()
     signal groupBySelected(string groupBy)
+    signal hiddenViewToggled()
 
     onSearchTextChanged: {
         if (searchField.text !== searchText && !searchField.activeFocus) {
@@ -164,27 +166,53 @@ RowLayout {
         }
     }
 
-    PlasmaComponents3.Label {
-        id: countLabelItem
+    RowLayout {
+        spacing: 4
 
-        text: root.labels
-            ? root.labels.countLabel(root.visibleCount, root.totalCount, root.hiddenCount)
-            : ""
-        opacity: 0.7
-        font.family: Kirigami.Theme.smallFont.family
-        font.pointSize: Kirigami.Theme.smallFont.pointSize
+        PlasmaComponents3.Label {
+            text: root.labels
+                ? (root.hiddenMode
+                    ? root.labels.hiddenCountLabel(root.hiddenCount)
+                    : root.labels.countLabel(root.visibleCount,
+                        root.totalCount, 0))
+                : ""
+            opacity: 0.7
+            font.family: Kirigami.Theme.smallFont.family
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+        }
 
-        QQC2.ToolTip.text: root.hiddenCount > 0 && root.labels
-            ? root.labels.triageHiddenTooltip()
-            : ""
-        QQC2.ToolTip.visible: countHover.containsMouse
-            && QQC2.ToolTip.text.length > 0
+        PlasmaComponents3.Label {
+            id: hiddenLink
 
-        MouseArea {
-            id: countHover
-            anchors.fill: parent
-            hoverEnabled: true
-            acceptedButtons: Qt.NoButton
+            objectName: "hiddenCountLink"
+            visible: root.hiddenCount > 0 || root.hiddenMode
+            text: root.labels
+                ? (root.hiddenMode
+                    ? root.labels.showAllFindings()
+                    : "(+ " + root.labels.hiddenCountLabel(root.hiddenCount) + ")")
+                : ""
+            color: Kirigami.Theme.linkColor
+            opacity: hiddenHover.containsMouse ? 1 : 0.85
+            font.family: Kirigami.Theme.smallFont.family
+            font.pointSize: Kirigami.Theme.smallFont.pointSize
+            font.underline: hiddenHover.containsMouse
+
+            QQC2.ToolTip.text: root.labels
+                ? (root.hiddenMode
+                    ? root.labels.showAllFindings()
+                    : root.labels.triageHiddenTooltip())
+                : ""
+            QQC2.ToolTip.visible: hiddenHover.containsMouse
+                && QQC2.ToolTip.text.length > 0
+
+            MouseArea {
+                id: hiddenHover
+
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.hiddenViewToggled()
+            }
         }
     }
 }

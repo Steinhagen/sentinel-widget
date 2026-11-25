@@ -145,6 +145,28 @@ export function reasonsOf(finding, triage) {
     return entry ? entry.reasons.slice() : [];
 }
 
+/** Whether the user explicitly forced this finding back into the main list. */
+export function isForcedVisible(finding, forcedVisible) {
+    if (!finding || !Array.isArray(forcedVisible) || forcedVisible.length === 0) {
+        return false;
+    }
+    for (let i = 0; i < forcedVisible.length; ++i) {
+        const entry = forcedVisible[i];
+        if (!entry
+                || stringOf(entry.cve) !== stringOf(finding.id)
+                || stringOf(entry.package) !== stringOf(finding.package)) {
+            continue;
+        }
+        const wantedVersion = stringOf(entry.version);
+        if (wantedVersion.length > 0
+                && wantedVersion !== stringOf(finding.version)) {
+            continue;
+        }
+        return true;
+    }
+    return false;
+}
+
 /** Whether the user ignored this finding from the applet. */
 export function isIgnored(finding, ignoredPairs) {
     if (!finding || !Array.isArray(ignoredPairs) || ignoredPairs.length === 0) {
@@ -183,27 +205,33 @@ export function isOsvFinding(finding) {
 }
 
 /** The findings left after optionally hiding all OSV advisories. */
-export function hideOsvFindings(findings, hideOsv) {
+export function hideOsvFindings(findings, hideOsv, forcedVisible) {
     const source = arrayOf(findings);
     if (hideOsv !== true) {
         return source;
     }
-    return source.filter((finding) => !isOsvFinding(finding));
+    return source.filter((finding) => !isOsvFinding(finding)
+        || isForcedVisible(finding, forcedVisible));
 }
 
 /** The findings to display, honoring the triage settings. */
 export function visibleFindings(findings, triage, enabled, ignoredPairs,
-        hideUnverified) {
+        hideUnverified, forcedVisible) {
     const source = arrayOf(findings);
     const hideSuppressed = enabled === true;
     const hideReview = hideUnverified === true;
     const hasIgnores = Array.isArray(ignoredPairs) && ignoredPairs.length > 0;
-    if (!hideSuppressed && !hideReview && !hasIgnores) {
+    const hasForced = Array.isArray(forcedVisible) && forcedVisible.length > 0;
+    if (!hideSuppressed && !hideReview && !hasIgnores && !hasForced) {
         return source;
     }
     const visible = [];
     for (let i = 0; i < source.length; ++i) {
         const finding = source[i];
+        if (isForcedVisible(finding, forcedVisible)) {
+            visible.push(finding);
+            continue;
+        }
         if (isIgnored(finding, ignoredPairs)) {
             continue;
         }

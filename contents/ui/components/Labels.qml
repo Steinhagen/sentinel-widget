@@ -930,6 +930,14 @@ QtObject {
         return i18n("Ignore this finding (false positive)");
     }
 
+    function restoreFindingText() {
+        return i18n("Restore this finding");
+    }
+
+    function showAllFindings() {
+        return i18n("Show all findings");
+    }
+
     function triageHiddenTooltip() {
         return i18n("The parenthesised findings are hidden by the triage or OSV settings or ignored by you. Ignored findings can be restored in the settings.");
     }

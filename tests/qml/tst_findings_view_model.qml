@@ -81,6 +81,38 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_hidden_view_shows_only_hidden_findings() {
+        const env = testCase.makeVmRaw();
+        compare(env.vm.hideOsv, true);
+        compare(env.vm.hiddenCount, 1);
+        env.vm.toggleHiddenView();
+        compare(env.vm.showHidden, true);
+        compare(env.vm.rows.length, 1);
+        compare(env.vm.rows[0].id, "OSV-2026-1517");
+        compare(env.vm.displayTotalCount, 1);
+
+        const hidden = env.store.report.vulnerabilities.find(
+            (finding) => finding.id === "OSV-2026-1517");
+        env.vm.forcedVisible = [{
+            cve: hidden.id,
+            package: hidden.package,
+            version: hidden.version
+        }];
+        compare(env.vm.hiddenCount, 0);
+        compare(env.vm.rows.length, 0);
+        verify(env.vm.visibleFindings.some(
+            (finding) => finding.id === "OSV-2026-1517"));
+
+        env.vm.toggleHiddenView();
+        compare(env.vm.showHidden, false);
+        compare(env.vm.totalCount, 13);
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_search_filter_and_clear() {
         const env = testCase.makeVm();
         const reset = testCase.spy(env.vm, "rowsReset");

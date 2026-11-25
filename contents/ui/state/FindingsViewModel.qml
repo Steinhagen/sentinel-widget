@@ -17,8 +17,12 @@ QtObject {
     property bool triageEnabled: true
     property bool hideUnverified: true
     property bool hideOsv: true
-    // { cve, package } pairs the user ignored from the applet.
+    // { cve, package, version } entries the user ignored from the applet.
     property var ignoredPairs: []
+    // Entries explicitly restored from the hidden view.
+    property var forcedVisible: []
+    // The parenthesised hidden count toggles this view.
+    property bool showHidden: false
 
     property string searchText: ""
     property string severityBand: ""
@@ -71,18 +75,35 @@ QtObject {
             return [];
         }
         const visible = Triage.visibleFindings(source, vm.triage,
-            vm.triageEnabled, vm.ignoredPairs, vm.hideUnverified);
-        return Triage.hideOsvFindings(visible, vm.hideOsv);
+            vm.triageEnabled, vm.ignoredPairs, vm.hideUnverified,
+            vm.forcedVisible);
+        return Triage.hideOsvFindings(visible, vm.hideOsv, vm.forcedVisible);
     }
 
-    readonly property int hiddenCount: {
+    readonly property var hiddenFindings: {
         const revision = vm.triageRevision;
         const source = vm.reportModel ? vm.reportModel.vulnerabilities : null;
         if (revision < 0 || !source) {
-            return 0;
+            return [];
         }
-        return Math.max(0, source.length - vm.visibleFindings.length);
+        const visibleKeys = {};
+        const visible = vm.visibleFindings;
+        for (let i = 0; i < visible.length; ++i) {
+            visibleKeys[Triage.keyOf(visible[i])] = true;
+        }
+        const hidden = [];
+        for (let i = 0; i < source.length; ++i) {
+            if (!visibleKeys[Triage.keyOf(source[i])]) {
+                hidden.push(source[i]);
+            }
+        }
+        return hidden;
     }
+
+    readonly property int hiddenCount: vm.hiddenFindings.length
+    readonly property var displayFindings: vm.showHidden
+        ? vm.hiddenFindings : vm.visibleFindings
+    readonly property int displayTotalCount: vm.displayFindings.length
 
     readonly property var filters: ({
         text: vm.searchText,
@@ -94,16 +115,20 @@ QtObject {
         cve: vm.cveFilter
     })
 
-    readonly property var allRows: vm.buildAllRows()
-    readonly property var filteredRows: vm.buildFilteredRows()
+    readonly property var allRows: vm.buildRowsFor(vm.visibleFindings)
+    readonly property var displayAllRows: vm.showHidden
+        ? vm.buildRowsFor(vm.hiddenFindings) : vm.allRows
+    readonly property var displayFilteredRows: vm.buildDisplayFilteredRows()
+    // Backwards-compatible name used by tests and callers.
+    readonly property var filteredRows: vm.displayFilteredRows
     readonly property var rows: {
         const revision = vm.groupsRevision;
         if (revision < 0) {
             return [];
         }
         return vm.groupBy === "none"
-            ? vm.filteredRows
-            : Table.flattenGroups(vm.filteredRows, vm.groupBy, true,
+            ? vm.displayFilteredRows
+            : Table.flattenGroups(vm.displayFilteredRows, vm.groupBy, true,
                 vm.collapsedGroups, vm.groupSortKey, vm.groupSortDescending);
     }
     readonly property var counts: Filters.countsOf(vm.allRows)
@@ -112,7 +137,7 @@ QtObject {
         if (revision < 0) {
             return [];
         }
-        return Table.groupKeysOf(vm.filteredRows, vm.groupBy);
+        return Table.groupKeysOf(vm.displayFilteredRows, vm.groupBy);
     }
     readonly property int collapsedVisibleGroups: {
         const revision = vm.groupsRevision;
@@ -127,7 +152,7 @@ QtObject {
     readonly property bool groupsExpanded: vm.collapsedVisibleGroups === 0
 
     readonly property int totalCount: vm.visibleFindings.length
-    readonly property int visibleCount: Table.findingCount(vm.filteredRows)
+    readonly property int visibleCount: Table.findingCount(vm.displayFilteredRows)
     readonly property bool anyFilterActive: Filters.isActive(vm.filters)
 
     readonly property real maxSeverity: {
@@ -227,6 +252,8 @@ QtObject {
     onHideUnverifiedChanged: vm.rowsReset(true)
     onHideOsvChanged: vm.rowsReset(true)
     onIgnoredPairsChanged: vm.rowsReset(true)
+    onForcedVisibleChanged: vm.rowsReset(true)
+    onShowHiddenChanged: vm.rowsReset(false)
     onTriageColumnVisibleChanged: {
         if (!vm.triageColumnVisible && vm.sortKey === "review") {
             vm.sortKey = "severity";
@@ -235,13 +262,12 @@ QtObject {
         }
     }
 
-    function buildAllRows() {
+    function buildRowsFor(source) {
         const revision = vm.checkedRevision;
         const report = vm.reportModel;
         if (!report) {
             return [];
         }
-        const source = vm.visibleFindings;
         const rows = Table.buildRows(source, {
             systemChannel: vm.systemChannel,
             checked: vm.store ? vm.store.checked : {},
@@ -274,10 +300,18 @@ QtObject {
         return rows;
     }
 
-    function buildFilteredRows() {
-        const filtered = Filters.apply(vm.allRows, vm.filters);
+    function buildDisplayFilteredRows() {
+        const filtered = Filters.apply(vm.displayAllRows, vm.filters);
         Table.sortRows(filtered, vm.sortKey, vm.sortDescending);
         return filtered;
+    }
+
+    function toggleHiddenView() {
+        if (!vm.showHidden && vm.hiddenCount === 0) {
+            return;
+        }
+        vm.showHidden = !vm.showHidden;
+        vm.resetScroll();
     }
 
     function resetScroll() {

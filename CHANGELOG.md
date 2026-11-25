@@ -175,6 +175,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The hidden-findings count opens a dedicated hidden view. It lists the
+  findings hidden by triage, OSV or manual ignores, and the normal-eye action
+  restores one to the main list (forced-visible override). Ignoring a restored
+  row removes that override again.
 - Ignoring a finding now records its version, so hiding one `ffmpeg 6.1.6`
   row no longer hides the 8.1.3 and 9.0.2 rows. A package bump makes the
   finding visible again for review. Old versionless ignores stay package-wide,

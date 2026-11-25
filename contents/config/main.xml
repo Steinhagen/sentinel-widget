@@ -24,5 +24,8 @@
     <entry name="triageIgnore" type="String">
       <default>[]</default>
     </entry>
+    <entry name="triageShow" type="String">
+      <default>[]</default>
+    </entry>
   </group>
 </kcfg>

@@ -76,4 +76,17 @@ TestCase {
         compare(spy.signalArguments[0][0].id, "CVE-2026-0001");
         spy.destroy();
     }
+
+    function test_hidden_view_eye_emits_restore() {
+        row.hiddenMode = true;
+        compare(row.hideButton.icon.name, "view-visible");
+        const spy = Qt.createQmlObject("import QtTest; SignalSpy {}", testCase);
+        spy.signalName = "restoreRequested";
+        spy.target = row;
+        mouseClick(row.hideButton);
+        compare(spy.count, 1);
+        compare(spy.signalArguments[0][0].id, "CVE-2026-0001");
+        spy.destroy();
+        row.hiddenMode = false;
+    }
 }

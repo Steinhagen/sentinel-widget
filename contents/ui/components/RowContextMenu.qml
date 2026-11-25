@@ -6,6 +6,7 @@ QQC2.Menu {
 
     property var rowData: null
     property var labels: null
+    property bool hiddenMode: false
 
     signal filterPackageRequested(string packageName)
     signal filterOriginRequested(string originName)
@@ -15,6 +16,7 @@ QQC2.Menu {
     signal copyRequested(string text)
     signal nixpkgsSearchRequested(string packageName)
     signal ignoreRequested(var finding)
+    signal restoreRequested(var finding)
 
     QQC2.MenuItem {
         text: root.labels ? root.labels.showAllForPackage(root.rowData ? root.rowData.package : "") : ""
@@ -84,9 +86,18 @@ QQC2.Menu {
     QQC2.MenuSeparator {}
 
     QQC2.MenuItem {
+        visible: !root.hiddenMode
         text: root.labels ? root.labels.ignoreFindingText() : ""
         icon.name: "edit-delete"
         enabled: !!(root.rowData && root.rowData.id && root.rowData.package)
         onTriggered: root.ignoreRequested(root.rowData)
+    }
+
+    QQC2.MenuItem {
+        visible: root.hiddenMode
+        text: root.labels ? root.labels.restoreFindingText() : ""
+        icon.name: "view-visible"
+        enabled: !!(root.rowData && root.rowData.id && root.rowData.package)
+        onTriggered: root.restoreRequested(root.rowData)
     }
 }
