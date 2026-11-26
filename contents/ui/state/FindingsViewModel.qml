@@ -25,6 +25,7 @@ QtObject {
     property bool showHidden: false
 
     property string searchText: ""
+    property string excludeText: ""
     property string severityBand: ""
     property string fixState: ""
     property string trackerState: ""
@@ -108,6 +109,7 @@ QtObject {
 
     readonly property var filters: ({
         text: vm.searchText,
+        exclude: vm.excludeText,
         severity: vm.severityBand,
         fixState: vm.fixState,
         trackerState: vm.trackerState,
@@ -357,6 +359,7 @@ QtObject {
             return;
         }
         vm.searchText = "";
+        vm.excludeText = "";
         vm.severityBand = "";
         vm.fixState = "";
         vm.trackerState = "";
@@ -370,6 +373,9 @@ QtObject {
         switch (key) {
         case "text":
             vm.searchText = "";
+            break;
+        case "exclude":
+            vm.excludeText = "";
             break;
         case "severity":
             vm.severityBand = "";
@@ -392,12 +398,13 @@ QtObject {
         vm.resetScroll();
     }
 
-    function applyFilters(cve, packageName, originName, severity, fix) {
+    function applyFilters(cve, packageName, originName, severity, fix, exclude) {
         vm.cveFilter = String(cve || "").trim();
         vm.packageFilter = String(packageName || "").trim();
         vm.originFilter = String(originName || "").trim();
         vm.severityBand = String(severity || "");
         vm.fixState = String(fix || "");
+        vm.excludeText = String(exclude || "").trim();
         vm.resetScroll();
     }
 
@@ -406,6 +413,7 @@ QtObject {
             return;
         }
         vm.searchText = "";
+        vm.excludeText = "";
         vm.severityBand = "";
         vm.fixState = "";
         vm.trackerState = "";

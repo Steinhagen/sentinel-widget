@@ -18,6 +18,7 @@ test("empty state is inactive", () => {
     assert.equal(isActive({ package: "zlib" }), true);
     assert.equal(isActive({ origin: "curl" }), true);
     assert.equal(isActive({ cve: "CVE-2026-111497" }), true);
+    assert.equal(isActive({ exclude: "ffmpeg" }), true);
 });
 
 test("search is case-insensitive and covers CVE, package and origin", () => {
@@ -57,6 +58,17 @@ test("package and origin drill-down use substrings", () => {
     assert.ok(apply(rows, { origin: "sane-backends" }).length >= 1);
     assert.ok(apply(rows, { origin: "ffmpeg-lib" }).length >= 1);
     assert.ok(apply(rows, { package: "brot", origin: "imagemagick" }).length >= 1);
+});
+
+test("exclude removes rows containing the term and composes with search", () => {
+    const excluded = apply(rows, { exclude: "ffmpeg" });
+    assert.ok(excluded.length < rows.length);
+    assert.ok(excluded.every((row) => row.searchText.indexOf("ffmpeg") === -1));
+
+    const combined = apply(rows, { text: "crossover", exclude: "ffmpeg" });
+    assert.ok(combined.every((row) =>
+        row.searchText.indexOf("crossover") >= 0
+        && row.searchText.indexOf("ffmpeg") === -1));
 });
 
 test("CVE filter is a case-insensitive substring", () => {

@@ -789,6 +789,22 @@ msgid "CVE, package or origin"
 msgstr "CVE, pachet sau origine"
 
 #: contents/ui/components/Labels.qml
+msgid "CVE, package, origin or excluded term"
+msgstr "CVE, pachet, origine sau termen exclus"
+
+#: contents/ui/components/Labels.qml
+msgid "Exclude (e.g. ffmpeg)"
+msgstr "Exclude (de ex. ffmpeg)"
+
+#: contents/ui/components/Labels.qml
+msgid "Not: %1"
+msgstr "Fără: %1"
+
+#: contents/ui/components/Labels.qml
+msgid "Remove the exclusion filter"
+msgstr "Elimină filtrul de excludere"
+
+#: contents/ui/components/Labels.qml
 msgid "Severity and fix state"
 msgstr "Severitate și stare de remediere"
 

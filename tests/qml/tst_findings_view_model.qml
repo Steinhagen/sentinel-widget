@@ -159,6 +159,25 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_exclude_filter_and_chip_key() {
+        const env = testCase.makeVm();
+        env.vm.excludeText = "ffmpeg";
+        compare(env.vm.anyFilterActive, true);
+        verify(env.vm.rows.every((row) => row.searchText.indexOf("ffmpeg") === -1));
+        env.vm.clearFilter("exclude");
+        compare(env.vm.excludeText, "");
+        compare(env.vm.visibleCount, 13);
+
+        env.vm.applyFilters("", "", "", "", "", "brotli");
+        compare(env.vm.excludeText, "brotli");
+        verify(env.vm.rows.every((row) => row.searchText.indexOf("brotli") === -1));
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_cve_advanced_filter() {
         const env = testCase.makeVm();
         env.vm.applyFilters("CVE-2026-111497", "", "", "", "");

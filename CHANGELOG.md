@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add a **Fără / Exclude** filter to the filter popup. It removes rows whose
+  searchable text contains the term and composes with search, package, origin,
+  severity and other filters; the active-filter bar shows a removable chip.
+
 ### Fixed
 
 - Selecting an origin step such as `net-snmp-lib` no longer clears the active

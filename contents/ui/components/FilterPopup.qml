@@ -10,13 +10,14 @@ QQC2.Popup {
     property string cveFilter: ""
     property string packageFilter: ""
     property string originFilter: ""
+    property string excludeFilter: ""
     property string severityBand: ""
     property string fixState: ""
     property bool showCommon: true
     property var labels: null
 
     signal filtersApplied(string cve, string packageName, string origin,
-        string severity, string fix)
+        string severity, string fix, string exclude)
     signal clearAllRequested()
 
     width: Kirigami.Units.gridUnit * 16
@@ -39,7 +40,8 @@ QQC2.Popup {
             packageField.text,
             originField.text,
             severityBox.currentValue || "",
-            fixBox.currentValue || "");
+            fixBox.currentValue || "",
+            excludeField.text);
         popup.close();
     }
 
@@ -47,6 +49,7 @@ QQC2.Popup {
         cveField.text = popup.cveFilter;
         packageField.text = popup.packageFilter;
         originField.text = popup.originFilter;
+        excludeField.text = popup.excludeFilter;
         severityBox.currentIndex = popup.optionIndex(severityBox.model, popup.severityBand);
         fixBox.currentIndex = popup.optionIndex(fixBox.model, popup.fixState);
         cveField.forceActiveFocus();
@@ -84,6 +87,13 @@ QQC2.Popup {
             id: originField
             Layout.fillWidth: true
             placeholderText: popup.labels ? popup.labels.originPlaceholder() : "Origin"
+            onAccepted: popup.apply()
+        }
+        QQC2.TextField {
+            id: excludeField
+            Layout.fillWidth: true
+            placeholderText: popup.labels
+                ? popup.labels.excludePlaceholder() : "Exclude (e.g. ffmpeg)"
             onAccepted: popup.apply()
         }
 

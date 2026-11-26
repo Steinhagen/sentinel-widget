@@ -8,6 +8,7 @@ RowLayout {
     id: root
 
     property string searchText: ""
+    property string excludeText: ""
     property string severityBand: ""
     property string fixState: ""
     property string cveFilter: ""
@@ -23,7 +24,7 @@ RowLayout {
 
     signal searchChanged(string text)
     signal filtersApplied(string cve, string packageName, string origin,
-        string severity, string fixState)
+        string severity, string fixState, string exclude)
     signal clearFiltersRequested()
     signal groupBySelected(string groupBy)
     signal hiddenViewToggled()
@@ -78,12 +79,13 @@ RowLayout {
         cveFilter: root.cveFilter
         packageFilter: root.packageFilter
         originFilter: root.originFilter
+        excludeFilter: root.excludeText
         severityBand: root.severityBand
         fixState: root.fixState
         showCommon: !root.cardsVisible
         labels: root.labels
-        onFiltersApplied: (cve, packageName, origin, severity, fix) =>
-            root.filtersApplied(cve, packageName, origin, severity, fix)
+        onFiltersApplied: (cve, packageName, origin, severity, fix, exclude) =>
+            root.filtersApplied(cve, packageName, origin, severity, fix, exclude)
         onClearAllRequested: root.clearFiltersRequested()
     }
 

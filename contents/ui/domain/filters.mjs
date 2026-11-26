@@ -8,6 +8,7 @@ import { TrackerState } from "./types.mjs";
 export function empty() {
     return {
         text: "",
+        exclude: "",
         severity: "",
         fixState: "",
         trackerState: "",
@@ -20,6 +21,7 @@ export function empty() {
 export function isActive(filters) {
     const value = filters || {};
     return String(value.text || "").length > 0
+        || String(value.exclude || "").length > 0
         || String(value.severity || "").length > 0
         || String(value.fixState || "").length > 0
         || String(value.trackerState || "").length > 0
@@ -55,6 +57,11 @@ export function matches(row, filters) {
     const value = filters || {};
     const query = String(value.text || "").trim().toLowerCase();
     if (query.length > 0 && String(row.searchText || "").indexOf(query) === -1) {
+        return false;
+    }
+    const excluded = String(value.exclude || "").trim().toLowerCase();
+    if (excluded.length > 0
+            && String(row.searchText || "").toLowerCase().indexOf(excluded) !== -1) {
         return false;
     }
     if (value.severity && row.severityBand !== value.severity) {

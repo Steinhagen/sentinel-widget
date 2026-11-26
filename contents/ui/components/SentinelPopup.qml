@@ -156,6 +156,7 @@ PlasmaExtras.Representation {
                 Layout.alignment: Qt.AlignHCenter
                 visible: root.vm.hasFindings
                 searchText: root.vm.searchText
+                excludeText: root.vm.excludeText
                 severityBand: root.vm.severityBand
                 fixState: root.vm.fixState
                 cveFilter: root.vm.cveFilter
@@ -169,8 +170,8 @@ PlasmaExtras.Representation {
                 cardsVisible: root.vm.hasFindings && !root.compactLayout
                 labels: root.labels
                 onSearchChanged: (text) => root.vm.setSearchText(text)
-                onFiltersApplied: (cve, packageName, origin, severity, fix) =>
-                    root.vm.applyFilters(cve, packageName, origin, severity, fix)
+                onFiltersApplied: (cve, packageName, origin, severity, fix, exclude) =>
+                    root.vm.applyFilters(cve, packageName, origin, severity, fix, exclude)
                 onClearFiltersRequested: root.vm.clearFilters()
                 onGroupBySelected: (mode) => root.vm.setGroupBy(mode)
                 onHiddenViewToggled: root.vm.toggleHiddenView()
@@ -181,6 +182,7 @@ PlasmaExtras.Representation {
                 Layout.maximumWidth: root.lowerWidth
                 Layout.alignment: Qt.AlignHCenter
                 searchText: root.vm.searchText
+                excludeText: root.vm.excludeText
                 severityBand: root.vm.severityBand
                 fixState: root.vm.fixState
                 cveFilter: root.vm.cveFilter

@@ -10,6 +10,7 @@ Flow {
     id: root
 
     property string searchText: ""
+    property string excludeText: ""
     property string severityBand: ""
     property string fixState: ""
     property string packageFilter: ""
@@ -25,6 +26,9 @@ Flow {
         const result = [];
         if (root.searchText.length > 0) {
             result.push({ key: "text", label: root.filterLabel("text", root.searchText) });
+        }
+        if (root.excludeText.length > 0) {
+            result.push({ key: "exclude", label: root.filterLabel("exclude", root.excludeText) });
         }
         if (root.cveFilter.length > 0) {
             result.push({ key: "cve", label: root.filterLabel("cve", root.cveFilter) });

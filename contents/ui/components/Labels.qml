@@ -1083,7 +1083,7 @@ QtObject {
     }
 
     function filterFieldsHint() {
-        return i18n("CVE, package or origin");
+        return i18n("CVE, package, origin or excluded term");
     }
 
     function severityAndFixLabel() {
@@ -1102,6 +1102,10 @@ QtObject {
         return i18n("Origin");
     }
 
+    function excludePlaceholder() {
+        return i18n("Exclude (e.g. ffmpeg)");
+    }
+
     function severityLabel() {
         return i18n("Severity");
     }
@@ -1118,6 +1122,8 @@ QtObject {
         switch (key) {
         case "text":
             return i18n("Search: %1", value);
+        case "exclude":
+            return i18n("Not: %1", value);
         case "cve":
             return i18n("CVE: %1", value);
         case "package":
@@ -1137,6 +1143,8 @@ QtObject {
         switch (key) {
         case "text":
             return i18n("Clear the search");
+        case "exclude":
+            return i18n("Remove the exclusion filter");
         case "cve":
             return i18n("Remove the CVE filter");
         case "package":
