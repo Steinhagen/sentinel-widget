@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Selecting an origin step such as `net-snmp-lib` no longer clears the active
+  search or package filter. The new origin filter is combined with the existing
+  `crossover` search, and the filter chips remain removable.
 - Fix a Plasma crash when using “Restore all” in the ignored-findings settings
   page. The list now uses plain Column/Item delegates and defers both Restore
   all and per-entry removal until the click handler has returned, so layout

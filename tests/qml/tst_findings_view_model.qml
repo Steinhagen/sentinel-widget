@@ -141,6 +141,24 @@ TestCase {
         env.clock.destroy();
     }
 
+    function test_search_and_drill_down_filters_are_combined() {
+        const env = testCase.makeVm();
+        env.vm.setSearchText("crossover");
+        env.vm.showOrigin("net-snmp-lib");
+        compare(env.vm.searchText, "crossover");
+        compare(env.vm.originFilter, "net-snmp-lib");
+        compare(env.vm.anyFilterActive, true);
+        verify(env.vm.rows.every((row) =>
+            row.searchText.indexOf("crossover") >= 0
+            && row.originSearch.indexOf("net-snmp-lib") >= 0));
+
+
+        env.vm.destroy();
+        env.store.destroy();
+        env.labels.destroy();
+        env.clock.destroy();
+    }
+
     function test_cve_advanced_filter() {
         const env = testCase.makeVm();
         env.vm.applyFilters("CVE-2026-111497", "", "", "", "");
@@ -169,7 +187,7 @@ TestCase {
         compare(env.vm.visibleCount, 1);
 
         env.vm.showOrigin("imagemagick");
-        compare(env.vm.packageFilter, "");
+        compare(env.vm.packageFilter, "brotli");
         compare(env.vm.originFilter, "imagemagick");
         verify(env.vm.visibleCount >= 1);
         verify(env.vm.rows.every(row => row.originSearch.indexOf("imagemagick") >= 0));

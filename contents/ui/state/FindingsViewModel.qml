@@ -419,12 +419,8 @@ QtObject {
         if (!name) {
             return;
         }
-        vm.searchText = "";
-        vm.severityBand = "";
-        vm.fixState = "";
-        vm.trackerState = "";
-        vm.packageFilter = "";
-        vm.cveFilter = "";
+        // Selecting an origin step is a drill-down, not a fresh search: keep
+        // the active search and package filters and AND the new origin in.
         vm.originFilter = String(name);
         vm.resetScroll();
     }
