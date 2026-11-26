@@ -274,3 +274,15 @@ ignore action as the row context menu.
 
 **Implemented** — `FindingRow` now has the Breeze `view-hidden` quick action
 at the far right, and the header reserves the matching empty slot.
+
+## Filter popup — dedicated exclude section
+
+[filter-popup-exclude.html](filter-popup-exclude.html) ·
+[overview](filter-popup-exclude.png) proposes a clearer hierarchy for the
+compact filter popup: the CVE/package/origin fields stay together, the
+severity/fix controls keep their own section, and the exclude field gets a
+separator, a crossed-eye icon, a red “Fără” caption and a clearer placeholder.
+The compact and severity-visible variants are shown side by side.
+
+**Not implemented yet** — visual proposal; the exclude filter itself is
+implemented.
