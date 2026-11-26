@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix a Plasma crash when using “Restore all” in the ignored-findings settings
+  page. The list now uses plain Column/Item delegates and defers both Restore
+  all and per-entry removal until the click handler has returned, so layout
+  polish can no longer touch a destroyed Layout attached object.
 - Use the same crossed-eye (`view-hidden`) icon for “Ignore this finding” in
   the context menu as the quick hide action on the row.
 

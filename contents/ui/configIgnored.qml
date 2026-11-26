@@ -42,8 +42,15 @@ KCM.SimpleKCM {
     function removeIgnored(index) {
         const list = ignoredEntries();
         list.splice(index, 1);
-        ignoreState.value = JSON.stringify(list);
+        const value = JSON.stringify(list);
+        // Do not destroy the delegate inside its own click handler; layout
+        // polish can otherwise touch a deleted Layout attached object.
+        Qt.callLater(function () {
+            ignoreState.value = value;
+        });
     }
+
+    readonly property alias restoreAllButton: restoreAllButton
 
     Kirigami.FormLayout {
         PlasmaComponents3.Label {
@@ -65,52 +72,63 @@ KCM.SimpleKCM {
             }
 
             PlasmaComponents3.Button {
+                id: restoreAllButton
+
                 text: i18n("Restore all")
                 icon.name: "edit-undo"
                 enabled: page.ignoredCount() > 0
-                onClicked: ignoreState.value = "[]"
+                onClicked: Qt.callLater(function () {
+                    ignoreState.value = "[]";
+                })
             }
         }
 
-        ColumnLayout {
+        // Plain Column/Item delegates: clearing the Repeater must not destroy
+        // QQuickLayout attached objects while the FormLayout is polishing.
+        Column {
             Layout.fillWidth: true
             Layout.maximumWidth: Kirigami.Units.gridUnit * 34
-            visible: page.ignoredCount() > 0
             spacing: 0
 
             Repeater {
                 model: page.ignoredEntries()
 
-                delegate: ColumnLayout {
+                delegate: Item {
                     required property var modelData
                     required property int index
 
-                    Layout.fillWidth: true
-                    spacing: 0
+                    width: parent ? parent.width : 0
+                    height: 28
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        spacing: Kirigami.Units.smallSpacing
+                    PlasmaComponents3.Label {
+                        anchors.left: parent.left
+                        anchors.right: removeButton.left
+                        anchors.rightMargin: Kirigami.Units.smallSpacing
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: page.ignoredLabel(modelData)
+                        elide: Text.ElideRight
+                        font: Kirigami.Theme.smallFont
+                    }
 
-                        PlasmaComponents3.Label {
-                            Layout.fillWidth: true
-                            text: page.ignoredLabel(modelData)
-                            elide: Text.ElideRight
-                            font: Kirigami.Theme.smallFont
-                        }
+                    PlasmaComponents3.ToolButton {
+                        id: removeButton
 
-                        PlasmaComponents3.ToolButton {
-                            icon.name: "edit-delete"
-                            Accessible.name: i18n("Restore this finding")
-                            onClicked: page.removeIgnored(index)
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 24
+                        height: 24
+                        icon.name: "edit-delete"
+                        Accessible.name: i18n("Restore this finding")
+                        onClicked: page.removeIgnored(index)
 
-                            QQC2.ToolTip.text: i18n("Restore this finding")
-                            QQC2.ToolTip.visible: hovered
-                        }
+                        QQC2.ToolTip.text: i18n("Restore this finding")
+                        QQC2.ToolTip.visible: hovered
                     }
 
                     Rectangle {
-                        Layout.fillWidth: true
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
                         height: 1
                         color: Kirigami.Theme.disabledTextColor
                         opacity: 0.2
