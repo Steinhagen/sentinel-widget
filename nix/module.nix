@@ -27,10 +27,11 @@ let
     "LANG=C.UTF-8"
     "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
     "SENTINEL_SYSTEM_RELEASE=${config.system.nixos.release}"
-    # Shown in the applet as "nixpkgs/<channel> (<rev>)": the revision this
+    # Shown in the applet as "<flake>/<channel> (<rev>)": the revision this
     # system closure was built from. The release is not the channel (unstable
     # also reports the upcoming release), so an explicit channel wins.
     "SENTINEL_NIXPKGS_REV=${config.system.nixos.revision}"
+    "SENTINEL_NIXPKGS_FLAKE=${cfg.flake}"
     "SENTINEL_TRACKER_TOKEN_FILE=${trackerTokenFile}"
     # The report step reads the runtime closure graph to turn the scanner's
     # component evidence into "introduced by" chains.
@@ -106,8 +107,18 @@ in
         channel (unstable reports the upcoming release too), so set this when
         the applet should label and check the exact channel. When unset, the
         backend uses the channel whose revision matches the system's Nixpkgs
-        revision; if none matches, it shows only `nixpkgs (<rev>)` instead of
+        revision; if none matches, it shows only `<flake> (<rev>)` instead of
         guessing a stable channel.
+      '';
+    };
+
+    flake = lib.mkOption {
+      type = lib.types.str;
+      default = "nixpkgs";
+      example = "nixpkgs-unstable";
+      description = ''
+        Name of the Nixpkgs flake input, used only as the source label the
+        applet shows. It does not affect which store paths are scanned.
       '';
     };
 

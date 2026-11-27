@@ -1121,6 +1121,7 @@ def system_source(channel):
     if not GIT_REVISION_RE.match(SYSTEM_NIXPKGS_REV):
         return None
     return {
+        "kind": "nixos" if SYSTEM_RELEASE else "nixpkgs",
         "flake": SYSTEM_NIXPKGS_FLAKE,
         "ref": channel or "",
         "rev": SYSTEM_NIXPKGS_REV,
@@ -1962,9 +1963,15 @@ def tracker_mode(status_path, cache_path):
                     )
         save_tracker_cache(cache_path, cache)
 
-    system_channel = select_system_channel(
-        channel_cache, channel_refs, SYSTEM_CHANNEL, SYSTEM_NIXPKGS_REV
-    )
+    # A channel is a NixOS concept. On a non-NixOS Nix installation only an
+    # explicit channel is meaningful; otherwise keep the source channel-free
+    # and let the applet show "nixpkgs (<rev>)".
+    if SYSTEM_RELEASE or SYSTEM_CHANNEL:
+        system_channel = select_system_channel(
+            channel_cache, channel_refs, SYSTEM_CHANNEL, SYSTEM_NIXPKGS_REV
+        )
+    else:
+        system_channel = ""
     progress["system_channel"] = system_channel
 
     probe_todo = []

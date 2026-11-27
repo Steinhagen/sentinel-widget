@@ -74,6 +74,33 @@ The first scan downloads the vulnerability databases; the first tracker pass
 can take a while without an API token. The applet picks the report up on its
 own timer.
 
+### Source detection
+
+Sentinel never derives the channel from `system.nixos.release` alone: on
+unstable that release is the upcoming NixOS release too. The channel is
+system-wide and is used for every Nixpkgs package in the closure.
+
+- **NixOS with channels** — set the channel you update from:
+  ```nix
+  services.sentinel.channel = "nixos-unstable";  # or "nixos-26.11"
+  ```
+- **NixOS with flakes** — use the branch of your `nixpkgs` input, e.g.
+  `channel = "nixos-unstable"`. Set `flake` if the input is named differently
+  (default `"nixpkgs"`). If you leave the channel unset, Sentinel selects a
+  channel only when its resolved revision exactly matches
+  `system.nixos.revision`; otherwise it shows `nixpkgs (<rev>)` rather than
+  guessing a stable channel.
+- **Non-NixOS with Nix** — run the report/tracker backend against the profile
+  or closure you want to scan and set `SENTINEL_NIXPKGS_REV` plus, optionally,
+  `SENTINEL_NIXPKGS_FLAKE`. No channel is assumed; the applet shows
+  `nixpkgs (<rev>)` and does not label the system as NixOS. The module's
+  `/run/current-system` scan target is NixOS-only; a standalone service must
+  point `vulnxscan` at its own profile.
+
+The source is the Nixpkgs the closure was built from. Packages pulled from a
+different flake or overlay are not tracked per package; the row shows the
+system source unless a backend supplies a per-finding `source` object.
+
 The tracker token is optional and can be set in the widget configuration
 (stored in the user's KDE config, read by the root service) or installed as a
 root-readable file at `/var/lib/sentinel/tracker-token`. Anonymous tracker

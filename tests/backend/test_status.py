@@ -5,6 +5,7 @@ import json
 import pathlib
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
@@ -391,6 +392,25 @@ class SystemChannelTests(unittest.TestCase):
             STATUS.select_system_channel(cache, ["nixos-26.11"], "", "unstable-rev"),
             "",
         )
+
+
+class SystemSourceTests(unittest.TestCase):
+    def test_nixos_source_has_a_channel_and_nixos_kind(self):
+        with mock.patch.object(STATUS, "SYSTEM_RELEASE", "26.11"), \
+                mock.patch.object(STATUS, "SYSTEM_NIXPKGS_REV", "a" * 40), \
+                mock.patch.object(STATUS, "SYSTEM_NIXPKGS_FLAKE", "nixpkgs"):
+            source = STATUS.system_source("nixos-unstable")
+        self.assertEqual(source["kind"], "nixos")
+        self.assertEqual(source["ref"], "nixos-unstable")
+        self.assertEqual(source["short_rev"], "a" * 7)
+
+    def test_non_nixos_source_is_channel_free(self):
+        with mock.patch.object(STATUS, "SYSTEM_RELEASE", ""), \
+                mock.patch.object(STATUS, "SYSTEM_NIXPKGS_REV", "b" * 40), \
+                mock.patch.object(STATUS, "SYSTEM_NIXPKGS_FLAKE", "nixpkgs"):
+            source = STATUS.system_source("")
+        self.assertEqual(source["kind"], "nixpkgs")
+        self.assertEqual(source["ref"], "")
 
 
 class TrackerApplicabilityTests(unittest.TestCase):

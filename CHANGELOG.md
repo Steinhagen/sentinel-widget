@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   searchable text contains the term and composes with search, package, origin,
   severity and other filters; the active-filter bar shows a removable chip.
 
+### Added
+
+- Source detection now distinguishes NixOS from a non-NixOS Nix install.
+  NixOS channels and flakes set `services.sentinel.channel` and optionally
+  `services.sentinel.flake`; a standalone backend can supply the Nixpkgs
+  revision/flake. Non-NixOS systems are labelled `nixpkgs (<rev>)` and never
+  receive a NixOS channel.
+
 ### Fixed
 
 - Channel detection no longer guesses the stable channel from
