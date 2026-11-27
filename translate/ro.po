@@ -1125,6 +1125,14 @@ msgid "Confirmed"
 msgstr "Confirmat"
 
 #: contents/ui/components/Labels.qml
+msgid "The tracker lists this CVE only for a different package variant; it does not apply to the installed package."
+msgstr "Tracker-ul listează acest CVE doar pentru o altă variantă a pachetului; nu se aplică pachetului instalat."
+
+#: contents/ui/components/Labels.qml
+msgid "The tracker has no matching package entry, so applicability is unknown."
+msgstr "Tracker-ul nu are o intrare de pachet potrivită, deci aplicabilitatea este necunoscută."
+
+#: contents/ui/components/Labels.qml
 msgid "The installed version is outside the CVE's affected range."
 msgstr "Versiunea instalată nu este în intervalul afectat din CVE."
 

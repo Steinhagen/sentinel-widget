@@ -373,6 +373,8 @@ def compact_suggestion(suggestion):
         "issue": suggestion.get("issue_code"),
         "suggestion_id": suggestion.get("id"),
         "packages": packages,
+        "ignored_packages": sorted(
+            (suggestion.get("ignored_packages") or {}).keys()),
         "affected_products": suggestion.get("affected_products") or [],
     }
 
@@ -1413,6 +1415,24 @@ def annotate_tracker(vulnerabilities, entries, complete, fetched=0, failures=0,
             entry.get("packages") or {}, item.get("package"),
             item.get("version")
         )
+        ignored_match = None
+        if not matched and item.get("package"):
+            ignored_match, _ = match_package(
+                {name: {} for name in entry.get("ignored_packages") or []},
+                item.get("package"),
+            )
+        if matched:
+            applicability = "applicable"
+            applicability_reason = ""
+        elif ignored_match:
+            applicability = "not-applicable"
+            applicability_reason = "package-variant-mismatch"
+        elif entry.get("packages"):
+            applicability = "unknown"
+            applicability_reason = "package-not-in-suggestion"
+        else:
+            applicability = ""
+            applicability_reason = ""
         branch_status, branch_version, branch_src = master_status(branches)
         master_source = "tracker" if branch_status in ("affected", "unaffected") else None
         master_range = None
@@ -1459,6 +1479,9 @@ def annotate_tracker(vulnerabilities, entries, complete, fetched=0, failures=0,
             "issue_state": issue.get("state"),
             "url": tracker_url(entry, item.get("id") or ""),
             "matched_package": matched,
+            "applicability": applicability,
+            "applicability_reason": applicability_reason,
+            "ignored_packages": entry.get("ignored_packages") or [],
             "master_status": branch_status,
             "master_version": branch_version,
             "master_status_source": master_source,
@@ -1556,11 +1579,11 @@ def tracker_mode(status_path, cache_path):
     # v2 stores the master source URL and issue metadata, v4 the probed branch
     # versions, v5 the channel revisions; refresh old entries once so the
     # applet can show the fix state.
-    if int(cache.get("version", 1)) < 5:
+    if int(cache.get("version", 1)) < 6:
         entries.clear()
         probe_cache.clear()
         cache.pop("channels", None)
-        cache["version"] = 5
+        cache["version"] = 6
     now = int(time.time())
     for cve in list(entries):
         if now - int(entries[cve].get("checked_at", 0)) > TRACKER_CACHE_MAX_AGE:

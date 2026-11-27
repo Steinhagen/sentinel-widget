@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Tracker suggestions now carry an applicability verdict. A finding for a
+  different package variant (e.g. plain `openssh` while the tracker entry is
+  `openssh_gssapi`) is suppressed instead of being confirmed; a missing
+  package match is unverified, not confirmed. Old tracker caches fall back to
+  the same conservative rule.
 - Selecting an origin step such as `net-snmp-lib` no longer clears the active
   search or package filter. The new origin filter is combined with the existing
   `crossover` search, and the filter chips remain removable.

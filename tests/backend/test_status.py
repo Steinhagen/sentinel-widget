@@ -371,5 +371,27 @@ class TriageStatusTests(unittest.TestCase):
             self.assertTrue(data["triage_failed"])
 
 
+class TrackerApplicabilityTests(unittest.TestCase):
+    def test_compact_suggestion_keeps_ignored_packages(self):
+        compact = STATUS.compact_suggestion({
+            "id": 3625,
+            "status": "published",
+            "issue_code": "NIXPKGS-2026-0627",
+            "packages": {
+                "openssh_gssapi": {
+                    "branches": {
+                        "master": {"version": "10.2p1", "status": "affected"},
+                    },
+                },
+            },
+            "ignored_packages": {
+                "openssh": {"branches": {}},
+            },
+            "affected_products": [{"name": "openssh", "version_constraints": []}],
+        })
+        self.assertEqual(compact["ignored_packages"], ["openssh"])
+        self.assertEqual(list(compact["packages"]), ["openssh_gssapi"])
+
+
 if __name__ == "__main__":
     unittest.main()

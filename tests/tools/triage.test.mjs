@@ -364,6 +364,44 @@ test("tracker and OSV verdicts short-circuit the identity checks", () => {
     assert.deepEqual(osv.reasons, ["osv-advisory"]);
 });
 
+test("a tracker entry for another package variant is not confirmed", () => {
+    const base = {
+        package: "openssh",
+        version: "10.6p1",
+        tracker: {
+            status: "published",
+            matched_package: null,
+            suggestion_packages: ["openssh_gssapi"],
+        },
+    };
+    const notApplicable = verdictFor({ ...base, tracker: {
+        ...base.tracker,
+        applicability: "not-applicable",
+        ignored_packages: ["openssh"],
+    } }, null);
+    assert.equal(notApplicable.verdict, "suppressed");
+    assert.deepEqual(notApplicable.reasons, ["package-not-applicable"]);
+
+    const unknown = verdictFor({ ...base, tracker: {
+        ...base.tracker,
+        applicability: "unknown",
+    } }, null);
+    assert.equal(unknown.verdict, "unverified");
+    assert.deepEqual(unknown.reasons, ["package-applicability-unknown"]);
+
+    // Old cached status without applicability must not confirm the mismatch.
+    const legacy = verdictFor(base, null);
+    assert.equal(legacy.verdict, "unverified");
+    assert.deepEqual(legacy.reasons, ["package-applicability-unknown"]);
+
+    const matched = verdictFor({ ...base, tracker: {
+        ...base.tracker,
+        matched_package: "openssh_gssapi",
+        applicability: "applicable",
+    } }, null);
+    assert.equal(matched.verdict, "confirmed");
+});
+
 test("missing data is unverified, never suppressed", () => {
     assert.deepEqual(verdictFor({ package: "x", version: "1" }, null), {
         verdict: "unverified",

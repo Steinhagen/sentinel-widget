@@ -845,6 +845,12 @@ QtObject {
 
     function triageReasonText(row) {
         const reasons = row && row.triageReasons ? row.triageReasons : [];
+        if (reasons.indexOf("package-not-applicable") >= 0) {
+            return i18n("The tracker lists this CVE only for a different package variant; it does not apply to the installed package.");
+        }
+        if (reasons.indexOf("package-applicability-unknown") >= 0) {
+            return i18n("The tracker has no matching package entry, so applicability is unknown.");
+        }
         if (reasons.indexOf("version-not-affected") >= 0) {
             return i18n("The installed version is outside the CVE's affected range.");
         }

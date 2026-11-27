@@ -948,6 +948,26 @@ export function verdictFor(finding, cve, options = {}) {
         return result("confirmed", ["osv-advisory"]);
     }
 
+    // 3b. The tracker can know the CVE only for a different package variant
+    // (for example openssh_gssapi while the finding is plain openssh). Never
+    // turn a missing package match into a confirmed finding.
+    const applicability = stringOf(tracker.applicability);
+    if (applicability === "not-applicable") {
+        return result("suppressed", ["package-not-applicable"]);
+    }
+    if (applicability === "unknown") {
+        return result("unverified", ["package-applicability-unknown"]);
+    }
+    if (applicability.length === 0
+            && tracker.status === "published"
+            && tracker.matched_package === null
+            && Array.isArray(tracker.suggestion_packages)
+            && tracker.suggestion_packages.length > 0
+            && tracker.suggestion_packages.indexOf(String(finding?.package ?? "")) < 0) {
+        // Old status cache without applicability: be conservative.
+        return result("unverified", ["package-applicability-unknown"]);
+    }
+
     // 4. Without CVE data the tracker's confirmation is the only evidence; its
     // fix state still decides whether the installed version is covered.
     if (!cve || cve.products.length === 0) {
