@@ -57,6 +57,8 @@ inputs.sentinel-widget.url = "github:Steinhagen/sentinel-widget/main";
   services.sentinel = {
     enable = true;
     user = "alice";   # whose applet settings hold the tracker token
+    # The NixOS release is not the channel; set the channel you update from.
+    channel = "nixos-unstable";
   };
 }
 ```

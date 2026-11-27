@@ -371,6 +371,28 @@ class TriageStatusTests(unittest.TestCase):
             self.assertTrue(data["triage_failed"])
 
 
+class SystemChannelTests(unittest.TestCase):
+    def test_explicit_channel_wins_even_when_release_differs(self):
+        self.assertEqual(
+            STATUS.select_system_channel({}, [], "nixos-unstable", "abc"),
+            "nixos-unstable",
+        )
+
+    def test_revision_matches_a_channel(self):
+        cache = {"nixos-unstable": {"rev": "abc"}}
+        self.assertEqual(
+            STATUS.select_system_channel(cache, ["nixos-unstable"], "", "abc"),
+            "nixos-unstable",
+        )
+
+    def test_no_match_does_not_guess_stable(self):
+        cache = {"nixos-26.11": {"rev": "stable"}}
+        self.assertEqual(
+            STATUS.select_system_channel(cache, ["nixos-26.11"], "", "unstable-rev"),
+            "",
+        )
+
+
 class TrackerApplicabilityTests(unittest.TestCase):
     def test_compact_suggestion_keeps_ignored_packages(self):
         compact = STATUS.compact_suggestion({

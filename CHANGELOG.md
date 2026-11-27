@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Channel detection no longer guesses the stable channel from
+  `system.nixos.release`: unstable also reports the upcoming release. The
+  module accepts `services.sentinel.channel` (`nixos-unstable` or
+  `nixos-XX.YY`); without it the backend only selects a channel whose resolved
+  revision matches the system's Nixpkgs revision, otherwise it shows
+  `nixpkgs (<rev>)` without inventing a channel.
 - Tracker suggestions now carry an applicability verdict. A finding for a
   different package variant (e.g. plain `openssh` while the tracker entry is
   `openssh_gssapi`) is suppressed instead of being confirmed; a missing

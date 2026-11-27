@@ -129,6 +129,11 @@ UNSTABLE_CHANNEL = "nixos-unstable"
 # "26.05"), used to decide whether a fix reaches *this* system. Empty means
 # unknown, in which case nixos-unstable is assumed.
 SYSTEM_RELEASE = os.environ.get("SENTINEL_SYSTEM_RELEASE", "").strip()
+# An explicit channel is authoritative. Without it, the release is only a
+# candidate: the backend picks a channel only when its resolved revision
+# matches the system's Nixpkgs revision.
+SYSTEM_CHANNEL = os.environ.get("SENTINEL_SYSTEM_CHANNEL", "").strip()
+CHANNEL_RE = re.compile(r"^nixos-(?:unstable|[0-9]{2}\.[0-9]{2})$")
 # The Nixpkgs revision the scanned system was built from
 # (config.system.nixos.revision). Together with the system channel resolved
 # below it becomes the package source shown in each finding row.
@@ -1091,18 +1096,33 @@ def status_stamp(status):
     return status.get("scanned_at_iso") or status.get("scanned_at") or ""
 
 
+def select_system_channel(channel_cache, channel_refs, explicit, system_rev):
+    """Pick the channel the system runs, without guessing from the release."""
+    if explicit and CHANNEL_RE.fullmatch(explicit):
+        return explicit
+    if not system_rev:
+        return ""
+    for channel in channel_refs:
+        revision = (channel_cache.get(channel) or {}).get("rev")
+        if revision and revision == system_rev:
+            return channel
+    return ""
+
+
 def system_source(channel):
     """The Nixpkgs source the scanned system was built from.
 
     The applet shows this under the CVE instead of repeating it in every
     finding: the system closure was evaluated with this Nixpkgs revision,
-    which is the package source a finding can be traced to.
+    which is the package source a finding can be traced to. An empty ref
+    means the channel is unknown; showing only the revision is more honest
+    than guessing a stable channel from the NixOS release.
     """
-    if not channel or not GIT_REVISION_RE.match(SYSTEM_NIXPKGS_REV):
+    if not GIT_REVISION_RE.match(SYSTEM_NIXPKGS_REV):
         return None
     return {
         "flake": SYSTEM_NIXPKGS_FLAKE,
-        "ref": channel,
+        "ref": channel or "",
         "rev": SYSTEM_NIXPKGS_REV,
         "short_rev": SYSTEM_NIXPKGS_REV[:7],
     }
@@ -1896,6 +1916,9 @@ def tracker_mode(status_path, cache_path):
         candidate = "nixos-" + SYSTEM_RELEASE
         if candidate not in channel_refs:
             channel_refs.append(candidate)
+    if SYSTEM_CHANNEL and CHANNEL_RE.fullmatch(SYSTEM_CHANNEL):
+        if SYSTEM_CHANNEL not in channel_refs:
+            channel_refs.append(SYSTEM_CHANNEL)
 
     for path in list(probe_cache):
         if path not in needed_paths:
@@ -1939,11 +1962,9 @@ def tracker_mode(status_path, cache_path):
                     )
         save_tracker_cache(cache_path, cache)
 
-    system_channel = UNSTABLE_CHANNEL
-    if SYSTEM_RELEASE:
-        candidate = "nixos-" + SYSTEM_RELEASE
-        if (channel_cache.get(candidate) or {}).get("rev"):
-            system_channel = candidate
+    system_channel = select_system_channel(
+        channel_cache, channel_refs, SYSTEM_CHANNEL, SYSTEM_NIXPKGS_REV
+    )
     progress["system_channel"] = system_channel
 
     probe_todo = []

@@ -28,14 +28,16 @@ let
     "SSL_CERT_FILE=/etc/ssl/certs/ca-bundle.crt"
     "SENTINEL_SYSTEM_RELEASE=${config.system.nixos.release}"
     # Shown in the applet as "nixpkgs/<channel> (<rev>)": the revision this
-    # system closure was built from.
+    # system closure was built from. The release is not the channel (unstable
+    # also reports the upcoming release), so an explicit channel wins.
     "SENTINEL_NIXPKGS_REV=${config.system.nixos.revision}"
     "SENTINEL_TRACKER_TOKEN_FILE=${trackerTokenFile}"
     # The report step reads the runtime closure graph to turn the scanner's
     # component evidence into "introduced by" chains.
     "SENTINEL_NIX_STORE=${pkgs.nix}/bin/nix-store"
     "SENTINEL_ORIGIN_ROOT=/run/current-system"
-  ] ++ lib.optional (appletConfig != null) "SENTINEL_APPLET_CONFIG=${appletConfig}";
+  ] ++ lib.optional (cfg.channel != null) "SENTINEL_SYSTEM_CHANNEL=${cfg.channel}"
+    ++ lib.optional (appletConfig != null) "SENTINEL_APPLET_CONFIG=${appletConfig}";
 
   scan = pkgs.writeShellScript "sentinel-status" ''
     set -u
@@ -91,6 +93,21 @@ in
         User whose Plasma applet configuration holds the tracker API token.
         With `null`, only the root-readable token file
         {file}`/var/lib/sentinel/tracker-token` is used.
+      '';
+    };
+
+    channel = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "nixos-unstable";
+      description = ''
+        Nixpkgs channel the system is updated from, e.g. `nixos-unstable` or
+        `nixos-26.11`. `system.nixos.release` is the NixOS release, not the
+        channel (unstable reports the upcoming release too), so set this when
+        the applet should label and check the exact channel. When unset, the
+        backend uses the channel whose revision matches the system's Nixpkgs
+        revision; if none matches, it shows only `nixpkgs (<rev>)` instead of
+        guessing a stable channel.
       '';
     };
 
